@@ -65,6 +65,7 @@ textarea{min-height:130px}
 <div id="app"></div>
 <canvas id="fx"></canvas>
 <div id="toast"></div>
+<script src="dict.js"></script>
 <script>
 (function(){
 'use strict';
@@ -104,6 +105,104 @@ function parseLines(text){
     if(en)out.push({id:uid()+rnd(999),en:en,zh:zh,emoji:emo});
   });
   return out;
+}
+
+
+/* ---------- 自動補中文與 emoji ---------- */
+var DICT=null;
+function dictInit(){
+  if(DICT)return;DICT={};
+  var raw=window.VOCAB_DICT_RAW||'';
+  raw.split('\n').forEach(function(l){var p=l.split('|');if(p.length>=2&&p[0])DICT[p[0]]={zh:p[1],emoji:p[2]||''}});
+}
+function dictGet(k){return Object.prototype.hasOwnProperty.call(DICT,k)?DICT[k]:null}
+function lookupLocal(en){
+  dictInit();
+  var w=String(en||'').toLowerCase().replace(/[’‘]/g,"'").trim().replace(/\s+/g,' ');
+  if(!w)return null;
+  var r=dictGet(w);if(r)return r;
+  var irr=window.VOCAB_IRREG||{};
+  if(Object.prototype.hasOwnProperty.call(irr,w)){r=dictGet(irr[w]);if(r)return r}
+  var c=[];
+  if(/ies$/.test(w))c.push(w.slice(0,-3)+'y');
+  if(/ves$/.test(w)){c.push(w.slice(0,-3)+'f');c.push(w.slice(0,-3)+'fe')}
+  if(/(s|x|z|ch|sh|o)es$/.test(w))c.push(w.slice(0,-2));
+  if(/s$/.test(w))c.push(w.slice(0,-1));
+  if(/ing$/.test(w)&&w.length>4){var b=w.slice(0,-3);c.push(b);c.push(b+'e');if(/(.)\1$/.test(b))c.push(b.slice(0,-1));if(/ying$/.test(w))c.push(w.slice(0,-4)+'ie')}
+  if(/ed$/.test(w)&&w.length>3){var d=w.slice(0,-2);c.push(d);c.push(w.slice(0,-1));if(/(.)\1$/.test(d))c.push(d.slice(0,-1));if(/ied$/.test(w))c.push(w.slice(0,-3)+'y')}
+  if(/er$/.test(w)&&w.length>3){c.push(w.slice(0,-2));c.push(w.slice(0,-1))}
+  for(var i=0;i<c.length;i++){r=dictGet(c[i]);if(r)return r}
+  return null;
+}
+var S2T={'个':'個','们':'們','这':'這','么':'麼','对':'對','国':'國','学':'學','马':'馬','鸟':'鳥','鱼':'魚','车':'車','门':'門','见':'見','开':'開','关':'關','说':'說','话':'話','读':'讀','书':'書','买':'買','卖':'賣','红':'紅','绿':'綠','蓝':'藍','黄':'黃','鸡':'雞','猪':'豬','虾':'蝦','龙':'龍','爱':'愛','时':'時','间':'間','风':'風','云':'雲','电':'電','脑':'腦','视':'視','机':'機','飞':'飛','灯':'燈','热':'熱','节':'節','乐':'樂','声':'聲','头':'頭','脸':'臉','脚':'腳','颜':'顏','点':'點','别':'別','东':'東','长':'長','岁':'歲','样':'樣','认':'認','识':'識','应':'應','该':'該','让':'讓','给':'給','过':'過','还':'還','进':'進','远':'遠','运':'運','动':'動','园':'園','围':'圍','图':'圖','画':'畫','体':'體','处':'處','师':'師','养':'養','优':'優','儿':'兒','兰':'蘭','刚':'剛','刘':'劉','务':'務','员':'員','问':'問','启':'啟','听':'聽','吗':'嗎','响':'響','复':'復','够':'夠','实':'實','宝':'寶','将':'將','尔':'爾','层':'層','岛':'島','带':'帶','广':'廣','庆':'慶','当':'當','录':'錄','忆':'憶','总':'總','恶':'惡','户':'戶','护':'護','报':'報','挂':'掛','换':'換','数':'數','无':'無','旧':'舊','显':'顯','晓':'曉','暂':'暫','术':'術','杂':'雜','来':'來','极':'極','标':'標','树':'樹','桥':'橋','检':'檢','梦':'夢','汉':'漢','温':'溫','湿':'濕','灭':'滅','烦':'煩','爷':'爺','猫':'貓','独':'獨','现':'現','种':'種','称':'稱','笔':'筆','简':'簡','类':'類','纸':'紙','经':'經','结':'結','绘':'繪','网':'網','罗':'羅','义':'義','习':'習','业':'業','虫':'蟲','蚂':'螞','蜗':'蝸','袜':'襪','裤':'褲','览':'覽','诉':'訴','请':'請','谢':'謝','证':'證','试':'試','询':'詢','译':'譯','贝':'貝','负':'負','财':'財','货':'貨','质':'質','贵':'貴','费':'費','赛':'賽','赢':'贏','输':'輸','边':'邊','达':'達','迟':'遲','选':'選','钟':'鐘','钱':'錢','铃':'鈴','银':'銀','锁':'鎖','镜':'鏡','阳':'陽','阴':'陰','陆':'陸','队':'隊','随':'隨','难':'難','雾':'霧','页':'頁','颗':'顆','饭':'飯','饮':'飲','饼':'餅','馆':'館','验':'驗','骑':'騎','鲸':'鯨','鸭':'鴨','鹅':'鵝','鹰':'鷹','麦':'麥','齐':'齊','齿':'齒','龟':'龜','妈':'媽','号':'號','码':'碼','块':'塊','楼':'樓','厅':'廳','厨':'廚','厕':'廁','药':'藥','医':'醫','烧':'燒','痒':'癢','肠':'腸','胆':'膽','脏':'臟','颈':'頸','耸':'聳','环':'環','线':'線','针':'針','钉':'釘','锤':'錘','铁':'鐵','铅':'鉛','胶':'膠','剧':'劇','戏':'戲','赏':'賞','奖':'獎','盘':'盤','汤':'湯','粮':'糧','灿':'燦','虑':'慮','礼':'禮','纪':'紀','约':'約','级':'級','组':'組','细':'細','织':'織','练':'練','绍':'紹','继':'繼','续':'續','缘':'緣','闹':'鬧','闻':'聞','阅':'閱','陈':'陳','顶':'頂','顺':'順','须':'須','顾':'顧','预':'預','领':'領','频':'頻','题':'題','飘':'飄','馈':'饋','惊':'驚','讶':'訝','讨':'討','厌':'厭','设':'設','访':'訪','评':'評','诗':'詩','语':'語','误':'誤','调':'調','谈':'談','谁':'誰','论':'論','贺':'賀','资':'資','购':'購','赚':'賺','跃':'躍','轮':'輪','轻':'輕','载':'載','辆':'輛','较':'較','适':'適','遗':'遺','邮':'郵','邻':'鄰','释':'釋','鲜':'鮮','鳄':'鱷','鸽':'鴿','鹦':'鸚','鹉':'鵡','兽':'獸','狮':'獅','猎':'獵','狈':'狽','状':'狀','与':'與','丝':'絲','两':'兩','严':'嚴','丽':'麗','乡':'鄉','亲':'親','仅':'僅','从':'從','仓':'倉','价':'價','众':'眾','传':'傳','伤':'傷','侧':'側','兴':'興','写':'寫','冻':'凍','净':'淨','减':'減','凑':'湊','击':'擊','划':'劃','则':'則','刮':'颳','创':'創','办':'辦','势':'勢','参':'參','双':'雙','变':'變','叶':'葉','吓':'嚇','团':'團','坏':'壞','坛':'壇','场':'場','坚':'堅','垫':'墊','夹':'夾','奋':'奮','妇':'婦'};
+function toTrad(t){
+  var o='';
+  for(var i=0;i<t.length;i++){var ch=t.charAt(i);o+=S2T.hasOwnProperty(ch)?S2T[ch]:ch}
+  return o;
+}
+var TR_KEY='vocabApp.trcache.v1',TRC=null;
+function trLoad(){if(TRC)return;try{TRC=JSON.parse(localStorage.getItem(TR_KEY))||{}}catch(e){TRC={}}}
+function trSave(){try{localStorage.setItem(TR_KEY,JSON.stringify(TRC))}catch(e){}}
+function cleanZh(t){
+  if(typeof t!=='string')return '';
+  t=t.trim();
+  if(!t||t.length>14)return '';
+  if(/[A-Za-z]/.test(t))return '';          /* 還含英文：可能是警告或沒翻成功 */
+  if(!/[\u4e00-\u9fff]/.test(t))return '';
+  return toTrad(t).replace(/[。\.]+$/,'');
+}
+function fetchTimeout(url,ms){
+  return new Promise(function(res,rej){
+    var done=false,t=setTimeout(function(){if(!done){done=true;rej(new Error('timeout'))}},ms);
+    fetch(url).then(function(r){if(done)return;done=true;clearTimeout(t);res(r)},function(e){if(done)return;done=true;clearTimeout(t);rej(e)});
+  });
+}
+/* 回傳 Promise，永遠 resolve：字串（中文）或 ''（查不到／離線／出錯） */
+function lookupNet(en){
+  trLoad();
+  var k=String(en||'').toLowerCase().trim();
+  if(!k||k.split(' ').length>3)return Promise.resolve('');
+  if(TRC.hasOwnProperty(k)&&TRC[k])return Promise.resolve(TRC[k]);
+  if(typeof navigator!=='undefined'&&navigator.onLine===false)return Promise.resolve('');
+  if(typeof fetch!=='function')return Promise.resolve('');
+  var url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(k)+'&langpair=en|zh-TW';
+  return fetchTimeout(url,7000).then(function(r){if(!r.ok)throw new Error('http');return r.json()}).then(function(j){
+    if(!j||String(j.responseStatus)!=='200'||!j.responseData)return '';
+    var z=cleanZh(j.responseData.translatedText);
+    if(z){TRC[k]=z;trSave()}
+    return z;
+  }).catch(function(){return ''});
+}
+/* 先用字典補；有 net 為 true 時，缺中文的再上網查。回傳 Promise<{zh,emoji,miss}> 補上的數量 */
+function fillWords(words,useNet){
+  var st={zh:0,emoji:0,miss:0};
+  words.forEach(function(w){
+    var r=lookupLocal(w.en);
+    if(r){
+      if(!w.zh&&r.zh){w.zh=r.zh;(w.auto=w.auto||{}).zh=1;st.zh++}
+      if(!w.emoji&&r.emoji){w.emoji=r.emoji;(w.auto=w.auto||{}).emoji=1;st.emoji++}
+    }
+  });
+  var need=words.filter(function(w){return !w.zh});
+  var p=Promise.resolve();
+  if(useNet!==false&&need.length){
+    need.forEach(function(w){p=p.then(function(){return lookupNet(w.en).then(function(z){if(z&&!w.zh){w.zh=z;(w.auto=w.auto||{}).zh=1;st.zh++}})})});
+  }
+  return p.then(function(){words.forEach(function(w){if(!w.zh)st.miss++});return st});
+}
+function isMiss(w){if(!w.zh)return true;if(!w.emoji){var r=lookupLocal(w.en);return !!(r&&r.emoji)}return false}
+function missCount(wk){return wk.words.filter(isMiss).length}
+function fillReport(st){
+  var m='✨ 自動補上：中文 '+st.zh+' 個、圖 '+st.emoji+' 個';
+  if(st.miss)m+='；還有 '+st.miss+' 個查不到中文，可以按「編輯」自己填';
+  return m;
+}
+
+/* 新增後在背景上網補查字典沒有的中文（沒網路就略過），完成後更新畫面 */
+function bgFill(wk,ws){
+  var need=ws.filter(function(w){return !w.zh});
+  if(!need.length)return;
+  fillWords(need,true).then(function(st){if(st.zh>0){save();if(view==='parent')parent();toast('✨ 上網又補上 '+st.zh+' 個中文')}}).catch(function(){});
 }
 
 /* ---------- 發音 ---------- */
@@ -200,6 +299,7 @@ function parent(){
   D.weeks.slice().reverse().forEach(function(wk){
     h+='<div class="card"><div class="row"><b style="font-size:24px">'+esc(wk.name)+'（'+wk.words.length+'）</b>'+
     '<button class="btn small blue" data-a="addto" data-id="'+wk.id+'">＋ 補字</button>'+
+    (missCount(wk)?'<button class="btn small purple" data-a="fillweek" data-id="'+wk.id+'">✨ 一鍵補齊缺漏（'+missCount(wk)+'）</button>':'')+
     '<button class="btn small gray" data-a="rename" data-id="'+wk.id+'">改名</button>'+
     '<button class="btn small red" data-a="delweek" data-id="'+wk.id+'">刪除此週</button></div>';
     if(editWeek===wk.id)h+='<textarea id="more" placeholder="貼上要補的單字，每行一個"></textarea><button class="btn small green" data-a="savemore" data-id="'+wk.id+'" style="margin-top:8px">儲存</button>';
@@ -439,15 +539,21 @@ document.addEventListener('click',function(e){
     case 'say':say(el.dataset.t,!!el.dataset.s);break;
     case 'addweek':{
       var ws=parseLines($('#batch').value);if(!ws.length){toast('請輸入至少一個英文單字');return}
-      D.weeks.push({id:uid(),name:$('#wkname').value.trim()||('第'+(D.weeks.length+1)+'週'),words:ws});save();toast('已加入 '+ws.length+' 個單字');parent();break}
+      fillWords(ws,false);
+      var nwk={id:uid(),name:$('#wkname').value.trim()||('第'+(D.weeks.length+1)+'週'),words:ws};D.weeks.push(nwk);save();toast('已加入 '+ws.length+' 個單字');parent();
+      bgFill(nwk,ws);break}
     case 'addto':editWeek=editWeek===el.dataset.id?null:el.dataset.id;parent();break;
-    case 'savemore':{var wk=findWeek(el.dataset.id),nw=parseLines($('#more').value);wk.words=wk.words.concat(nw);save();editWeek=null;toast('已補上 '+nw.length+' 個');parent();break}
+    case 'savemore':{var wk=findWeek(el.dataset.id),nw=parseLines($('#more').value);fillWords(nw,false);wk.words=wk.words.concat(nw);save();editWeek=null;toast('已補上 '+nw.length+' 個');parent();bgFill(wk,nw);break}
+    case 'fillweek':{var fw=findWeek(el.dataset.id);if(!fw)break;toast('補齊中…');
+      var tgt=fw.words.filter(isMiss);
+      fillWords(tgt,true).then(function(st){save();if(view==='parent')parent();notice(fillReport(st))});break}
     case 'rename':{var wk2=findWeek(el.dataset.id),nm=prompt('新的週名稱',wk2.name);if(nm){wk2.name=nm;save();parent()}break}
     case 'delweek':if(confirm('確定刪除這一週的所有單字？')){D.weeks=D.weeks.filter(function(w){return w.id!==el.dataset.id});save();parent()}break;
     case 'delw':D.weeks.forEach(function(w){w.words=w.words.filter(function(x){return x.id!==el.dataset.id})});delete D.stats[el.dataset.id];save();parent();break;
     case 'editw':D.weeks.forEach(function(w){w.words.forEach(function(x){
       if(x.id===el.dataset.id){var en=prompt('英文',x.en);if(en===null)return;var zh=prompt('中文意思（可留白）',x.zh||'');var em=prompt('emoji（可留白）',x.emoji||'');
-        if(en.trim())x.en=en.trim();x.zh=(zh||'').trim();x.emoji=(em||'').trim();save()}})});parent();break;
+        var nz=(zh||'').trim(),ne=(em||'').trim();if(x.auto){if(nz!==(x.zh||''))delete x.auto.zh;if(ne!==(x.emoji||''))delete x.auto.emoji}
+        if(en.trim())x.en=en.trim();x.zh=nz;x.emoji=ne;save()}})});parent();break;
     case 'resetstats':if(confirm('確定清除答題紀錄與星星？')){D.stats={};D.stars=0;save();parent()}break;
     case 'exportfile':{
       var blob=new Blob([exportText()],{type:'application/json'}),u=URL.createObjectURL(blob),l=document.createElement('a');
