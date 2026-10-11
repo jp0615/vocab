@@ -58,6 +58,13 @@ textarea{min-height:130px}
 .pop{animation:pop .5s}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 #toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%);background:#3a2e5a;color:#fff;padding:14px 26px;border-radius:24px;font-size:22px;z-index:60;display:none}
+#fx{pointer-events:none}
+.hwtop{display:flex;align-items:center;justify-content:center;gap:16px;margin:4px 0}.hwemo{font-size:60px}.hwzh{font-size:38px;font-weight:800}
+.hwwrap{background:#fff;border:4px solid #d9ceff;border-radius:22px;overflow:hidden;box-shadow:0 6px 0 #d9ceff}
+#hwc{display:block;touch-action:none;-webkit-touch-callout:none;cursor:crosshair}
+.hwtools{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}.hwtools .btn{flex:1;min-width:130px;font-size:22px;padding:14px 10px}
+.hwpen{display:block;margin-top:10px;font-size:18px;color:#6a5d94;text-align:center}.hwpen input{width:22px;height:22px;vertical-align:middle}
+.hwcmp{display:grid;grid-template-columns:1fr 1fr;gap:14px}.hwimg{width:100%;border-radius:12px;border:2px solid #e4dcff;display:block}
 @media (max-width:600px){.opt{font-size:26px}.tile{width:56px;height:56px;font-size:30px}.slot{width:48px;height:60px;line-height:60px;font-size:34px}.mgrid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
@@ -360,7 +367,8 @@ function quizMenu(){
   '<button class="btn blue" data-a="start" data-g="listen">👂 聽音選字</button>'+
   '<button class="btn purple" data-a="start" data-g="pic">🖼️ 看圖選英文</button>'+
   '<button class="btn yellow" data-a="start" data-g="spell">🔤 拼字遊戲</button>'+
-  '<button class="btn red" data-a="start" data-g="match">🃏 翻牌配對</button></div>';
+  '<button class="btn red" data-a="start" data-g="match">🃏 翻牌配對</button>'+
+  '<button class="btn purple" style="background:#e0529c" data-a="start" data-g="write">✍️ 手寫單字</button></div>';
   $('#scope').value=lastScope;
 }
 function hasPic(w){return !!(w.emoji||w.zh)}
@@ -377,7 +385,7 @@ function startQuiz(g,sc){
   var picPool=pool.filter(hasPic);
   if(g==='pic'&&!picPool.length){notice('「看圖選英文」需要單字有 emoji 或中文意思。請爸媽到「家長區」用「編輯」補上，例如：apple 蘋果 🍎。現在可以先玩「聽音選字」或「拼字遊戲」喔！');return}
   if((g==='match'||g==='listen')&&pool.length<2){notice('這個範圍只有 1 個單字，需要至少 2 個單字才能玩這關。請爸媽到「家長區」多輸入一些單字，或把範圍改成「全部單字」。');return}
-  var N=g==='match'?3:10,types=[];
+  var N=g==='match'?3:g==='write'?8:10,types=[];
   for(var i=0;i<N;i++){
     var t=g;
     if(g==='mix'){var ts=['spell'];if(pool.length>=2)ts.push('listen');if(picPool.length)ts.push('pic');if(pool.length>=2&&i%5===4)ts=['match'];t=ts[rnd(ts.length)]}
@@ -418,6 +426,8 @@ function quizQ(){
     h+='<div class="mid">這個英文怎麼說？</div>'+(w.emoji?'<div class="hero pop">'+esc(w.emoji)+'</div>':'')+(w.zh?'<div class="big">'+esc(w.zh)+'</div>':'')+
     '<div class="opts">'+os2.map(function(o,i){return '<button class="opt" data-a="ans" data-i="'+i+'">'+esc(o.en)+'</button>'}).join('')+'</div><div class="msg" id="msg"></div>';
     app.innerHTML=h;
+  }else if(t==='write'){
+    hwInit(w);
   }else if(t==='spell'){
     var letters=w.en.split('');G.slots=[];G.letters=letters;
     G.tiles=shuffle(letters.map(function(ch,i){return {ch:ch,i:i,used:false}}).filter(function(x){return x.ch!==' '}));
@@ -425,6 +435,126 @@ function quizQ(){
     app.innerHTML=h;spellDraw(true);
     setTimeout(function(){say(w.en)},250);
   }
+}
+/* ---------- 手寫單字 ---------- */
+function hwInit(w){
+  G.hw={phase:'write',trace:false,strokes:[],cur:null,pid:null,hinted:false};
+  hwWriteDraw();
+  setTimeout(function(){say(w.en)},250);
+}
+function hwWriteDraw(){
+  var w=G.w,hw=G.hw;hw.phase='write';
+  app.innerHTML=qHead()+'<div class="mid">✍️ 聽聽看，把單字寫下來'+(hw.trace?'（照著淡淡的字描一描）':'')+'</div>'+
+  '<div class="hwtop">'+(w.emoji?'<span class="hwemo">'+esc(w.emoji)+'</span>':'')+(w.zh?'<span class="hwzh">'+esc(w.zh)+'</span>':'')+
+  '<button class="spk sm" data-a="say" data-t="'+esc(w.en)+'">🔊</button></div>'+
+  '<div class="hwwrap"><canvas id="hwc"></canvas></div>'+
+  '<div class="hwtools"><button class="btn small gray" data-a="hwundo">↩️ 復原一筆</button><button class="btn small gray" data-a="hwclear">🧽 清除</button><button class="btn small blue" data-a="say" data-t="'+esc(w.en)+'">🔊 再聽一次</button><button class="btn small yellow" data-a="hwhint">💡 提示</button></div>'+
+  '<button class="btn green" style="margin-top:12px;width:100%" data-a="hwreveal">👀 看答案</button>'+
+  '<label class="hwpen"><input type="checkbox" id="penonly"'+(D.penOnly?' checked':'')+'> 只用 Apple Pencil 寫（手掌碰到螢幕不會亂畫）</label><div class="msg" id="msg"></div>';
+  hwSetup();
+}
+function hwSize(){
+  var c=$('#hwc');if(!c)return;var hw=G.hw;
+  var wrap=c.parentNode,cw=Math.max(200,wrap.clientWidth),ch=Math.round(Math.max(170,Math.min(innerHeight*0.36,400)));
+  if(innerHeight>innerWidth)ch=Math.round(Math.max(200,Math.min(innerHeight*0.32,420)));
+  var dpr=Math.min(window.devicePixelRatio||1,3);
+  c.style.width=cw+'px';c.style.height=ch+'px';c.width=Math.round(cw*dpr);c.height=Math.round(ch*dpr);
+  hw.cw=cw;hw.ch=ch;hw.dpr=dpr;hwRedraw();
+}
+function hwPath(ctx,pts,S){
+  /* 點座標以畫布寬度為單位；二次曲線平滑 */
+  var p=pts.map(function(q){return [q[0]*S,q[1]*S]});
+  ctx.beginPath();
+  if(p.length===1){ctx.arc(p[0][0],p[0][1],ctx.lineWidth/2,0,6.2832);ctx.fill();return}
+  ctx.moveTo(p[0][0],p[0][1]);
+  for(var i=1;i<p.length-1;i++){var mx=(p[i][0]+p[i+1][0])/2,my=(p[i][1]+p[i+1][1])/2;ctx.quadraticCurveTo(p[i][0],p[i][1],mx,my)}
+  ctx.lineTo(p[p.length-1][0],p[p.length-1][1]);ctx.stroke();
+}
+function hwStrokes(ctx,S,lw){
+  ctx.strokeStyle='#2b2250';ctx.fillStyle='#2b2250';ctx.lineWidth=lw;ctx.lineCap='round';ctx.lineJoin='round';
+  var hw=G.hw,all=hw.strokes.slice();if(hw.cur)all.push(hw.cur);
+  all.forEach(function(s){if(s.length)hwPath(ctx,s,S)});
+}
+function hwRedraw(){
+  var c=$('#hwc');if(!c||!G||!G.hw)return;var hw=G.hw,ctx=c.getContext('2d'),d=hw.dpr;
+  ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,hw.cw,hw.ch);
+  /* 四線格 */
+  var y1=hw.ch*0.28,y2=hw.ch*0.5,y3=hw.ch*0.72;
+  ctx.lineWidth=1.5;ctx.strokeStyle='#cfc4f5';
+  ctx.beginPath();ctx.moveTo(12,y1);ctx.lineTo(hw.cw-12,y1);ctx.moveTo(12,y3);ctx.lineTo(hw.cw-12,y3);ctx.stroke();
+  ctx.setLineDash([8,8]);ctx.beginPath();ctx.moveTo(12,y2);ctx.lineTo(hw.cw-12,y2);ctx.stroke();ctx.setLineDash([]);
+  if(hw.trace){
+    var t=G.w.en,fs=Math.min(hw.ch*0.5,200);
+    ctx.font='700 '+fs+'px "Marker Felt","Comic Sans MS","Chalkboard SE",ui-rounded,sans-serif';
+    var mw=ctx.measureText(t).width;if(mw>hw.cw-40){fs=fs*(hw.cw-40)/mw;ctx.font='700 '+fs+'px "Marker Felt","Comic Sans MS","Chalkboard SE",ui-rounded,sans-serif'}
+    ctx.fillStyle='rgba(155,107,255,.28)';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillText(t,hw.cw/2,y3-fs*0.02);ctx.textAlign='start';
+  }
+  hwStrokes(ctx,hw.cw,Math.max(5,Math.min(9,hw.ch/40)));
+}
+function hwSetup(){
+  var c=$('#hwc'),hw=G.hw;hwSize();
+  function pt(e){var r=c.getBoundingClientRect();return [(e.clientX-r.left)/hw.cw,(e.clientY-r.top)/hw.cw]}
+  function end(e){
+    if(hw.pid!==e.pointerId)return;
+    if(hw.cur){if(hw.cur.length)hw.strokes.push(hw.cur);hw.cur=null}hw.pid=null;hwRedraw();
+  }
+  c.addEventListener('pointerdown',function(e){
+    e.preventDefault();
+    if(G.locked)return;
+    if(e.pointerType==='touch'&&(D.penOnly||hw.penSeen&&false))return;
+    if(hw.pid!==null){
+      /* 已有一指在寫：筆優先，其餘手指（手掌）忽略 */
+      if(e.pointerType==='pen'&&hw.ptype!=='pen'){hw.cur=null}else return;
+    }
+    if(e.pointerType==='pen')hw.penSeen=true;
+    hw.pid=e.pointerId;hw.ptype=e.pointerType;
+    try{c.setPointerCapture(e.pointerId)}catch(x){}
+    hw.cur=[pt(e)];hwRedraw();
+  });
+  c.addEventListener('pointermove',function(e){
+    if(hw.pid!==e.pointerId||!hw.cur)return;e.preventDefault();
+    var evs=(e.getCoalescedEvents&&e.getCoalescedEvents())||[];if(!evs.length)evs=[e];
+    evs.forEach(function(ev){
+      var p=pt(ev),l=hw.cur[hw.cur.length-1];
+      if(Math.abs(p[0]-l[0])*hw.cw+Math.abs(p[1]-l[1])*hw.cw>1.5)hw.cur.push(p);
+    });
+    hwRedraw();
+  });
+  c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);
+  ['touchstart','touchmove','gesturestart'].forEach(function(n){c.addEventListener(n,function(e){e.preventDefault()},{passive:false})});
+}
+function hwSnapshot(){
+  var hw=G.hw,cv=document.createElement('canvas'),d=hw.dpr;
+  cv.width=Math.round(hw.cw*d);cv.height=Math.round(hw.ch*d);
+  var ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.setTransform(d,0,0,d,0,0);hwStrokes(ctx,hw.cw,Math.max(5,Math.min(9,hw.ch/40)));
+  return cv.toDataURL('image/png');
+}
+function hwMarkWrong(){if(!G.tried){G.tried=true;rec(G.w.id,false)}}
+function hwReveal(){
+  var hw=G.hw;
+  if(!hw.strokes.length){toast('先在格子裡寫寫看喔 ✍️');return}
+  hw.img=hwSnapshot();hw.phase='reveal';
+  app.innerHTML=qHead()+'<div class="mid">對一對，你寫對了嗎？</div>'+
+  '<div class="hwcmp"><div class="card"><div class="mid">正確拼法</div><div class="big" style="font-size:56px;word-break:break-all">'+esc(G.w.en)+'</div><div class="mid"><button class="spk sm" data-a="say" data-t="'+esc(G.w.en)+'">🔊</button></div></div>'+
+  '<div class="card"><div class="mid">你寫的</div><img class="hwimg" alt="你寫的字" src="'+hw.img+'"></div></div>'+
+  '<div class="grid g2"><button class="btn green" data-a="hwok">✅ 我寫對了</button><button class="btn yellow" data-a="hwretry">🔁 再練習</button></div><div class="msg" id="msg"></div>';
+  say(G.w.en);
+}
+function hwOk(){
+  if(G.locked)return;G.locked=true;
+  right();
+}
+function hwRetry(){
+  if(G.locked)return;
+  hwMarkWrong();
+  G.hw.trace=true;G.hw.strokes=[];G.hw.cur=null;G.hw.pid=null;
+  hwWriteDraw();say(G.w.en);
+}
+function hwHint(){
+  if(G.locked||!G.hw)return;
+  hwMarkWrong();G.hw.trace=true;hwRedraw();
+  var m=$('#msg');if(m)m.textContent='照著淡淡的字描描看 💜';
 }
 function spellDraw(first){
   var w=G.w;
@@ -576,11 +706,17 @@ document.addEventListener('click',function(e){
     case 'ans':onAns(+el.dataset.i);break;
     case 'tile':onTile(+el.dataset.k);break;
     case 'spellundo':spellUndo();break;
+    case 'hwundo':if(G&&G.hw&&!G.locked){G.hw.strokes.pop();hwRedraw()}break;
+    case 'hwclear':if(G&&G.hw&&!G.locked){G.hw.strokes=[];G.hw.cur=null;hwRedraw()}break;
+    case 'hwhint':hwHint();break;
+    case 'hwreveal':hwReveal();break;
+    case 'hwok':hwOk();break;
+    case 'hwretry':hwRetry();break;
     case 'flip':onFlip(+el.dataset.i);break;
   }
 });
-document.addEventListener('change',function(e){if(e.target.id==='slow'){D.slow=e.target.checked;save();if(D.slow)say('apple')}});
-window.addEventListener('resize',function(){var c=$('#fx');c.width=innerWidth;c.height=innerHeight});
+document.addEventListener('change',function(e){if(e.target.id==='penonly'){D.penOnly=e.target.checked;save();toast(D.penOnly?'只有 Apple Pencil 會寫字':'手指和筆都可以寫')}if(e.target.id==='slow'){D.slow=e.target.checked;save();if(D.slow)say('apple')}});
+window.addEventListener('resize',function(){if(G&&G.hw&&G.hw.phase==='write')hwSize();var c=$('#fx');c.width=innerWidth;c.height=innerHeight});
 
 /* 測試用匯出 */
 window.__vocab={parseLines:parseLines};
