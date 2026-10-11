@@ -87,12 +87,15 @@ function rec(id,ok){var s=D.stats[id]||(D.stats[id]={c:0,w:0});ok?s.c++:s.w++;sa
 function acc(id){var s=D.stats[id];if(!s||s.c+s.w===0)return null;return s.c/(s.c+s.w)}
 
 /* ---------- 解析批次輸入 ---------- */
+var EMO_RE;
+try{EMO_RE=new RegExp('[\\p{Extended_Pictographic}\\u{1F1E6}-\\u{1F1FF}][\\u{FE0F}\\u{200D}\\p{Extended_Pictographic}\\u{1F3FB}-\\u{1F3FF}]*','gu')}
+catch(e){try{EMO_RE=new RegExp('(?:[\\uD83C-\\uD83E][\\uDC00-\\uDFFF]|[\\u2600-\\u27BF])[\\uFE0F\\u200D]*','g')}catch(e2){EMO_RE=/$^/g}}
 function parseLines(text){
   var out=[];
   String(text).split(/\r?\n/).forEach(function(line){
     line=line.trim();if(!line)return;
     var emo='';
-    var em=line.match(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}][\u{FE0F}\u{200D}\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}]*/gu);
+    var em=line.match(EMO_RE);
     if(em){emo=em[0];line=line.split(em[0]).join(' ')}
     var m=line.match(/^[A-Za-z][A-Za-z'’\- ]*/);
     if(!m)return;
@@ -151,6 +154,8 @@ function fxLoop(){
 var tt;function toast(m){var t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(function(){t.style.display='none'},2200)}
 var PRAISE=['太棒了！🎉','答對了！⭐','你好厲害！👏','讚讚讚！🌟','完美！💯','繼續加油！🚀','超強的！🏆'];
 var TRYAG=['沒關係，再試試看！💪','差一點點喔！','加油，你可以的！'];
+function notice(m){var o=$('#notice');if(!o){o=document.createElement('div');o.id='notice';o.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(58,46,90,.55);z-index:70;display:flex;align-items:center;justify-content:center;padding:24px';document.body.appendChild(o)}
+  o.innerHTML='<div class="card mid" style="max-width:520px;font-size:28px;line-height:1.5">'+esc(m)+'<div style="margin-top:16px"><button class="btn green" data-a="closenotice">好的</button></div></div>';o.style.display='flex'}
 function praise(){return PRAISE[rnd(PRAISE.length)]}
 function tryag(){return TRYAG[rnd(TRYAG.length)]}
 
@@ -247,7 +252,7 @@ function scopeWords(sc){
 }
 var lastScope='latest';
 function quizMenu(){
-  if(!allWords().length){app.innerHTML=topbar(true)+'<div class="card mid">還沒有單字！請爸媽先到「家長區」新增。</div>';return}
+  if(!allWords().length){app.innerHTML=topbar(true)+'<div class="card mid">還沒有單字！請爸媽先到「家長區」輸入這週的單字。</div><div class="grid g2" style="margin-top:14px"><button class="btn purple" data-a="parent">👨‍👩‍👧 去家長區</button></div>';return}
   var opts='<option value="latest">本週（最新一週）</option><option value="all">全部單字</option>'+D.weeks.slice().reverse().map(function(w){return '<option value="'+w.id+'">'+esc(w.name)+'</option>'}).join('');
   app.innerHTML=topbar(true)+'<h2>🎮 選擇挑戰</h2><div class="card"><b>範圍</b><select id="scope" style="margin-top:8px">'+opts+'</select></div>'+
   '<div class="grid g2">'+
@@ -270,12 +275,12 @@ function startQuiz(g,sc){
   var pool=scopeWords(sc);
   if(!pool.length){toast('這個範圍沒有單字');return}
   var picPool=pool.filter(hasPic);
-  if(g==='pic'&&!picPool.length){toast('這些單字沒有中文或圖，無法玩這關');return}
-  if(g==='match'&&pool.filter(hasPic).length<2){toast('配對需要至少 2 個有中文或圖的單字');return}
+  if(g==='pic'&&!picPool.length){notice('「看圖選英文」需要單字有 emoji 或中文意思。請爸媽到「家長區」用「編輯」補上，例如：apple 蘋果 🍎。現在可以先玩「聽音選字」或「拼字遊戲」喔！');return}
+  if((g==='match'||g==='listen')&&pool.length<2){notice('這個範圍只有 1 個單字，需要至少 2 個單字才能玩這關。請爸媽到「家長區」多輸入一些單字，或把範圍改成「全部單字」。');return}
   var N=g==='match'?3:10,types=[];
   for(var i=0;i<N;i++){
     var t=g;
-    if(g==='mix'){var ts=['listen','spell'];if(picPool.length)ts.push('pic');if(picPool.length>=2&&i%5===4)ts=['match'];t=ts[rnd(ts.length)]}
+    if(g==='mix'){var ts=['spell'];if(pool.length>=2)ts.push('listen');if(picPool.length)ts.push('pic');if(pool.length>=2&&i%5===4)ts=['match'];t=ts[rnd(ts.length)]}
     types.push(t);
   }
   G={g:g,pool:pool,types:types,i:0,ok:0,first:0,gained:0,recent:[],requeue:[],locked:false};
@@ -286,8 +291,7 @@ function distract(w,pool,key){
   var pref=shuffle(pool.filter(function(x){return x.id!==w.id}));
   var rest=shuffle(all.filter(function(x){return pref.indexOf(x)<0}));
   var out=pref.concat(rest);
-  if(key==='pic')out=out.filter(hasPic);
-  return out.slice(0,3);
+    return out.slice(0,3);
 }
 function qHead(){
   return topbar(false).replace('<span></span>','<button class="btn small gray" data-a="quit">✕ 結束</button>')+'<div class="bar"><i style="width:'+(G.i/G.types.length*100)+'%"></i></div>';
@@ -377,7 +381,7 @@ function onAns(i){
 
 /* 翻牌配對 */
 function matchQ(){
-  var cand=G.pool.filter(hasPic);
+  var cand=G.pool.slice();
   var ws=[];var tmp=cand.slice();
   while(ws.length<4&&tmp.length){ws.push(pickWord(tmp,ws.map(function(x){return x.id})));tmp=tmp.filter(function(x){return ws.indexOf(x)<0})}
   var cards=[];
@@ -387,14 +391,14 @@ function matchQ(){
 }
 function matchDraw(){
   var m=G.m;
-  app.innerHTML=qHead()+'<div class="mid">翻翻看：把英文和它的圖／中文配成一對</div><div class="mgrid">'+m.cards.map(function(c,i){
+  app.innerHTML=qHead()+'<div class="mid">翻翻看：把英文和它的圖／中文／發音配成一對</div><div class="mgrid">'+m.cards.map(function(c,i){
     var up=m.open.indexOf(i)>=0||c.done;
-    var txt=c.side==='en'?esc(c.w.en):(c.w.emoji?'<span style="font-size:48px">'+esc(c.w.emoji)+'</span>'+(c.w.zh?'<div style="font-size:18px">'+esc(c.w.zh)+'</div>':''):esc(c.w.zh));
+    var txt=c.side==='en'?esc(c.w.en):(c.w.emoji?'<span style="font-size:48px">'+esc(c.w.emoji)+'</span>'+(c.w.zh?'<div style="font-size:18px">'+esc(c.w.zh)+'</div>':''):(c.w.zh?esc(c.w.zh):'<span style="font-size:48px">🔊</span>'));
     return '<button class="mcard'+(up?' up':'')+(c.done?' done':'')+'" data-a="flip" data-i="'+i+'">'+(up?txt:'❓')+'</button>'}).join('')+'</div><div class="msg" id="msg"></div>';
 }
 function onFlip(i){
   var m=G.m,c=m.cards[i];if(G.locked||c.done||m.open.indexOf(i)>=0)return;
-  m.open.push(i);sndTap();if(c.side==='en')say(c.w.en);matchDraw();
+  m.open.push(i);sndTap();if(c.side==='en'||!hasPic(c.w))say(c.w.en);matchDraw();
   if(m.open.length===2){
     var a=m.cards[m.open[0]],b=m.cards[m.open[1]];G.locked=true;
     if(a.id===b.id&&a.side!==b.side){
@@ -426,6 +430,7 @@ document.addEventListener('click',function(e){
   var el=e.target.closest('[data-a]');if(!el)return;
   var a=el.dataset.a;ac();
   switch(a){
+    case 'closenotice':$('#notice').style.display='none';break;
     case 'home':go('home');break;
     case 'parent':go('parent');break;
     case 'io':go('io');break;
