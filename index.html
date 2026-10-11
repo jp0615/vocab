@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="單字小達人">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#ff7a59">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>單字小達人</title>
 <style>
@@ -63,7 +63,7 @@ textarea{min-height:130px}
 .hwwrap{background:#fff;border:4px solid #d9ceff;border-radius:22px;overflow:hidden;box-shadow:0 6px 0 #d9ceff}
 #hwc{display:block;touch-action:none;-webkit-touch-callout:none;cursor:crosshair}
 .hwtools{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}.hwtools .btn{flex:1;min-width:130px;font-size:22px;padding:14px 10px}
-.hwpen{display:block;margin-top:10px;font-size:18px;color:#6a5d94;text-align:center}.hwpen input{width:22px;height:22px;vertical-align:middle}
+.hwst{font-size:16px;color:#8e8aa5;text-align:center;margin-top:8px;min-height:20px}.hwpen{display:block;margin-top:10px;font-size:18px;color:#6a5d94;text-align:center}.hwpen input{width:22px;height:22px;vertical-align:middle}
 .hwcmp{display:grid;grid-template-columns:1fr 1fr;gap:14px}.hwimg{width:100%;border-radius:12px;border:2px solid #e4dcff;display:block}
 @media (max-width:600px){.opt{font-size:26px}.tile{width:56px;height:56px;font-size:30px}.slot{width:48px;height:60px;line-height:60px;font-size:34px}.mgrid{grid-template-columns:repeat(3,1fr)}}
 </style>
@@ -301,6 +301,7 @@ function parent(){
   h+='<div class="card"><b>新增這週單字</b><div class="row" style="margin:10px 0"><input type="text" id="wkname" placeholder="週名稱，例如：第5週" value="第'+(D.weeks.length+1)+'週"></div>'+
   '<textarea id="batch" placeholder="每行一個單字，中文與 emoji 可省略，例如：\napple 蘋果 🍎\ncat 貓 🐱\nbanana"></textarea>'+
   '<div class="row" style="margin-top:10px"><button class="btn green" data-a="addweek">＋ 加入新的一週</button></div></div>';
+  h+='<div class="card"><label><input type="checkbox" id="hwocr" '+(D.hwOcr!==false?'checked':'')+' style="width:24px;height:24px;vertical-align:middle"> 🤖 手寫自動辨識（在 iPad 上離線辨識，筆跡不會傳出去；辨識不了時會自動改成自己對答案）</label></div>';
   h+='<div class="card"><label><input type="checkbox" id="slow" '+(D.slow?'checked':'')+' style="width:24px;height:24px;vertical-align:middle"> 🐢 慢速發音</label></div>';
   if(!D.weeks.length)h+='<div class="mid">還沒有任何單字</div>';
   D.weeks.slice().reverse().forEach(function(wk){
@@ -439,6 +440,7 @@ function quizQ(){
 /* ---------- 手寫單字 ---------- */
 function hwInit(w){
   G.hw={phase:'write',trace:false,strokes:[],cur:null,pid:null,hinted:false};
+  if(hwOcrOn())OCR.ensure();
   hwWriteDraw();
   setTimeout(function(){say(w.en)},250);
 }
@@ -449,7 +451,8 @@ function hwWriteDraw(){
   '<button class="spk sm" data-a="say" data-t="'+esc(w.en)+'">🔊</button></div>'+
   '<div class="hwwrap"><canvas id="hwc"></canvas></div>'+
   '<div class="hwtools"><button class="btn small gray" data-a="hwundo">↩️ 復原一筆</button><button class="btn small gray" data-a="hwclear">🧽 清除</button><button class="btn small blue" data-a="say" data-t="'+esc(w.en)+'">🔊 再聽一次</button><button class="btn small yellow" data-a="hwhint">💡 提示</button></div>'+
-  '<button class="btn green" style="margin-top:12px;width:100%" data-a="hwreveal">👀 看答案</button>'+
+  (hwOcrOn()?'<button class="btn green" style="margin-top:12px;width:100%" data-a="hwreveal">✅ 寫好了</button><button class="btn small gray" style="margin-top:8px;width:100%" data-a="hwmanual">👀 我自己對答案</button><div class="hwst" id="hwst"></div>'
+  :'<button class="btn green" style="margin-top:12px;width:100%" data-a="hwmanual">👀 看答案</button>')+
   '<label class="hwpen"><input type="checkbox" id="penonly"'+(D.penOnly?' checked':'')+'> 只用 Apple Pencil 寫（手掌碰到螢幕不會亂畫）</label><div class="msg" id="msg"></div>';
   hwSetup();
 }
@@ -531,22 +534,128 @@ function hwSnapshot(){
   return cv.toDataURL('image/png');
 }
 function hwMarkWrong(){if(!G.tried){G.tried=true;rec(G.w.id,false)}}
-function hwReveal(){
+function hwReveal(){ /* 手動對答案（原本的機制，也是辨識失敗時的退路） */
   var hw=G.hw;
   if(!hw.strokes.length){toast('先在格子裡寫寫看喔 ✍️');return}
+  hwCancelAuto();
   hw.img=hwSnapshot();hw.phase='reveal';
-  app.innerHTML=qHead()+'<div class="mid">對一對，你寫對了嗎？</div>'+
-  '<div class="hwcmp"><div class="card"><div class="mid">正確拼法</div><div class="big" style="font-size:56px;word-break:break-all">'+esc(G.w.en)+'</div><div class="mid"><button class="spk sm" data-a="say" data-t="'+esc(G.w.en)+'">🔊</button></div></div>'+
-  '<div class="card"><div class="mid">你寫的</div><img class="hwimg" alt="你寫的字" src="'+hw.img+'"></div></div>'+
+  app.innerHTML=qHead()+'<div class="mid">對一對，你寫對了嗎？</div>'+hwCmpHtml()+
   '<div class="grid g2"><button class="btn green" data-a="hwok">✅ 我寫對了</button><button class="btn yellow" data-a="hwretry">🔁 再練習</button></div><div class="msg" id="msg"></div>';
   say(G.w.en);
 }
+function hwCmpHtml(rec){
+  return '<div class="hwcmp"><div class="card"><div class="mid">正確拼法</div><div class="big" style="font-size:56px;word-break:break-all">'+esc(G.w.en)+'</div><div class="mid"><button class="spk sm" data-a="say" data-t="'+esc(G.w.en)+'">🔊</button></div></div>'+
+  '<div class="card"><div class="mid">你寫的</div><img class="hwimg" alt="你寫的字" src="'+G.hw.img+'">'+(rec?'<div class="mid" style="margin-top:6px">🤖 辨識：<b>'+esc(rec)+'</b></div>':'')+'</div></div>';
+}
+/* ---------- 手寫自動辨識（裝置上執行，不連網） ---------- */
+function hwOcrOn(){return D.hwOcr!==false&&OCR.state!=='fail'}
+function hwLev(a,b){var d=[],i,j;for(i=0;i<=a.length;i++){d[i]=[i]}for(j=0;j<=b.length;j++)d[0][j]=j;
+  for(i=1;i<=a.length;i++)for(j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
+var OCR={state:'idle',prog:0,w:null,cbs:{},seq:0,
+  ensure:function(){
+    if(OCR.state!=='idle')return;
+    try{
+      if(!window.Worker||!window.fetch)throw 0;
+      OCR.state='loading';OCR.w=new Worker('hwocr-worker.js');
+      OCR.w.onmessage=function(e){var m=e.data;
+        if(m.type==='progress'){OCR.prog=m.p;OCR.status()}
+        else if(m.type==='ready'){OCR.state='ready';OCR.status()}
+        else if(m.type==='error'){OCR.fail()}
+        else if(m.type==='result'){var cb=OCR.cbs[m.id];delete OCR.cbs[m.id];if(cb)cb(m)}};
+      OCR.w.onerror=function(){OCR.fail()};
+      OCR.w.postMessage({type:'load',url:'hwmodel.bin'});
+      setTimeout(function(){if(OCR.state==='loading')OCR.fail()},30000);
+    }catch(e){OCR.fail()}
+  },
+  fail:function(){OCR.state='fail';try{OCR.w&&OCR.w.terminate()}catch(e){}OCR.w=null;
+    for(var k in OCR.cbs){var cb=OCR.cbs[k];delete OCR.cbs[k];cb({error:'fail'})}
+    OCR.status();
+    if(G&&G.hw&&G.hw.phase==='write'&&view==='quiz')hwWriteDraw(true)},
+  status:function(){
+    var el=$('#hwst');if(!el)return;
+    el.textContent=OCR.state==='ready'?'🤖 自動辨識已就緒':OCR.state==='loading'?'🤖 辨識功能準備中… '+Math.round(OCR.prog*100)+'%（還沒好也可以先寫，按「我自己對答案」）':'';
+  },
+  run:function(img,answer,cb){
+    if(OCR.state!=='ready'){cb({error:'notready'});return}
+    var id=++OCR.seq,done=false;
+    function fin(r){if(done)return;done=true;delete OCR.cbs[id];cb(r)}
+    OCR.cbs[id]=fin;setTimeout(function(){fin({error:'timeout'})},9000);
+    try{OCR.w.postMessage({type:'rec',id:id,img:img,answer:answer})}catch(e){fin({error:'post'})}
+  }};
+/* 把筆畫畫成 32x192 的小圖（黑字白底→墨水強度 0..1），格式與訓練資料一致 */
+function hwOcrImage(){
+  var S=G.hw.strokes,pts=[];S.forEach(function(s){s.forEach(function(p){pts.push(p)})});
+  if(pts.length<2)return null;
+  var x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;pts.forEach(function(p){if(p[0]<x0)x0=p[0];if(p[0]>x1)x1=p[0];if(p[1]<y0)y0=p[1];if(p[1]>y1)y1=p[1]});
+  var bw=x1-x0,bh=y1-y0;if(bw<0.02&&bh<0.02)return null;
+  var lw=2.4,H=32,W=192,ch=H-4-lw,cwid=W-4-lw;
+  /* 與訓練一致：高度撐滿 28px，太寬就橫向壓縮 */
+  var ky=bh>1e-4?ch/bh:(bw>1e-4?cwid/bw:1),kx=ky;
+  if(bw*kx>cwid)kx=cwid/bw;
+  var ow=bw*kx+lw,oh=bh*ky+lw,ox=(W-ow)/2+lw/2,oy=(H-oh)/2+lw/2;
+  var cv=document.createElement('canvas');cv.width=W;cv.height=H;var c=cv.getContext('2d');
+  c.fillStyle='#fff';c.fillRect(0,0,W,H);c.strokeStyle='#000';c.fillStyle='#000';c.lineWidth=lw;c.lineCap='round';c.lineJoin='round';
+  S.forEach(function(s){
+    if(!s.length)return;
+    c.beginPath();c.moveTo(ox+(s[0][0]-x0)*kx,oy+(s[0][1]-y0)*ky);
+    if(s.length===1)c.lineTo(ox+(s[0][0]-x0)*kx+0.01,oy+(s[0][1]-y0)*ky);
+    for(var i=1;i<s.length;i++)c.lineTo(ox+(s[i][0]-x0)*kx,oy+(s[i][1]-y0)*ky);
+    c.stroke();
+  });
+  var d=c.getImageData(0,0,W,H).data,o=new Float32Array(W*H);
+  for(var i=0;i<W*H;i++)o[i]=(255-d[i*4])/255;
+  return o;
+}
+function hwAnswerLetters(){return String(G.w.en||'').toLowerCase().replace(/[^a-z]/g,'')}
+function hwCancelAuto(){if(G&&G.hw&&G.hw.autoT){clearTimeout(G.hw.autoT);G.hw.autoT=null}}
+function hwDone(){ /* 按「寫好了」 */
+  var hw=G.hw;
+  if(!hw.strokes.length){toast('先在格子裡寫寫看喔 ✍️');return}
+  if(hw.busy)return;
+  var ans=hwAnswerLetters(),img=null;
+  if(!hwOcrOn()||OCR.state!=='ready'||ans.length<2||ans.length>12){return hwReveal()}
+  try{img=hwOcrImage()}catch(e){img=null}
+  if(!img)return hwReveal();
+  hw.busy=true;var g=G;
+  hw.img=hwSnapshot();
+  app.innerHTML=qHead()+'<div class="mid">🔍 讓我看看你寫的字…</div><div class="hero pop">🤖</div><div class="msg" id="msg"></div>';
+  OCR.run(img,ans,function(r){
+    if(G!==g||!G.hw)return;G.hw.busy=false;
+    if(r.error||typeof r.text!=='string'){
+      if(r.error==='fail')toast('辨識功能暫時不能用，改成自己對答案');
+      return hwReveal();
+    }
+    hwResult(r,ans);
+  });
+}
+function hwResult(r,ans){
+  var hw=G.hw,t=r.text,d=hwLev(t,ans);hw.phase='result';hw.rec=t;
+  var cls=(d===0)?'exact':(d===1&&t.length>=2)?'near':'unsure';
+  var head='<div class="mid">辨識結果</div>';
+  if(cls==='exact'){
+    var sure=r.conf>=0.6;
+    app.innerHTML=qHead()+head+hwCmpHtml(t)+
+    '<div class="msg pop" id="msg" style="color:#1f9d55">🎉 我看到你寫的是「'+esc(t)+'」，完全正確！'+praise()+'</div>'+
+    '<div class="grid g2"><button class="btn green" data-a="hwok">✅ 我寫對了（下一題）</button><button class="btn yellow" data-a="hwretry">🔁 再練習</button></div>';
+    say(G.w.en);
+    if(sure){var g=G;hw.autoT=setTimeout(function(){if(G===g&&G.hw&&G.hw.phase==='result'&&!G.locked)hwOk()},3500)}
+  }else if(cls==='near'){
+    app.innerHTML=qHead()+head+hwCmpHtml(t)+
+    '<div class="msg" id="msg" style="font-size:26px">🤖 辨識結果：「'+esc(t)+'」，是這個字嗎？</div>'+
+    '<div class="grid g2"><button class="btn yellow" data-a="hwretry">👍 對，我寫的是「'+esc(t)+'」<br><small>描一描再練習</small></button>'+
+    '<button class="btn green" data-a="hwok">🙅 不是，我寫的是「'+esc(G.w.en)+'」</button></div>';
+  }else{
+    app.innerHTML=qHead()+'<div class="mid">我看不太清楚，請你自己對一對 😊</div>'+hwCmpHtml()+
+    '<div class="grid g2"><button class="btn green" data-a="hwok">✅ 我寫對了</button><button class="btn yellow" data-a="hwretry">🔁 再練習</button></div><div class="msg" id="msg"></div>';
+    say(G.w.en);
+  }
+}
 function hwOk(){
-  if(G.locked)return;G.locked=true;
+  if(G.locked)return;hwCancelAuto();G.locked=true;
   right();
 }
 function hwRetry(){
-  if(G.locked)return;
+  if(G.locked)return;hwCancelAuto();
   hwMarkWrong();
   G.hw.trace=true;G.hw.strokes=[];G.hw.cur=null;G.hw.pid=null;
   hwWriteDraw();say(G.w.en);
@@ -709,19 +818,21 @@ document.addEventListener('click',function(e){
     case 'hwundo':if(G&&G.hw&&!G.locked){G.hw.strokes.pop();hwRedraw()}break;
     case 'hwclear':if(G&&G.hw&&!G.locked){G.hw.strokes=[];G.hw.cur=null;hwRedraw()}break;
     case 'hwhint':hwHint();break;
-    case 'hwreveal':hwReveal();break;
+    case 'hwreveal':hwDone();break;
+    case 'hwmanual':hwReveal();break;
     case 'hwok':hwOk();break;
     case 'hwretry':hwRetry();break;
     case 'flip':onFlip(+el.dataset.i);break;
   }
 });
-document.addEventListener('change',function(e){if(e.target.id==='penonly'){D.penOnly=e.target.checked;save();toast(D.penOnly?'只有 Apple Pencil 會寫字':'手指和筆都可以寫')}if(e.target.id==='slow'){D.slow=e.target.checked;save();if(D.slow)say('apple')}});
+document.addEventListener('change',function(e){if(e.target.id==='penonly'){D.penOnly=e.target.checked;save();toast(D.penOnly?'只有 Apple Pencil 會寫字':'手指和筆都可以寫')}if(e.target.id==='hwocr'){D.hwOcr=e.target.checked;save();toast(D.hwOcr?'手寫自動辨識：開':'手寫自動辨識：關')}if(e.target.id==='slow'){D.slow=e.target.checked;save();if(D.slow)say('apple')}});
 window.addEventListener('resize',function(){if(G&&G.hw&&G.hw.phase==='write')hwSize();var c=$('#fx');c.width=innerWidth;c.height=innerHeight});
 
 /* 測試用匯出 */
 window.__vocab={parseLines:parseLines};
 load();render();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D}};
 })();
 </script>
 </body>
