@@ -65,6 +65,18 @@ textarea{min-height:130px}
 .hwtools{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}.hwtools .btn{flex:1;min-width:130px;font-size:22px;padding:14px 10px}
 .hwst{font-size:16px;color:#8e8aa5;text-align:center;margin-top:8px;min-height:20px}.hwpen{display:block;margin-top:10px;font-size:18px;color:#6a5d94;text-align:center}.hwpen input{width:22px;height:22px;vertical-align:middle}
 .hwcmp{display:grid;grid-template-columns:1fr 1fr;gap:14px}.hwimg{width:100%;border-radius:12px;border:2px solid #e4dcff;display:block}
+.exs{font-size:22px;color:#3a2e5a;margin-top:6px}.exs small{display:block;color:#8e8aa5;font-size:17px}
+.lcard{background:#fff;border-radius:26px;padding:16px;box-shadow:0 6px 0 #d9ceff;border:4px solid #d9ceff;text-align:center}
+.lcard .en{font-size:38px;font-weight:800}.lcard .ex{font-size:24px;margin-top:8px;color:#3a2e5a}.lcard .exzh{font-size:19px;color:#8e8aa5}
+.lbtns{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.sent{font-size:36px;font-weight:800;text-align:center;line-height:1.5;margin:10px 0;background:#fff;border-radius:22px;padding:14px}
+.sent .gap{display:inline-block;min-width:110px;border-bottom:5px solid #9b6bff;color:#38c172}
+.sentzh{text-align:center;font-size:24px;color:#6a5d94}
+.otiles{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:14px 0;min-height:84px}
+.otile{min-width:84px;height:76px;padding:0 18px;font-size:32px;font-weight:800;border:0;border-radius:18px;background:#ffb800;color:#5a3d00;box-shadow:0 6px 0 #c98a00;font-family:inherit;cursor:pointer}
+.otile.put{background:#9b6bff;color:#fff;box-shadow:0 6px 0 #6d3fd1}.otile.bad{background:#ef5b73;color:#fff;animation:shake .4s}
+.oans{background:#fff;border-radius:22px;border:4px dashed #d9ceff;padding:8px;align-items:center}
+.oend{font-size:40px;font-weight:800;align-self:flex-end}
 @media (max-width:600px){.opt{font-size:26px}.tile{width:56px;height:56px;font-size:30px}.slot{width:48px;height:60px;line-height:60px;font-size:34px}.mgrid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
@@ -73,6 +85,7 @@ textarea{min-height:130px}
 <canvas id="fx"></canvas>
 <div id="toast"></div>
 <script src="dict.js"></script>
+<script src="sentences.js"></script>
 <script>
 (function(){
 'use strict';
@@ -87,7 +100,9 @@ function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a
 var D;
 function blank(){return {v:1,weeks:[],stats:{},stars:0,slow:false}}
 function load(){try{D=JSON.parse(localStorage.getItem(KEY))||blank()}catch(e){D=blank()}
-  D.weeks=D.weeks||[];D.stats=D.stats||{};D.stars=D.stars||0}
+  D.weeks=D.weeks||[];D.stats=D.stats||{};D.stars=D.stars||0;migrateEx()}
+/* 舊資料（還沒有例句欄位）自動帶入內建例句；家長刪掉的（空字串）不會再自動補 */
+function migrateEx(){var n=0;D.weeks.forEach(function(wk){(wk.words||[]).forEach(function(w){if(w&&w.en&&w.ex===undefined){if(fillEx(w))n++;else{w.ex='';w.exZh='';w.exForm=''}}})});if(n)try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('儲存失敗，請檢查儲存空間')}}
 function allWords(){var r=[];D.weeks.forEach(function(w){w.words.forEach(function(x){r.push(x)})});return r}
 function findWeek(id){return D.weeks.filter(function(w){return w.id===id})[0]}
@@ -123,13 +138,13 @@ function dictInit(){
   raw.split('\n').forEach(function(l){var p=l.split('|');if(p.length>=2&&p[0])DICT[p[0]]={zh:p[1],emoji:p[2]||''}});
 }
 function dictGet(k){return Object.prototype.hasOwnProperty.call(DICT,k)?DICT[k]:null}
-function lookupLocal(en){
-  dictInit();
+function lookupLocal(en){dictInit();return lookupIn(dictGet,en)}
+function lookupIn(get,en){
   var w=String(en||'').toLowerCase().replace(/[’‘]/g,"'").trim().replace(/\s+/g,' ');
   if(!w)return null;
-  var r=dictGet(w);if(r)return r;
+  var r=get(w);if(r)return r;
   var irr=window.VOCAB_IRREG||{};
-  if(Object.prototype.hasOwnProperty.call(irr,w)){r=dictGet(irr[w]);if(r)return r}
+  if(Object.prototype.hasOwnProperty.call(irr,w)){r=get(irr[w]);if(r)return r}
   var c=[];
   if(/ies$/.test(w))c.push(w.slice(0,-3)+'y');
   if(/ves$/.test(w)){c.push(w.slice(0,-3)+'f');c.push(w.slice(0,-3)+'fe')}
@@ -138,8 +153,39 @@ function lookupLocal(en){
   if(/ing$/.test(w)&&w.length>4){var b=w.slice(0,-3);c.push(b);c.push(b+'e');if(/(.)\1$/.test(b))c.push(b.slice(0,-1));if(/ying$/.test(w))c.push(w.slice(0,-4)+'ie')}
   if(/ed$/.test(w)&&w.length>3){var d=w.slice(0,-2);c.push(d);c.push(w.slice(0,-1));if(/(.)\1$/.test(d))c.push(d.slice(0,-1));if(/ied$/.test(w))c.push(w.slice(0,-3)+'y')}
   if(/er$/.test(w)&&w.length>3){c.push(w.slice(0,-2));c.push(w.slice(0,-1))}
-  for(var i=0;i<c.length;i++){r=dictGet(c[i]);if(r)return r}
+  for(var i=0;i<c.length;i++){r=get(c[i]);if(r)return r}
   return null;
+}
+/* ---------- 例句庫 ---------- */
+var SENT=null,PROPER={i:1};
+function sentInit(){
+  if(SENT)return;SENT={};
+  String(window.VOCAB_SENT_RAW||'').split('\n').forEach(function(l){var p=l.split('|');if(p.length>=4&&p[0]){SENT[p[0]]={ex:p[1],exZh:p[2],exForm:p[3]};
+    p[1].split(/\s+/).slice(1).forEach(function(t){t=t.replace(/[^A-Za-z']/g,'');if(/^[A-Z]/.test(t))PROPER[t.toLowerCase()]=1})}});
+}
+function sentGet(k){return Object.prototype.hasOwnProperty.call(SENT,k)?SENT[k]:null}
+function sentLocal(en){sentInit();return lookupIn(sentGet,en)}
+/* 在句子裡找出單字實際出現的字形（可為簡單變化形）；找不到回傳 '' */
+function findForm(sent,en){
+  sent=String(sent||'');var w=String(en||'').toLowerCase().replace(/[’‘]/g,"'").trim().replace(/\s+/g,' ');if(!w||!sent)return '';
+  if(/[ \-']/.test(w)){var i=sent.toLowerCase().replace(/[’‘]/g,"'").indexOf(w);return i>=0?sent.substr(i,w.length):''}
+  var toks=sent.match(/[A-Za-z'’]+/g)||[];
+  var irr=window.VOCAB_IRREG||{},c=[w,w+'s',w+'es',w+'ed',w+'d',w+'ing',w.replace(/y$/,'ies'),w.replace(/e$/,'ing'),w+w.slice(-1)+'ing',w+w.slice(-1)+'ed',w.replace(/y$/,'ied'),w.replace(/f$/,'ves'),w.replace(/fe$/,'ves'),w+'er',w+'est'];
+  Object.keys(irr).forEach(function(k){if(irr[k]===w)c.push(k)});
+  for(var j=0;j<c.length;j++){for(var t=0;t<toks.length;t++){if(toks[t].toLowerCase()===c[j])return toks[t]}}
+  /* 輸入的是變化形（例如 apples），句子用原形 */
+  dictInit();sentInit();var b=lookupIn(function(k){return (dictGet(k)||sentGet(k))?k:null},w);
+  if(b&&b!==w)return findForm(sent,b);
+  return '';
+}
+function hasEx(w){return !!(w&&w.ex&&String(w.ex).trim())}
+function formIdx(ex,f){if(!f)return -1;var m=new RegExp("(^|[^A-Za-z'])("+f.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+")(?![A-Za-z'])").exec(String(ex||''));return m?m.index+m[1].length:-1}
+function canCloze(w){return hasEx(w)&&formIdx(w.ex,w.exForm)>=0}
+function canOrder(w){if(!hasEx(w))return false;var n=orderTokens(w.ex).toks.length;return n>=3&&n<=9}
+function fillEx(w){
+  if(w.ex!==undefined&&w.ex!=='')return false;
+  var r=sentLocal(w.en);if(!r)return false;
+  w.ex=r.ex;w.exZh=r.exZh;w.exForm=findForm(r.ex,w.en)||r.exForm;(w.auto=w.auto||{}).ex=1;return true;
 }
 var S2T={'个':'個','们':'們','这':'這','么':'麼','对':'對','国':'國','学':'學','马':'馬','鸟':'鳥','鱼':'魚','车':'車','门':'門','见':'見','开':'開','关':'關','说':'說','话':'話','读':'讀','书':'書','买':'買','卖':'賣','红':'紅','绿':'綠','蓝':'藍','黄':'黃','鸡':'雞','猪':'豬','虾':'蝦','龙':'龍','爱':'愛','时':'時','间':'間','风':'風','云':'雲','电':'電','脑':'腦','视':'視','机':'機','飞':'飛','灯':'燈','热':'熱','节':'節','乐':'樂','声':'聲','头':'頭','脸':'臉','脚':'腳','颜':'顏','点':'點','别':'別','东':'東','长':'長','岁':'歲','样':'樣','认':'認','识':'識','应':'應','该':'該','让':'讓','给':'給','过':'過','还':'還','进':'進','远':'遠','运':'運','动':'動','园':'園','围':'圍','图':'圖','画':'畫','体':'體','处':'處','师':'師','养':'養','优':'優','儿':'兒','兰':'蘭','刚':'剛','刘':'劉','务':'務','员':'員','问':'問','启':'啟','听':'聽','吗':'嗎','响':'響','复':'復','够':'夠','实':'實','宝':'寶','将':'將','尔':'爾','层':'層','岛':'島','带':'帶','广':'廣','庆':'慶','当':'當','录':'錄','忆':'憶','总':'總','恶':'惡','户':'戶','护':'護','报':'報','挂':'掛','换':'換','数':'數','无':'無','旧':'舊','显':'顯','晓':'曉','暂':'暫','术':'術','杂':'雜','来':'來','极':'極','标':'標','树':'樹','桥':'橋','检':'檢','梦':'夢','汉':'漢','温':'溫','湿':'濕','灭':'滅','烦':'煩','爷':'爺','猫':'貓','独':'獨','现':'現','种':'種','称':'稱','笔':'筆','简':'簡','类':'類','纸':'紙','经':'經','结':'結','绘':'繪','网':'網','罗':'羅','义':'義','习':'習','业':'業','虫':'蟲','蚂':'螞','蜗':'蝸','袜':'襪','裤':'褲','览':'覽','诉':'訴','请':'請','谢':'謝','证':'證','试':'試','询':'詢','译':'譯','贝':'貝','负':'負','财':'財','货':'貨','质':'質','贵':'貴','费':'費','赛':'賽','赢':'贏','输':'輸','边':'邊','达':'達','迟':'遲','选':'選','钟':'鐘','钱':'錢','铃':'鈴','银':'銀','锁':'鎖','镜':'鏡','阳':'陽','阴':'陰','陆':'陸','队':'隊','随':'隨','难':'難','雾':'霧','页':'頁','颗':'顆','饭':'飯','饮':'飲','饼':'餅','馆':'館','验':'驗','骑':'騎','鲸':'鯨','鸭':'鴨','鹅':'鵝','鹰':'鷹','麦':'麥','齐':'齊','齿':'齒','龟':'龜','妈':'媽','号':'號','码':'碼','块':'塊','楼':'樓','厅':'廳','厨':'廚','厕':'廁','药':'藥','医':'醫','烧':'燒','痒':'癢','肠':'腸','胆':'膽','脏':'臟','颈':'頸','耸':'聳','环':'環','线':'線','针':'針','钉':'釘','锤':'錘','铁':'鐵','铅':'鉛','胶':'膠','剧':'劇','戏':'戲','赏':'賞','奖':'獎','盘':'盤','汤':'湯','粮':'糧','灿':'燦','虑':'慮','礼':'禮','纪':'紀','约':'約','级':'級','组':'組','细':'細','织':'織','练':'練','绍':'紹','继':'繼','续':'續','缘':'緣','闹':'鬧','闻':'聞','阅':'閱','陈':'陳','顶':'頂','顺':'順','须':'須','顾':'顧','预':'預','领':'領','频':'頻','题':'題','飘':'飄','馈':'饋','惊':'驚','讶':'訝','讨':'討','厌':'厭','设':'設','访':'訪','评':'評','诗':'詩','语':'語','误':'誤','调':'調','谈':'談','谁':'誰','论':'論','贺':'賀','资':'資','购':'購','赚':'賺','跃':'躍','轮':'輪','轻':'輕','载':'載','辆':'輛','较':'較','适':'適','遗':'遺','邮':'郵','邻':'鄰','释':'釋','鲜':'鮮','鳄':'鱷','鸽':'鴿','鹦':'鸚','鹉':'鵡','兽':'獸','狮':'獅','猎':'獵','狈':'狽','状':'狀','与':'與','丝':'絲','两':'兩','严':'嚴','丽':'麗','乡':'鄉','亲':'親','仅':'僅','从':'從','仓':'倉','价':'價','众':'眾','传':'傳','伤':'傷','侧':'側','兴':'興','写':'寫','冻':'凍','净':'淨','减':'減','凑':'湊','击':'擊','划':'劃','则':'則','刮':'颳','创':'創','办':'辦','势':'勢','参':'參','双':'雙','变':'變','叶':'葉','吓':'嚇','团':'團','坏':'壞','坛':'壇','场':'場','坚':'堅','垫':'墊','夹':'夾','奋':'奮','妇':'婦'};
 function toTrad(t){
@@ -183,7 +229,9 @@ function lookupNet(en){
 /* 先用字典補；有 net 為 true 時，缺中文的再上網查。回傳 Promise<{zh,emoji,miss}> 補上的數量 */
 function fillWords(words,useNet){
   var st={zh:0,emoji:0,miss:0};
+  st.ex=0;
   words.forEach(function(w){
+    if(fillEx(w))st.ex++;
     var r=lookupLocal(w.en);
     if(r){
       if(!w.zh&&r.zh){w.zh=r.zh;(w.auto=w.auto||{}).zh=1;st.zh++}
@@ -197,10 +245,10 @@ function fillWords(words,useNet){
   }
   return p.then(function(){words.forEach(function(w){if(!w.zh)st.miss++});return st});
 }
-function isMiss(w){if(!w.zh)return true;if(!w.emoji){var r=lookupLocal(w.en);return !!(r&&r.emoji)}return false}
+function isMiss(w){if(!w.zh)return true;if(!hasEx(w)&&sentLocal(w.en))return true;if(!w.emoji){var r=lookupLocal(w.en);return !!(r&&r.emoji)}return false}
 function missCount(wk){return wk.words.filter(isMiss).length}
 function fillReport(st){
-  var m='✨ 自動補上：中文 '+st.zh+' 個、圖 '+st.emoji+' 個';
+  var m='✨ 自動補上：中文 '+st.zh+' 個、圖 '+st.emoji+' 個、例句 '+(st.ex||0)+' 個';
   if(st.miss)m+='；還有 '+st.miss+' 個查不到中文，可以按「編輯」自己填';
   return m;
 }
@@ -224,13 +272,35 @@ if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pick
 function say(text,forceSlow){
   if(!('speechSynthesis' in window)){toast('這台裝置不支援發音');return}
   try{
-    speechSynthesis.cancel();
+    spSeq++;speechSynthesis.cancel();
     var u=new SpeechSynthesisUtterance(text);
     u.lang='en-US';if(voice)u.voice=voice;
     u.rate=(D.slow||forceSlow)?0.55:0.9;u.pitch=1.05;
     speechSynthesis.speak(u);
   }catch(e){}
 }
+
+var spSeq=0;
+/* 依序唸：parts 為字串或 'BEEP'（挖空處嗶一聲） */
+function sayParts(parts,slow,done){
+  if(!('speechSynthesis' in window)){toast('這台裝置不支援發音');return}
+  var my=++spSeq;try{speechSynthesis.cancel()}catch(e){}
+  var i=0;
+  function next(){
+    if(my!==spSeq)return;
+    if(i>=parts.length){if(done)done();return}
+    var p=parts[i++];
+    if(p==='BEEP'){tone(880,0,.35,'sine',.2);setTimeout(next,650);return}
+    p=String(p).trim();if(!p||!/[A-Za-z0-9]/.test(p)){next();return}
+    var fired=false;function fin(){if(fired)return;fired=true;clearTimeout(g);setTimeout(next,150)}
+    var g;
+    try{var u=new SpeechSynthesisUtterance(p);u.lang='en-US';if(voice)u.voice=voice;u.rate=(D.slow||slow)?0.55:0.85;u.pitch=1.05;
+      u.onend=fin;u.onerror=fin;speechSynthesis.speak(u)}catch(e){fin();return}
+    g=setTimeout(fin,1500+p.length*(slow||D.slow?190:110)); /* 部分裝置 onend 不觸發的保險 */
+  }
+  next();
+}
+function wordById(id){var r=null;D.weeks.forEach(function(wk){wk.words.forEach(function(x){if(x.id===id)r=x})});return r}
 
 /* ---------- 音效 ---------- */
 var AC=null;
@@ -291,8 +361,11 @@ function home(){
 function learn(){
   var ws=scopeWords(D.weeks.length?D.weeks[D.weeks.length-1].id:'all');
   if(!ws.length){toast('還沒有單字喔');return}
-  app.innerHTML=topbar(true)+'<h2>🔊 點一下就會發音</h2><div class="grid g2">'+ws.map(function(w){
-    return '<button class="opt" data-a="say" data-t="'+esc(w.en)+'">'+(w.emoji?'<div style="font-size:60px">'+esc(w.emoji)+'</div>':'')+esc(w.en)+(w.zh?'<div style="font-size:20px;color:#8e8aa5">'+esc(w.zh)+'</div>':'')+'</button>'}).join('')+'</div>';
+  app.innerHTML=topbar(true)+'<h2>🔊 點喇叭聽單字和例句</h2><div class="grid g2">'+ws.map(function(w){
+    return '<div class="lcard">'+(w.emoji?'<div style="font-size:60px">'+esc(w.emoji)+'</div>':'')+'<div class="en">'+esc(w.en)+'</div>'+(w.zh?'<div style="font-size:20px;color:#8e8aa5">'+esc(w.zh)+'</div>':'')+
+    (hasEx(w)?'<div class="ex">💬 '+esc(w.ex)+'</div>'+(w.exZh?'<div class="exzh">'+esc(w.exZh)+'</div>':''):'')+
+    '<div class="lbtns"><button class="btn small blue" data-a="sayex" data-id="'+w.id+'">🔊 '+(hasEx(w)?'單字＋句子':'單字')+'</button>'+
+    (hasEx(w)?'<button class="btn small gray" data-a="sayex" data-id="'+w.id+'" data-s="1">🐢 慢慢唸</button>':'')+'</div></div>'}).join('')+'</div>';
 }
 
 /* 家長區 */
@@ -307,16 +380,18 @@ function parent(){
   D.weeks.slice().reverse().forEach(function(wk){
     h+='<div class="card"><div class="row"><b style="font-size:24px">'+esc(wk.name)+'（'+wk.words.length+'）</b>'+
     '<button class="btn small blue" data-a="addto" data-id="'+wk.id+'">＋ 補字</button>'+
-    (missCount(wk)?'<button class="btn small purple" data-a="fillweek" data-id="'+wk.id+'">✨ 一鍵補齊缺漏（'+missCount(wk)+'）</button>':'')+
+    (missCount(wk)?'<button class="btn small purple" data-a="fillweek" data-id="'+wk.id+'">✨ 一鍵補齊缺漏（中文／圖／例句，'+missCount(wk)+'）</button>':'')+
     '<button class="btn small gray" data-a="rename" data-id="'+wk.id+'">改名</button>'+
     '<button class="btn small red" data-a="delweek" data-id="'+wk.id+'">刪除此週</button></div>';
     if(editWeek===wk.id)h+='<textarea id="more" placeholder="貼上要補的單字，每行一個"></textarea><button class="btn small green" data-a="savemore" data-id="'+wk.id+'" style="margin-top:8px">儲存</button>';
     wk.words.forEach(function(w){
       var a=acc(w.id),s=D.stats[w.id];
-      h+='<div class="w"><div class="e">'+esc(w.emoji)+'</div><div class="t">'+esc(w.en)+'<small>'+esc(w.zh)+(s?' ｜答對 '+s.c+'／答錯 '+s.w:'')+'</small></div>'+
+      h+='<div class="w"><div class="e">'+esc(w.emoji)+'</div><div class="t">'+esc(w.en)+'<small>'+esc(w.zh)+(s?' ｜答對 '+s.c+'／答錯 '+s.w:'')+'</small>'+
+      (hasEx(w)?'<small style="color:#5a4d84">💬 '+esc(w.ex)+(w.exZh?'（'+esc(w.exZh)+'）':'')+(w.auto&&w.auto.ex?' <span class="pill" style="background:#b3a6e0;font-size:12px">自動</span>':'')+(!canCloze(w)?' <span class="pill" style="background:#ffb800;font-size:12px">句中找不到單字，不出填空</span>':'')+'</small>':'<small style="color:#c0b8d8">💬 沒有例句</small>')+'</div>'+
       (a!==null?'<span class="pill" style="background:'+(a>=.8?'#38c172':a>=.5?'#ffb800':'#ef5b73')+'">'+Math.round(a*100)+'%</span>':'')+
       '<button class="spk sm" data-a="say" data-t="'+esc(w.en)+'">🔊</button>'+
       '<button class="btn small gray" data-a="editw" data-id="'+w.id+'">編輯</button>'+
+      '<button class="btn small purple" data-a="editex" data-id="'+w.id+'">💬 例句</button>'+
       '<button class="btn small red" data-a="delw" data-id="'+w.id+'">✕</button></div>';
     });
     h+='</div>';
@@ -345,11 +420,11 @@ function doImport(txt,mode){
   }else{
     o.weeks.forEach(function(w){
       var ex=findWeek(w.id);
-      if(!ex){D.weeks.push(w)}else{var have={};ex.words.forEach(function(x){have[x.id]=1});w.words.forEach(function(x){if(!have[x.id])ex.words.push(x)})}
+      if(!ex){D.weeks.push(w)}else{var have={};ex.words.forEach(function(x){have[x.id]=1});w.words.forEach(function(x){if(!have[x.id])ex.words.push(x);else{var cur=ex.words.filter(function(y){return y.id===x.id})[0];if(cur&&!hasEx(cur)&&hasEx(x)){cur.ex=x.ex;cur.exZh=x.exZh||'';cur.exForm=x.exForm||findForm(x.ex,cur.en);if(x.auto&&x.auto.ex)(cur.auto=cur.auto||{}).ex=1;else if(cur.auto)delete cur.auto.ex}}})}
     });
     Object.keys(o.stats||{}).forEach(function(k){if(!D.stats[k])D.stats[k]=o.stats[k]});
   }
-  save();toast('匯入成功！');go('home');
+  migrateEx();save();toast('匯入成功！');go('home');
 }
 
 /* ---------- 抽考 ---------- */
@@ -369,10 +444,13 @@ function quizMenu(){
   '<button class="btn purple" data-a="start" data-g="pic">🖼️ 看圖選英文</button>'+
   '<button class="btn yellow" data-a="start" data-g="spell">🔤 拼字遊戲</button>'+
   '<button class="btn red" data-a="start" data-g="match">🃏 翻牌配對</button>'+
-  '<button class="btn purple" style="background:#e0529c" data-a="start" data-g="write">✍️ 手寫單字</button></div>';
+  '<button class="btn purple" style="background:#e0529c" data-a="start" data-g="write">✍️ 手寫單字</button>'+
+  '<button class="btn blue" style="background:#1fb5a8" data-a="start" data-g="cloze">🧩 句子填空</button>'+
+  '<button class="btn yellow" style="background:#ff9a3c;color:#fff" data-a="start" data-g="order">🚂 句子排排看</button></div>';
   $('#scope').value=lastScope;
 }
 function hasPic(w){return !!(w.emoji||w.zh)}
+function okFor(t,w){return t==='pic'?hasPic(w):t==='cloze'?canCloze(w):t==='order'?canOrder(w):true}
 function weight(w){var s=D.stats[w.id];if(!s)return 3;var t=s.c+s.w;var wr=s.w/t;return 1+wr*6+(t<3?1.5:0)}
 function pickWord(pool,avoid){
   var c=pool.filter(function(w){return avoid.indexOf(w.id)<0});if(!c.length)c=pool;
@@ -385,11 +463,17 @@ function startQuiz(g,sc){
   if(!pool.length){toast('這個範圍沒有單字');return}
   var picPool=pool.filter(hasPic);
   if(g==='pic'&&!picPool.length){notice('「看圖選英文」需要單字有 emoji 或中文意思。請爸媽到「家長區」用「編輯」補上，例如：apple 蘋果 🍎。現在可以先玩「聽音選字」或「拼字遊戲」喔！');return}
+  if(g==='cloze'||g==='order'){
+    var ep=pool.filter(g==='cloze'?canCloze:canOrder);
+    if(!ep.length){notice('這個範圍的單字還沒有例句，所以不能玩「'+(g==='cloze'?'句子填空':'句子排排看')+'」。請爸媽到「家長區」按「✨ 一鍵補齊缺漏」或「💬 例句」自己加，或把範圍改成「全部單字」。現在可以先玩別的遊戲喔！');return}
+    if(g==='cloze'&&allWords().length<2){notice('「句子填空」至少要有 2 個單字才能出選項，請爸媽多輸入一些單字。');return}
+    if(ep.length<pool.length)toast('有 '+(pool.length-ep.length)+' 個單字沒有例句，這關先跳過它們');
+  }
   if((g==='match'||g==='listen')&&pool.length<2){notice('這個範圍只有 1 個單字，需要至少 2 個單字才能玩這關。請爸媽到「家長區」多輸入一些單字，或把範圍改成「全部單字」。');return}
-  var N=g==='match'?3:g==='write'?8:10,types=[];
+  var N=g==='match'?3:g==='write'?8:(g==='cloze'||g==='order')?Math.min(8,Math.max(5,pool.filter(okFor.bind(null,g)).length*2)):10,types=[];
   for(var i=0;i<N;i++){
     var t=g;
-    if(g==='mix'){var ts=['spell'];if(pool.length>=2)ts.push('listen');if(picPool.length)ts.push('pic');if(pool.length>=2&&i%5===4)ts=['match'];t=ts[rnd(ts.length)]}
+    if(g==='mix'){var ts=['spell'];if(pool.length>=2)ts.push('listen');if(picPool.length)ts.push('pic');if(pool.length>=2&&pool.some(canCloze)&&i%5===2)ts=['cloze'];if(pool.some(canOrder)&&i%5===3)ts=['order'];if(pool.length>=2&&i%5===4)ts=['match'];t=ts[rnd(ts.length)]}
     types.push(t);
   }
   G={g:g,pool:pool,types:types,i:0,ok:0,first:0,gained:0,recent:[],requeue:[],locked:false};
@@ -407,11 +491,11 @@ function qHead(){
 }
 function quizQ(){
   if(G.i>=G.types.length){return finish()}
-  var t=G.types[G.i];G.locked=false;G.tried=false;
+  var t=G.types[G.i];G.locked=false;G.tried=false;G.sayAfter=null;spSeq++;
   if(t==='match')return matchQ();
   var w;
-  if(G.requeue.length&&G.requeue[0].at<=G.i&&(t!=='pic'||hasPic(G.requeue[0].w))){w=G.requeue.shift().w}
-  else w=pickWord(t==='pic'?G.pool.filter(hasPic):G.pool,G.recent);
+  if(G.requeue.length&&G.requeue[0].at<=G.i&&okFor(t,G.requeue[0].w)){w=G.requeue.shift().w}
+  else w=pickWord(G.pool.filter(function(x){return okFor(t,x)}),G.recent);
   G.recent.push(w.id);if(G.recent.length>3)G.recent.shift();
   G.w=w;
   var h=qHead();
@@ -427,6 +511,8 @@ function quizQ(){
     h+='<div class="mid">這個英文怎麼說？</div>'+(w.emoji?'<div class="hero pop">'+esc(w.emoji)+'</div>':'')+(w.zh?'<div class="big">'+esc(w.zh)+'</div>':'')+
     '<div class="opts">'+os2.map(function(o,i){return '<button class="opt" data-a="ans" data-i="'+i+'">'+esc(o.en)+'</button>'}).join('')+'</div><div class="msg" id="msg"></div>';
     app.innerHTML=h;
+  }else if(t==='cloze'){clozeQ(w,h);
+  }else if(t==='order'){orderQ(w);
   }else if(t==='write'){
     hwInit(w);
   }else if(t==='spell'){
@@ -703,8 +789,8 @@ function right(spell){
   else{G.requeue.push({w:G.w,at:G.i+3})}
   G.ok++;sndOk();confetti(firstTry?70:30);
   var m=$('#msg');if(m){m.textContent=praise();m.classList.add('pop')}
-  say(G.w.en);
-  G.i++;setTimeout(quizQ,1500);
+  if(G.sayAfter)sayParts([G.sayAfter]);else say(G.w.en);
+  G.i++;setTimeout(quizQ,G.sayAfter?Math.min(5000,1800+G.sayAfter.length*90):1500);
 }
 function onAns(i){
   if(G.locked)return;
@@ -717,6 +803,65 @@ function onAns(i){
     $('#msg').textContent=tryag();
   }
 }
+
+/* ---------- 句子填空 ---------- */
+function matchCase(s,ref){return /^[A-Z]/.test(ref)&&!/^[A-Z]/.test(s)?s.charAt(0).toUpperCase()+s.slice(1):s}
+function clozeQ(w,h){
+  var ex=w.ex,f=w.exForm,i=formIdx(ex,f),pre=ex.slice(0,i),post=ex.slice(i+f.length);
+  var used={},opts=[{t:f,ok:true}];used[f.toLowerCase()]=1;
+  (ex.match(/[A-Za-z']+/g)||[]).forEach(function(t){used[t.toLowerCase()]=1}); /* 句子裡已有的字不當選項 */
+  distract(w,G.pool).concat(shuffle(allWords())).forEach(function(x){
+    if(opts.length>=4||x.id===w.id)return;var t=matchCase(String(x.en).trim(),f);var k=t.toLowerCase();
+    if(used[k]||k===String(w.en).toLowerCase())return;used[k]=1;opts.push({t:t,ok:false})});
+  G.opts=shuffle(opts);G.cl={pre:pre,post:post};G.sayAfter=ex;
+  app.innerHTML=h+'<div class="mid">🧩 聽句子，選出空格裡的字</div>'+(w.emoji?'<div style="text-align:center;font-size:56px">'+esc(w.emoji)+'</div>':'')+
+  '<div class="sent" id="sent">'+esc(pre)+'<span class="gap">&nbsp;</span>'+esc(post)+'</div>'+(w.exZh?'<div class="sentzh">'+esc(w.exZh)+'</div>':'')+
+  '<div class="mid" style="margin-top:8px"><button class="spk sm" data-a="clsay">🔊</button> <button class="btn small gray" data-a="clsay" data-s="1">🐢 慢慢聽</button></div>'+
+  '<div class="opts">'+G.opts.map(function(o,k){return '<button class="opt" data-a="clans" data-i="'+k+'">'+esc(o.t)+'</button>'}).join('')+'</div><div class="msg" id="msg"></div>';
+  setTimeout(function(){clozeSay()},300);
+}
+function clozeSay(slow){if(!G||!G.cl)return;var p=[];if(G.cl.pre.trim())p.push(G.cl.pre);p.push('BEEP');if(/[A-Za-z]/.test(G.cl.post))p.push(G.cl.post);sayParts(p,slow)}
+function clozeAns(k){
+  if(G.locked)return;var o=G.opts[k],btn=document.querySelectorAll('.opt')[k];
+  if(o.ok){G.locked=true;btn.classList.add('ok');var g=$('#sent .gap');if(g){g.textContent=o.t}right()}
+  else{sndNo();btn.classList.add('no');btn.style.pointerEvents='none';if(!G.tried){G.tried=true;rec(G.w.id,false)}$('#msg').textContent=tryag()}
+}
+/* ---------- 句子排排看 ---------- */
+function orderTokens(ex){
+  sentInit();  ex=String(ex||'').trim();var m=ex.match(/[.!?。！？]+$/),end=m?m[0]:'';var body=end?ex.slice(0,-end.length):ex;
+  var raw=body.split(/\s+/).filter(Boolean);
+  var toks=raw.map(function(t,i){
+    var core=t.replace(/[^A-Za-z']/g,'').toLowerCase();
+    var show=t;
+    if(i===0&&!PROPER[core]&&/^[A-Z][a-z']/.test(t))show=t.charAt(0).toLowerCase()+t.slice(1);
+    if(i===0&&/^[A-Z]{2,}/.test(t))show=t;
+    return {t:t,show:show};
+  });
+  return {toks:toks,end:end};
+}
+function orderQ(w){
+  sentInit();var o=orderTokens(w.ex),idx=o.toks.map(function(_,i){return i});
+  var sh=shuffle(idx),tries=0;while(o.toks.length>1&&sh.every(function(v,i){return o.toks[v].t===o.toks[i].t})&&tries++<20)sh=shuffle(idx);
+  G.or={toks:o.toks,end:o.end,bank:sh,ans:[],bad:-1};G.sayAfter=w.ex;
+  orderDraw();setTimeout(function(){sayParts([w.ex])},300);
+}
+function orderDraw(){
+  var w=G.w,r=G.or;
+  app.innerHTML=qHead()+'<div class="mid">🚂 把字排成正確的句子</div>'+(w.emoji?'<div style="text-align:center;font-size:52px">'+esc(w.emoji)+'</div>':'')+(w.exZh?'<div class="sentzh" style="font-size:28px;font-weight:700">'+esc(w.exZh)+'</div>':'')+
+  '<div class="mid" style="margin-top:6px"><button class="spk sm" data-a="orsay">🔊</button> <button class="btn small gray" data-a="orsay" data-s="1">🐢 慢慢聽</button></div>'+
+  '<div class="otiles oans">'+r.ans.map(function(v,k){var t=r.toks[v],s=G.locked?t.t:t.show; /* 排對後才顯示正確的首字大寫 */return '<button class="otile put'+(k===r.bad?' bad':'')+'" data-a="orback" data-k="'+k+'">'+esc(s)+'</button>'}).join('')+
+  (r.ans.length?'':'<span class="mid" style="align-self:center">點下面的字放到這裡</span>')+(r.ans.length===r.toks.length?'<span class="oend">'+esc(r.end)+'</span>':'')+'</div>'+
+  '<div class="otiles">'+r.bank.map(function(v,k){return '<button class="otile" data-a="orpick" data-k="'+k+'">'+esc(r.toks[v].show)+'</button>'}).join('')+'</div><div class="msg" id="msg"></div>';
+}
+function orderPick(k){
+  var r=G.or;if(G.locked)return;r.bad=-1;r.ans.push(r.bank.splice(k,1)[0]);sndTap();orderDraw();
+  if(!r.bank.length){
+    var bad=-1;for(var i=0;i<r.ans.length;i++){if(r.toks[r.ans[i]].t.toLowerCase()!==r.toks[i].t.toLowerCase()){bad=i;break}}
+    if(bad<0){G.locked=true;orderDraw();right()}
+    else{r.bad=bad;sndNo();if(!G.tried){G.tried=true;rec(G.w.id,false)}orderDraw();$('#msg').textContent='順序不太對，點紅色的字拿回來再試試 💪'}
+  }
+}
+function orderBack(k){var r=G.or;if(G.locked)return;var v=r.ans.splice(k,1)[0];r.bank.push(v);r.bad=-1;sndTap();orderDraw()}
 
 /* 翻牌配對 */
 function matchQ(){
@@ -792,7 +937,7 @@ document.addEventListener('click',function(e){
     case 'editw':D.weeks.forEach(function(w){w.words.forEach(function(x){
       if(x.id===el.dataset.id){var en=prompt('英文',x.en);if(en===null)return;var zh=prompt('中文意思（可留白）',x.zh||'');var em=prompt('emoji（可留白）',x.emoji||'');
         var nz=(zh||'').trim(),ne=(em||'').trim();if(x.auto){if(nz!==(x.zh||''))delete x.auto.zh;if(ne!==(x.emoji||''))delete x.auto.emoji}
-        if(en.trim())x.en=en.trim();x.zh=nz;x.emoji=ne;save()}})});parent();break;
+        if(en.trim())x.en=en.trim();x.zh=nz;x.emoji=ne;if(hasEx(x))x.exForm=findForm(x.ex,x.en);save()}})});parent();break;
     case 'resetstats':if(confirm('確定清除答題紀錄與星星？')){D.stats={};D.stars=0;save();parent()}break;
     case 'exportfile':{
       var blob=new Blob([exportText()],{type:'application/json'}),u=URL.createObjectURL(blob),l=document.createElement('a');
@@ -823,13 +968,26 @@ document.addEventListener('click',function(e){
     case 'hwok':hwOk();break;
     case 'hwretry':hwRetry();break;
     case 'flip':onFlip(+el.dataset.i);break;
+    case 'clans':clozeAns(+el.dataset.i);break;
+    case 'clsay':clozeSay(!!el.dataset.s);break;
+    case 'orpick':orderPick(+el.dataset.k);break;
+    case 'orback':orderBack(+el.dataset.k);break;
+    case 'orsay':if(G&&G.w)sayParts([G.w.ex],!!el.dataset.s);break;
+    case 'sayex':{var lw=wordById(el.dataset.id);if(!lw)break;var slw=!!el.dataset.s;sayParts(hasEx(lw)?(slw?[lw.ex]:[lw.en,lw.ex]):[lw.en],slw);break}
+    case 'editex':{var xw=wordById(el.dataset.id);if(!xw)break;
+      var se=prompt('「'+xw.en+'」的例句（英文，要包含這個字；留白＝不用例句）',xw.ex||'');if(se===null)break;se=se.trim().replace(/\s+/g,' ');
+      if(!se){xw.ex='';xw.exZh='';xw.exForm='';if(xw.auto)delete xw.auto.ex;save();parent();toast('已移除例句');break}
+      var sz=prompt('例句的中文翻譯（可留白）',se===xw.ex?(xw.exZh||''):'');if(sz===null)break;
+      var changed=se!==xw.ex||sz.trim()!==(xw.exZh||'');
+      xw.ex=se;xw.exZh=sz.trim();xw.exForm=findForm(se,xw.en);if(changed&&xw.auto)delete xw.auto.ex;save();parent();
+      toast(xw.exForm?'例句已儲存':'句子裡找不到「'+xw.en+'」，這句只會用在學習卡和排排看');break}
   }
 });
 document.addEventListener('change',function(e){if(e.target.id==='penonly'){D.penOnly=e.target.checked;save();toast(D.penOnly?'只有 Apple Pencil 會寫字':'手指和筆都可以寫')}if(e.target.id==='hwocr'){D.hwOcr=e.target.checked;save();toast(D.hwOcr?'手寫自動辨識：開':'手寫自動辨識：關')}if(e.target.id==='slow'){D.slow=e.target.checked;save();if(D.slow)say('apple')}});
 window.addEventListener('resize',function(){if(G&&G.hw&&G.hw.phase==='write')hwSize();var c=$('#fx');c.width=innerWidth;c.height=innerHeight});
 
 /* 測試用匯出 */
-window.__vocab={parseLines:parseLines};
+window.__vocab={parseLines:parseLines,findForm:findForm,sentLocal:sentLocal,orderTokens:orderTokens};
 load();render();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D}};
