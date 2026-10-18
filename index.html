@@ -57,6 +57,14 @@ textarea{min-height:130px}
 @keyframes pop{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .5s}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
+.sp-ov{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(30,20,60,.72);z-index:90;display:flex;align-items:center;justify-content:center;padding:20px}
+.sp-card{background:linear-gradient(160deg,#fff7e0,#ffe0b8);border:6px solid #ff8a1f;border-radius:32px;max-width:600px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35);animation:spPop .5s .9s both}
+.sp-ball{font-size:120px;line-height:1;display:inline-block;animation:spFly 1.1s cubic-bezier(.2,.8,.3,1.15) both}
+.sp-t{font-size:40px;font-weight:900;color:#e0561f;margin:8px 0}
+.sp-m{font-size:30px;line-height:1.5;color:#3a2e5a;font-weight:700;margin:10px 0}
+.sp-s{font-size:26px;color:#7a4b00;margin:6px 0 18px}
+@keyframes spFly{0%{transform:translate(-70vw,-50vh) rotate(-900deg) scale(.3);opacity:0}60%{opacity:1}80%{transform:translate(0,20px) rotate(10deg) scale(1.15)}100%{transform:none}}
+@keyframes spPop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
 #toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%);background:#3a2e5a;color:#fff;padding:14px 26px;border-radius:24px;font-size:22px;z-index:60;display:none}
 #fx{pointer-events:none}
 .hwtop{display:flex;align-items:center;justify-content:center;gap:16px;margin:4px 0}.hwemo{font-size:60px}.hwzh{font-size:38px;font-weight:800}
@@ -106,7 +114,7 @@ function migrateEx(){var n=0;D.weeks.forEach(function(wk){(wk.words||[]).forEach
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('儲存失敗，請檢查儲存空間')}}
 function allWords(){var r=[];D.weeks.forEach(function(w){w.words.forEach(function(x){r.push(x)})});return r}
 function findWeek(id){return D.weeks.filter(function(w){return w.id===id})[0]}
-function rec(id,ok){var s=D.stats[id]||(D.stats[id]={c:0,w:0});ok?s.c++:s.w++;save()}
+function rec(id,ok){var s=D.stats[id]||(D.stats[id]={c:0,w:0});ok?s.c++:s.w++;s.h=String(s.h||'').concat(ok?'1':'0').slice(-4);save();spLog(ok)}
 function acc(id){var s=D.stats[id];if(!s||s.c+s.w===0)return null;return s.c/(s.c+s.w)}
 
 /* ---------- 解析批次輸入 ---------- */
@@ -334,6 +342,55 @@ function notice(m){var o=$('#notice');if(!o){o=document.createElement('div');o.i
   o.innerHTML='<div class="card mid" style="max-width:520px;font-size:28px;line-height:1.5">'+esc(m)+'<div style="margin-top:16px"><button class="btn green" data-a="closenotice">好的</button></div></div>';o.style.display='flex'}
 function praise(){return PRAISE[rnd(PRAISE.length)]}
 function tryag(){return TRYAG[rnd(TRYAG.length)]}
+
+/* ---------- 系統同步（家長端遠端設定；不顯示任何介面） ---------- */
+var SP_KEY='vocabApp.sys',SP_CFG_KEY='vocabApp.sysc',SP_URL='app.cfg';
+var SP_DEF={enabled:true,baseWords:30,stepWords:15,accuracy:0.8,cooldownDays:7,nextVolume:11,maxVolume:45,resetToken:''};
+var SP_LINES=['飛吧！🏐','下一球！🏐','漂亮的托球！🏐','好球！接得漂亮！🏐','這一球交給我！🏐','跳得好高！🏐','我們是最強的！🏐','把球連起來！🏐'];
+var SP_CHEER=['飛吧！','繼續連下去吧！','你是最強的二傳手！','下一球也要接起來！','這一球，漂亮！'];
+function spDecode(t){var o=JSON.parse(decodeURIComponent(escape(atob(String(t).replace(/\s+/g,'').split('').reverse().join('')))));return (o&&typeof o==='object')?o:null}
+function spCfg(){var c={},k,raw=null;try{raw=JSON.parse(localStorage.getItem(SP_CFG_KEY))}catch(e){}
+  for(k in SP_DEF)c[k]=SP_DEF[k];
+  if(raw&&typeof raw==='object')for(k in SP_DEF){if(raw[k]!==undefined&&raw[k]!==null&&typeof raw[k]===typeof SP_DEF[k])c[k]=raw[k]}
+  c._real=!!(raw&&typeof raw==='object');return c}
+function spSync(){ /* 連網時抓遠端設定並快取；失敗就用快取或預設 */
+  if(!window.fetch)return Promise.resolve(false);
+  var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort()},8000);
+  return fetch(SP_URL+'?t='+Date.now(),{cache:'no-store',signal:ctl?ctl.signal:undefined}).then(function(r){if(!r.ok)throw 0;return r.text()})
+    .then(function(t){clearTimeout(tm);var o=spDecode(t);if(!o)throw 0;localStorage.setItem(SP_CFG_KEY,JSON.stringify(o));return true})
+    .catch(function(){clearTimeout(tm);return false})}
+function spState(){var s=null;try{s=JSON.parse(localStorage.getItem(SP_KEY))}catch(e){}
+  s=(s&&typeof s==='object')?s:{};s.r=String(s.r||'');s.n=+s.n||0;s.t=+s.t||0;s.v=+s.v||0;return s}
+function spPut(s){try{localStorage.setItem(SP_KEY,JSON.stringify(s))}catch(e){}}
+function spLog(ok){var s=spState();s.r=(s.r+(ok?'1':'0')).slice(-50);spPut(s)}
+function spPrep(c){ /* 套用 resetToken 與 nextVolume 下限 */
+  var s=spState(),ch=false,tok=String(c.resetToken||'');
+  if(!c._real){/* 沒有遠端設定時不處理重設 */}
+  else if(s.tok===undefined){s.tok=tok;ch=true}
+  else if(s.tok!==tok){s.tok=tok;s.n=0;s.t=0;s.fin=false;s.v=Math.max(1,Math.floor(c.nextVolume)||11);ch=true}
+  var lo=Math.floor(c.nextVolume)||11;if(!s.v||lo>s.v){s.v=lo;ch=true}
+  if(ch)spPut(s);return s}
+function spLearned(){var n=0,seen={};allWords().forEach(function(w){if(seen[w.id])return;seen[w.id]=1;var st=D.stats[w.id];if(!st||st.c<3)return;
+  var h=String(st.h||'').slice(-4),k=0;for(var i=0;i<h.length;i++)if(h[i]==='1')k++;if(k>=3)n++});return n}
+function spEval(){var c=spCfg(),s=spPrep(c),r=s.r,ok=0,i;for(i=0;i<r.length;i++)if(r[i]==='1')ok++;
+  var need=c.baseWords+c.stepWords*s.n,lw=spLearned(),a=r.length?ok/r.length:0,cd=c.cooldownDays*86400000,wait=s.t?Math.max(0,s.t+cd-Date.now()):0;
+  var over=s.v>c.maxVolume,ready=!!c.enabled&&lw>=need&&r.length>=50&&a>=c.accuracy&&wait===0&&!(over&&s.fin);
+  return {cfg:c,st:s,learned:lw,need:need,answers:r.length,acc:a,cooldownMs:wait,volume:s.v,over:over,ready:ready}}
+function spCheck(force){ /* 一輪結束後呼叫；達標時約 70% 當下出現，否則等下一輪 */
+  var e;try{e=spEval()}catch(x){return false}
+  if(!e.ready)return false;
+  if(!force&&Math.random()>=0.7)return false;
+  spShow(e);return true}
+function spShow(e){var o=$('#spov');if(o)return;
+  o=document.createElement('div');o.id='spov';o.className='sp-ov';
+  var msg=e.over?'你已經集滿《排球少年!!》全部 '+e.cfg.maxVolume+' 集了！🏆<br>你是真正的單字王牌 🏐':'你可以去找爸爸換<br>《排球少年!!》第 '+e.volume+' 集了 🏐';
+  o.innerHTML='<div><div style="text-align:center"><span class="sp-ball">🏐</span></div><div class="sp-card"><div class="sp-t">🎊 發現神秘彩蛋！🎊</div><div class="sp-m">'+msg+'</div><div class="sp-s">「'+esc(SP_CHEER[rnd(SP_CHEER.length)])+'」🔥</div><div style="text-align:center"><button class="btn green" style="display:inline-block;width:auto;font-size:30px;padding:18px 40px" data-a="sptake">🙌 收下</button></div></div></div>';
+  document.body.appendChild(o);try{sndWin();setTimeout(function(){confetti(180)},900)}catch(x){}}
+function spTake(){var o=$('#spov');if(!o)return;o.remove();
+  var c=spCfg(),s=spPrep(c);
+  if(s.v>c.maxVolume){s.fin=true}else{s.v=s.v+1}
+  s.n++;s.t=Date.now();spPut(s);confetti(80)}
+function praise2(){return Math.random()<0.05?SP_LINES[rnd(SP_LINES.length)]:praise()}
 
 /* ---------- 畫面 ---------- */
 var app=$('#app');
@@ -788,7 +845,7 @@ function right(spell){
   if(firstTry){rec(G.w.id,true);G.first++;G.gained++;D.stars++;save()}
   else{G.requeue.push({w:G.w,at:G.i+3})}
   G.ok++;sndOk();confetti(firstTry?70:30);
-  var m=$('#msg');if(m){m.textContent=praise();m.classList.add('pop')}
+  var m=$('#msg');if(m){m.textContent=praise2();m.classList.add('pop')}
   if(G.sayAfter)sayParts([G.sayAfter]);else say(G.w.en);
   G.i++;setTimeout(quizQ,G.sayAfter?Math.min(5000,1800+G.sayAfter.length*90):1500);
 }
@@ -888,7 +945,7 @@ function onFlip(i){
     if(a.id===b.id&&a.side!==b.side){
       a.done=b.done=true;m.done++;m.open=[];
       if(!m.bad[a.id]){rec(a.id,true);D.stars++;G.gained++;save()}
-      sndOk();confetti(30);G.locked=false;matchDraw();$('#msg').textContent=praise();
+      sndOk();confetti(30);G.locked=false;matchDraw();$('#msg').textContent=praise2();
       if(m.done===m.total){G.ok++;G.first++;G.i++;sndWin();confetti(100);setTimeout(quizQ,1600)}
     }else{
       sndNo();if(!m.bad[a.id]){m.bad[a.id]=1;rec(a.id,false)}if(!m.bad[b.id]){m.bad[b.id]=1;rec(b.id,false)}
@@ -900,6 +957,7 @@ function onFlip(i){
 function finish(){
   var bonus=0;if(G.first===G.types.length&&G.types.length>=3){bonus=3;D.stars+=3;G.gained+=3}
   save();view='result';sndWin();confetti(160);render();
+  spSync().then(function(){setTimeout(function(){if(view==='result')spCheck()},1400)});
 }
 function result(){
   var n=G.types.length,p=G.first/n;
@@ -914,6 +972,7 @@ document.addEventListener('click',function(e){
   var el=e.target.closest('[data-a]');if(!el)return;
   var a=el.dataset.a;ac();
   switch(a){
+    case 'sptake':spTake();break;
     case 'closenotice':$('#notice').style.display='none';break;
     case 'home':go('home');break;
     case 'parent':go('parent');break;
@@ -989,8 +1048,9 @@ window.addEventListener('resize',function(){if(G&&G.hw&&G.hw.phase==='write')hwS
 /* 測試用匯出 */
 window.__vocab={parseLines:parseLines,findForm:findForm,sentLocal:sentLocal,orderTokens:orderTokens};
 load();render();
+spSync();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
-window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D}};
+window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,take:spTake,sync:spSync,dec:spDecode,learned:spLearned}};
 })();
 </script>
 </body>
