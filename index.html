@@ -59,6 +59,9 @@ textarea{min-height:130px}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 .sp-ov{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(30,20,60,.72);z-index:90;display:flex;align-items:center;justify-content:center;padding:20px}
 .sp-card{background:linear-gradient(160deg,#fff7e0,#ffe0b8);border:6px solid #ff8a1f;border-radius:32px;max-width:600px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35);animation:spPop .5s .9s both}
+.qv-q{font-size:32px;line-height:1.5;font-weight:800;color:#3a2e5a;margin:6px 0 4px}
+.qv-w{font-size:24px;color:#8a5a00;margin-bottom:14px}
+.qv-m{font-size:28px;line-height:1.5;color:#1f7a45;font-weight:700;background:#fff;border-radius:20px;padding:14px 16px;margin:10px 0 18px}
 .sp-ball{font-size:120px;line-height:1;display:inline-block;animation:spFly 1.1s cubic-bezier(.2,.8,.3,1.15) both}
 .sp-t{font-size:40px;font-weight:900;color:#e0561f;margin:8px 0}
 .sp-m{font-size:30px;line-height:1.5;color:#3a2e5a;font-weight:700;margin:10px 0}
@@ -94,6 +97,7 @@ textarea{min-height:130px}
 <div id="toast"></div>
 <script src="dict.js"></script>
 <script src="sentences.js"></script>
+<script src="quotes.js"></script>
 <script>
 (function(){
 'use strict';
@@ -391,6 +395,25 @@ function spTake(){var o=$('#spov');if(!o)return;o.remove();
   var c=spCfg(),s=spPrep(c);
   if(s.v>c.maxVolume){s.fin=true}else{s.v=s.v+1}
   s.n++;s.t=Date.now();spPut(s);confetti(80)}
+/* 一輪結束的稀有台詞（大獎優先；同一句不連續） */
+var QV_KEY='vocabApp.qv';
+function qvMaybe(g,force){
+  var L=(window.VOCAB_QUOTES||[]).filter(function(x){return x&&x.q&&x.msg});if(!L.length||!g)return false;
+  var n=g.types.length,p=n?g.first/n:0,ch=0;
+  if(g.g==='write'){if(p>=0.6)ch=0.5}else if(n>=3&&g.first===n)ch=0.15;
+  if(!ch)return false;
+  var st={};try{st=JSON.parse(localStorage.getItem(QV_KEY))||{}}catch(e){}
+  st.k=(+st.k||0)+1; /* 合格輪數計數 */
+  var cand=L.filter(function(x){return x.id!==st.last});
+  if(!cand.length&&st.at!==st.k-1)cand=L; /* 只有一句時：上一個合格輪剛出現過就跳過 */
+  var show=cand.length&&(force||Math.random()<ch);
+  if(show){var x=cand[rnd(cand.length)];st.last=x.id;st.at=st.k;qvShow(x)}
+  try{localStorage.setItem(QV_KEY,JSON.stringify(st))}catch(e){}
+  return !!show}
+function qvShow(x){if($('#qvov')||$('#spov'))return;
+  var o=document.createElement('div');o.id='qvov';o.className='sp-ov';
+  o.innerHTML='<div class="sp-card" style="animation-delay:0s"><div class="qv-q">「'+esc(x.q)+'」</div><div class="qv-w">—— '+esc(x.who||'')+'</div><div class="qv-m">'+esc(x.msg)+'</div><div style="text-align:center"><button class="btn green" style="display:inline-block;width:auto;font-size:28px;padding:16px 40px" data-a="qvclose">💪 好！</button></div></div>';
+  document.body.appendChild(o);try{sndOk()}catch(e){}}
 function praise2(){return Math.random()<0.05?SP_LINES[rnd(SP_LINES.length)]:praise()}
 
 /* ---------- 畫面 ---------- */
@@ -958,7 +981,7 @@ function onFlip(i){
 function finish(){
   var bonus=0;if(G.first===G.types.length&&G.types.length>=3){bonus=3;D.stars+=3;G.gained+=3}
   save();view='result';sndWin();confetti(160);render();
-  spSync().then(function(){setTimeout(function(){if(view==='result')spCheck()},1400)});
+  spSync().then(function(){var g=G;setTimeout(function(){if(view==='result'&&!spCheck())qvMaybe(g)},1400)});
 }
 function result(){
   var n=G.types.length,p=G.first/n;
@@ -974,6 +997,7 @@ document.addEventListener('click',function(e){
   var a=el.dataset.a;ac();
   switch(a){
     case 'sptake':spTake();break;
+    case 'qvclose':{var qo=$('#qvov');if(qo)qo.remove();break}
     case 'closenotice':$('#notice').style.display='none';break;
     case 'home':go('home');break;
     case 'parent':go('parent');break;
@@ -1051,7 +1075,7 @@ window.__vocab={parseLines:parseLines,findForm:findForm,sentLocal:sentLocal,orde
 load();render();
 spSync();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
-window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned}};
+window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,qv:qvMaybe,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned}};
 })();
 </script>
 </body>
