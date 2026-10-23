@@ -118,7 +118,7 @@ function migrateEx(){var n=0;D.weeks.forEach(function(wk){(wk.words||[]).forEach
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('儲存失敗，請檢查儲存空間')}}
 function allWords(){var r=[];D.weeks.forEach(function(w){w.words.forEach(function(x){r.push(x)})});return r}
 function findWeek(id){return D.weeks.filter(function(w){return w.id===id})[0]}
-function rec(id,ok,k){var s=D.stats[id]||(D.stats[id]={c:0,w:0});ok?s.c++:s.w++;k=(ok&&k>1)?k:1;if(k>1)s.x=(s.x||0)+k-1;s.h=String(s.h||'').concat(new Array(k+1).join(ok?'1':'0')).slice(-4);save();spLog(ok,k)}
+function rec(id,ok,k){var s=D.stats[id]||(D.stats[id]={c:0,w:0});ok?s.c++:s.w++;s.ls=Date.now();k=(ok&&k>1)?k:1;if(k>1)s.x=(s.x||0)+k-1;s.h=String(s.h||'').concat(new Array(k+1).join(ok?'1':'0')).slice(-4);save();spLog(ok,k)}
 function acc(id){var s=D.stats[id];if(!s||s.c+s.w===0)return null;return s.c/(s.c+s.w)}
 
 /* ---------- 解析批次輸入 ---------- */
@@ -442,7 +442,11 @@ function home(){
 function learn(){
   var ws=scopeWords(D.weeks.length?D.weeks[D.weeks.length-1].id:'all');
   if(!ws.length){toast('還沒有單字喔');return}
-  app.innerHTML=topbar(true)+'<h2>🔊 點喇叭聽單字和例句</h2><div class="grid g2">'+ws.map(function(w){
+  var old=oldWords(),rv=[];while(rv.length<6&&rv.length<old.length)rv.push(pickWord(old,rv.map(function(x){return x.id}),revWeight));
+  app.innerHTML=topbar(true)+'<h2>🔊 點喇叭聽單字和例句</h2>'+lcards(ws)+(rv.length?'<h2 style="margin-top:24px">🔁 複習以前的字</h2>'+lcards(rv):'');
+}
+function lcards(ws){
+  return '<div class="grid g2">'+ws.map(function(w){
     return '<div class="lcard">'+(w.emoji?'<div style="font-size:60px">'+esc(w.emoji)+'</div>':'')+'<div class="en">'+esc(w.en)+'</div>'+(w.zh?'<div style="font-size:20px;color:#8e8aa5">'+esc(w.zh)+'</div>':'')+
     (hasEx(w)?'<div class="ex">💬 '+esc(w.ex)+'</div>'+(w.exZh?'<div class="exzh">'+esc(w.exZh)+'</div>':''):'')+
     '<div class="lbtns"><button class="btn small blue" data-a="sayex" data-id="'+w.id+'">🔊 '+(hasEx(w)?'單字＋句子':'單字')+'</button>'+
@@ -510,14 +514,30 @@ function doImport(txt,mode){
 
 /* ---------- 抽考 ---------- */
 function scopeWords(sc){
-  if(sc==='all')return allWords();
+  if(sc==='all'||sc==='mixrev')return allWords();
   if(sc==='latest'){var l=D.weeks[D.weeks.length-1];return l?l.words.slice():[]}
   var w=findWeek(sc);return w?w.words.slice():[];
 }
-var lastScope='latest';
+/* 範圍記住在本機；舊的預設「本週」一次性改成「本週＋複習」 */
+var SC_KEY='vocabApp.scope',lastScope='mixrev';
+(function(){try{var v=localStorage.getItem(SC_KEY);
+  if(!localStorage.getItem(SC_KEY+'.m')){localStorage.setItem(SC_KEY+'.m','1');if(!v||v==='latest'){v='mixrev';localStorage.setItem(SC_KEY,v)}}
+  if(v)lastScope=v}catch(e){}})();
+function scopeOk(v){return v==='mixrev'||v==='latest'||v==='all'||!!findWeek(v)}
+function newWords(){var l=D.weeks[D.weeks.length-1];return l?l.words.slice():[]}
+function oldWords(){var r=[];D.weeks.slice(0,-1).forEach(function(w){w.words.forEach(function(x){r.push(x)})});return r}
+/* 複習權重：以前答錯（總體＋最近 4 次）與很久沒練的字優先 */
+function revWeight(w){var s=D.stats[w.id];if(!s)return 6;
+  var h=String(s.h||''),z=0;for(var i=0;i<h.length;i++)if(h[i]==='0')z++;
+  var days=s.ls?Math.max(0,(Date.now()-s.ls)/86400000):14;
+  return weight(w)+z*1.5+Math.min(days,28)/3}
+var REV_SHARE=0.35;
+function revShare(nn){return nn>=6?REV_SHARE:nn>=3?0.5:nn>=1?0.65:1} /* 本週字太少時多抽以前的字 */
+function bucketPlan(n,share){var k=Math.min(n,Math.floor(n*share+Math.random())),a=[];for(var i=0;i<n;i++)a.push(i<k);return shuffle(a)}
 function quizMenu(){
   if(!allWords().length){app.innerHTML=topbar(true)+'<div class="card mid">還沒有單字！請爸媽先到「家長區」輸入這週的單字。</div><div class="grid g2" style="margin-top:14px"><button class="btn purple" data-a="parent">👨‍👩‍👧 去家長區</button></div>';return}
-  var opts='<option value="latest">本週（最新一週）</option><option value="all">全部單字</option>'+D.weeks.slice().reverse().map(function(w){return '<option value="'+w.id+'">'+esc(w.name)+'</option>'}).join('');
+  if(!scopeOk(lastScope))lastScope='mixrev';
+  var opts='<option value="mixrev">本週＋複習（推薦）</option>'+'<option value="latest">本週（最新一週）</option><option value="all">全部單字</option>'+D.weeks.slice().reverse().map(function(w){return '<option value="'+w.id+'">'+esc(w.name)+'</option>'}).join('');
   app.innerHTML=topbar(true)+'<h2>🎮 選擇挑戰</h2><div class="card"><b>範圍</b><select id="scope" style="margin-top:8px">'+opts+'</select></div>'+
   '<div class="grid g2">'+
   '<button class="btn green" data-a="start" data-g="mix">🌈 綜合挑戰</button>'+
@@ -533,14 +553,20 @@ function quizMenu(){
 function hasPic(w){return !!(w.emoji||w.zh)}
 function okFor(t,w){return t==='pic'?hasPic(w):t==='cloze'?canCloze(w):t==='order'?canOrder(w):true}
 function weight(w){var s=D.stats[w.id];if(!s)return 3;var t=s.c+s.w;var wr=s.w/t;return 1+wr*6+(t<3?1.5:0)}
-function pickWord(pool,avoid){
+function pickWord(pool,avoid,wf){wf=wf||weight;
   var c=pool.filter(function(w){return avoid.indexOf(w.id)<0});if(!c.length)c=pool;
-  var tot=0;c.forEach(function(w){tot+=weight(w)});var r=Math.random()*tot;
-  for(var i=0;i<c.length;i++){r-=weight(c[i]);if(r<=0)return c[i]}return c[c.length-1];
+  var ws=c.map(wf),tot=0;ws.forEach(function(x){tot+=x});var r=Math.random()*tot;
+  for(var i=0;i<c.length;i++){r-=ws[i];if(r<=0)return c[i]}return c[c.length-1];
 }
+/* 本週＋複習：依題號的計畫決定抽本週或以前的字；某一邊沒有適合的字就改抽另一邊 */
+function pickMix(t,rev,avoid){
+  var nb=G.mix.nw.filter(function(x){return okFor(t,x)}),ob=G.mix.ow.filter(function(x){return okFor(t,x)});
+  if(rev&&ob.length||!nb.length){G.rev=true;return pickWord(ob,avoid,revWeight)}
+  G.rev=false;return pickWord(nb,avoid)}
 function startQuiz(g,sc){
-  lastScope=sc;
-  var pool=scopeWords(sc);
+  lastScope=sc;try{localStorage.setItem(SC_KEY,sc)}catch(e){}
+  var pool=scopeWords(sc),mix=null;
+  if(sc==='mixrev'){var nw=newWords(),ow=oldWords();if(!ow.length)pool=nw;else if(!nw.length)pool=ow;else mix={nw:nw,ow:ow,share:revShare(nw.length)}}
   if(!pool.length){toast('這個範圍沒有單字');return}
   var picPool=pool.filter(hasPic);
   if(g==='pic'&&!picPool.length){notice('「看圖選英文」需要單字有 emoji 或中文意思。請爸媽到「家長區」用「編輯」補上，例如：apple 蘋果 🍎。現在可以先玩「聽音選字」或「拼字遊戲」喔！');return}
@@ -557,7 +583,8 @@ function startQuiz(g,sc){
     if(g==='mix'){var ts=['spell'];if(pool.length>=2)ts.push('listen');if(picPool.length)ts.push('pic');if(pool.length>=2&&pool.some(canCloze)&&i%5===2)ts=['cloze'];if(pool.some(canOrder)&&i%5===3)ts=['order'];if(pool.length>=2&&i%5===4)ts=['match'];t=ts[rnd(ts.length)]}
     types.push(t);
   }
-  G={g:g,pool:pool,types:types,i:0,ok:0,first:0,gained:0,recent:[],requeue:[],locked:false};
+  G={g:g,pool:pool,types:types,i:0,ok:0,first:0,gained:0,recent:[],requeue:[],locked:false,mix:mix,rev:false};
+  if(mix)mix.plan=bucketPlan(N,mix.share);
   view='quiz';quizQ();
 }
 function distract(w,pool,key){
@@ -568,14 +595,15 @@ function distract(w,pool,key){
     return out.slice(0,3);
 }
 function qHead(){
-  return topbar(false).replace('<span></span>','<button class="btn small gray" data-a="quit">✕ 結束</button>')+'<div class="bar"><i style="width:'+(G.i/G.types.length*100)+'%"></i></div>';
+  return topbar(false).replace('<span></span>','<button class="btn small gray" data-a="quit">✕ 結束</button>'+(G.rev?' <span class="pill" style="background:#b3a6e0;font-size:14px;vertical-align:middle">🔁 複習</span>':''))+'<div class="bar"><i style="width:'+(G.i/G.types.length*100)+'%"></i></div>';
 }
 function quizQ(){
   if(G.i>=G.types.length){return finish()}
-  var t=G.types[G.i];G.locked=false;G.tried=false;G.sayAfter=null;spSeq++;
+  var t=G.types[G.i];G.locked=false;G.tried=false;G.sayAfter=null;G.rev=false;spSeq++;
   if(t==='match')return matchQ();
   var w;
   if(G.requeue.length&&G.requeue[0].at<=G.i&&okFor(t,G.requeue[0].w)){w=G.requeue.shift().w}
+  else if(G.mix)w=pickMix(t,G.mix.plan[G.i],G.recent);
   else w=pickWord(G.pool.filter(function(x){return okFor(t,x)}),G.recent);
   G.recent.push(w.id);if(G.recent.length>3)G.recent.shift();
   G.w=w;
@@ -948,6 +976,15 @@ function orderBack(k){var r=G.or;if(G.locked)return;var v=r.ans.splice(k,1)[0];r
 function matchQ(){
   var cand=G.pool.slice();
   var ws=[];var tmp=cand.slice();
+  if(G.mix){ /* 4 張牌也照比例混入以前的字 */
+    var k=Math.floor(4*G.mix.share+Math.random()),nb=G.mix.nw.slice(),ob=G.mix.ow.slice(),ro=0,flags=[];
+    while(ws.length<4&&(nb.length||ob.length)){
+      var useO=ob.length&&(ro<k||!nb.length);
+      var x=useO?pickWord(ob,[],revWeight):pickWord(nb,[]);
+      ws.push(x);flags.push(!!useO);if(useO)ro++;
+      nb=nb.filter(function(y){return y.id!==x.id});ob=ob.filter(function(y){return y.id!==x.id})}
+    G.mixLast=flags;tmp=[];
+  }
   while(ws.length<4&&tmp.length){ws.push(pickWord(tmp,ws.map(function(x){return x.id})));tmp=tmp.filter(function(x){return ws.indexOf(x)<0})}
   var cards=[];
   ws.forEach(function(w){cards.push({id:w.id,w:w,side:'en'});cards.push({id:w.id,w:w,side:'pic'})});
@@ -1075,7 +1112,7 @@ window.__vocab={parseLines:parseLines,findForm:findForm,sentLocal:sentLocal,orde
 load();render();
 spSync();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
-window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,qv:qvMaybe,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned}};
+window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,qv:qvMaybe,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned},start:startQuiz,next:quizQ,go:go,learn:learn};
 })();
 </script>
 </body>
