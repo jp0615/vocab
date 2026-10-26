@@ -343,7 +343,7 @@ var tt;function toast(m){var t=$('#toast');t.textContent=m;t.style.display='bloc
 var PRAISE=['太棒了！🎉','答對了！⭐','你好厲害！👏','讚讚讚！🌟','完美！💯','繼續加油！🚀','超強的！🏆'];
 var TRYAG=['沒關係，再試試看！💪','差一點點喔！','加油，你可以的！'];
 function notice(m){var o=$('#notice');if(!o){o=document.createElement('div');o.id='notice';o.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(58,46,90,.55);z-index:70;display:flex;align-items:center;justify-content:center;padding:24px';document.body.appendChild(o)}
-  o.innerHTML='<div class="card mid" style="max-width:520px;font-size:28px;line-height:1.5">'+esc(m)+'<div style="margin-top:16px"><button class="btn green" data-a="closenotice">好的</button></div></div>';o.style.display='flex'}
+  o.innerHTML='<div class="card mid" style="max-width:520px;font-size:28px;line-height:1.5;white-space:pre-line">'+esc(m)+'<div style="margin-top:16px"><button class="btn green" data-a="closenotice">好的</button></div></div>';o.style.display='flex'}
 function praise(){return PRAISE[rnd(PRAISE.length)]}
 function tryag(){return TRYAG[rnd(TRYAG.length)]}
 
@@ -498,29 +498,51 @@ function parent(){
 
 function ioView(){
   app.innerHTML=topbar(true)+'<h2>📦 匯出／匯入（搬到另一台 iPad）</h2>'+
-  '<div class="card"><b>匯出</b><div class="row" style="margin:10px 0"><button class="btn blue" data-a="exportfile">💾 下載 JSON 檔</button><button class="btn purple" data-a="exportcopy">📋 複製文字代碼</button></div>'+
+  '<div class="card"><b>匯出</b><div class="mid" style="text-align:left;font-size:20px">會帶走：單字、答題紀錄、⭐ '+D.stars+' 顆星星和設定。</div><div class="row" style="margin:10px 0"><button class="btn blue" data-a="exportfile">💾 下載 JSON 檔</button><button class="btn purple" data-a="exportcopy">📋 複製文字代碼</button></div>'+
   '<textarea id="code" readonly placeholder="按「複製文字代碼」後會顯示在這裡"></textarea></div>'+
-  '<div class="card"><b>匯入</b><p class="mid" style="text-align:left">選擇 JSON 檔，或把文字代碼貼到下面。</p>'+
+  '<div class="card"><b>匯入</b><p class="mid" style="text-align:left">選擇 JSON 檔，或把文字代碼貼到下面。代碼裡有單字、答題紀錄和⭐星星。「合併匯入」會保留兩邊的單字，星星取比較多的那邊，每個字的紀錄取練習比較多的那份。</p>'+
   '<input type="file" id="file" accept=".json,application/json" style="font-size:18px;margin-bottom:10px">'+
   '<textarea id="paste" placeholder="在此貼上文字代碼"></textarea>'+
   '<div class="row" style="margin-top:10px"><button class="btn green" data-a="import" data-m="merge">合併匯入（保留現有）</button><button class="btn red" data-a="import" data-m="replace">取代全部資料</button></div></div>';
 }
-function exportText(){return JSON.stringify(D)}
+/* 匯出：學習資料全部帶走（單字、答題紀錄、星星、設定、範圍、台詞輪替）；不含系統同步狀態 */
+function exportText(){var o={},k;for(k in D)o[k]=D[k];o.app='vocab';o.fmt=2;o.exported=new Date().toISOString();
+  try{o.scope=localStorage.getItem(SC_KEY)||lastScope}catch(e){o.scope=lastScope}
+  try{var q=JSON.parse(localStorage.getItem(QV_KEY));if(q&&typeof q==='object')o.qv=q}catch(e){}
+  return JSON.stringify(o)}
+function cleanStat(s){if(!s||typeof s!=='object')return null;var r={c:+s.c||0,w:+s.w||0};if(+s.ls)r.ls=+s.ls;if(+s.x)r.x=+s.x;if(s.h!==undefined)r.h=String(s.h||'').replace(/[^01]/g,'').slice(-4);return r}
+function statN(s){return s?(+s.c||0)+(+s.w||0):-1}
+/* 同一個字兩邊都有紀錄：取作答次數多的那份（一樣多就取最近練習的），不相加以免重複計算 */
+function pickStat(a,b){if(!a)return b;if(!b)return a;var na=statN(a),nb=statN(b);if(nb!==na)return nb>na?b:a;return (+b.ls||0)>(+a.ls||0)?b:a}
+var EXTRA_KEYS={app:1,fmt:1,exported:1,scope:1,qv:1};
 function doImport(txt,mode){
-  var o;try{o=JSON.parse(txt.trim())}catch(e){toast('格式不正確，請確認內容完整');return}
+  var o;try{o=JSON.parse(String(txt).trim())}catch(e){toast('格式不正確，請確認內容完整');return}
+  if(o&&o.app==='vocab'&&o.data&&!o.weeks)o=o.data;
   if(!o||!Array.isArray(o.weeks)){toast('這不是單字資料');return}
   o.weeks.forEach(function(w){w.words=(w.words||[]).filter(function(x){return x&&x.en})});
+  var nWords=0;o.weeks.forEach(function(w){nWords+=w.words.length});
+  var st={};Object.keys(o.stats&&typeof o.stats==='object'?o.stats:{}).forEach(function(k){var c=cleanStat(o.stats[k]);if(c)st[k]=c});
+  var hasStars=o.stars!==undefined&&o.stars!==null,inStars=Math.max(0,Math.floor(+o.stars||0)),added=0;
   if(mode==='replace'){
     if(!confirm('確定要用匯入的資料取代目前全部資料嗎？'))return;
-    D=Object.assign(blank(),o);
+    var nd=blank(),k;for(k in o)if(!EXTRA_KEYS[k])nd[k]=o[k];nd.stats=st;nd.stars=inStars;D=nd;added=nWords;
   }else{
     o.weeks.forEach(function(w){
       var ex=findWeek(w.id);
-      if(!ex){D.weeks.push(w)}else{var have={};ex.words.forEach(function(x){have[x.id]=1});w.words.forEach(function(x){if(!have[x.id])ex.words.push(x);else{var cur=ex.words.filter(function(y){return y.id===x.id})[0];if(cur&&!hasEx(cur)&&hasEx(x)){cur.ex=x.ex;cur.exZh=x.exZh||'';cur.exForm=x.exForm||findForm(x.ex,cur.en);if(x.auto&&x.auto.ex)(cur.auto=cur.auto||{}).ex=1;else if(cur.auto)delete cur.auto.ex}}})}
+      if(!ex){D.weeks.push(w);added+=w.words.length}else{var have={};ex.words.forEach(function(x){have[x.id]=1});w.words.forEach(function(x){if(!have[x.id]){ex.words.push(x);added++}else{var cur=ex.words.filter(function(y){return y.id===x.id})[0];if(cur&&!hasEx(cur)&&hasEx(x)){cur.ex=x.ex;cur.exZh=x.exZh||'';cur.exForm=x.exForm||findForm(x.ex,cur.en);if(x.auto&&x.auto.ex)(cur.auto=cur.auto||{}).ex=1;else if(cur.auto)delete cur.auto.ex}}})}
     });
-    Object.keys(o.stats||{}).forEach(function(k){if(!D.stats[k])D.stats[k]=o.stats[k]});
+    Object.keys(st).forEach(function(k){D.stats[k]=pickStat(D.stats[k],st[k])});
+    D.stars=Math.max(+D.stars||0,inStars);
   }
-  migrateEx();save();toast('匯入成功！');go('home');
+  /* 範圍與台詞輪替（新版代碼才有） */
+  if(typeof o.scope==='string'&&mode==='replace'){lastScope=o.scope;try{localStorage.setItem(SC_KEY,o.scope);localStorage.setItem(SC_KEY+'.m','1')}catch(e){}}
+  if(o.qv&&typeof o.qv==='object'){try{var cq={};if(mode!=='replace'){cq=JSON.parse(localStorage.getItem(QV_KEY))||{}}
+    var q={k:Math.max(+cq.k||0,+o.qv.k||0),last:(+o.qv.at||0)>=(+cq.at||0)?o.qv.last:cq.last,at:Math.max(+cq.at||0,+o.qv.at||0)};localStorage.setItem(QV_KEY,JSON.stringify(q))}catch(e){}}
+  if(!scopeOk(lastScope))lastScope='mixrev';
+  migrateEx();save();go('home');
+  var nst=Object.keys(st).length;
+  notice((mode==='replace'?'✅ 已取代成匯入的資料':'✅ 合併匯入完成')+'\n已匯入 '+nWords+' 個單字'+(mode==='replace'?'':'（新增 '+added+' 個）')+'、'+nst+' 個字的答題紀錄\n'+(hasStars?'⭐ 星星：現在共 '+D.stars+' 顆':'⭐ 這份代碼是舊版的，裡面沒有星星；星星維持 '+D.stars+' 顆'));
+  toast(hasStars?'已匯入 '+nWords+' 個單字、⭐ '+D.stars+' 顆星星':'已匯入 '+nWords+' 個單字');
 }
 
 /* ---------- 抽考 ---------- */
