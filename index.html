@@ -66,6 +66,8 @@ textarea{min-height:130px}
 .sp-t{font-size:40px;font-weight:900;color:#e0561f;margin:8px 0}
 .sp-m{font-size:30px;line-height:1.5;color:#3a2e5a;font-weight:700;margin:10px 0}
 .sp-s{font-size:26px;color:#7a4b00;margin:6px 0 18px}
+.sp-cap{width:120px;height:120px;border-radius:50%;position:relative;background:linear-gradient(180deg,#ff5fa2 0 48%,#3a2e5a 48% 54%,#fff 54%);border:6px solid #3a2e5a;box-shadow:inset -10px -8px 0 rgba(0,0,0,.08)}
+.sp-cap i{position:absolute;left:22px;top:14px;width:26px;height:16px;border-radius:50%;background:rgba(255,255,255,.75);transform:rotate(-25deg)}
 @keyframes spFly{0%{transform:translate(-70vw,-50vh) rotate(-900deg) scale(.3);opacity:0}60%{opacity:1}80%{transform:translate(0,20px) rotate(10deg) scale(1.15)}100%{transform:none}}
 @keyframes spPop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
 #toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%);background:#3a2e5a;color:#fff;padding:14px 26px;border-radius:24px;font-size:22px;z-index:60;display:none}
@@ -348,8 +350,42 @@ function praise(){return PRAISE[rnd(PRAISE.length)]}
 function tryag(){return TRYAG[rnd(TRYAG.length)]}
 
 /* ---------- 系統同步（家長端遠端設定；不顯示任何介面） ---------- */
+/* 共同彩蛋規則（三個 App 相同）：漫畫 m／扭蛋 g 輪流；每種各自冷卻、任兩次至少隔 minGapDays、滾動 7 天最多 weekMax 次 */
+function rwDay(d){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d||''));return m?(Date.parse(m[1]+'-'+m[2]+'-'+m[3]+'T00:00:00+08:00')||0):0}
+function rwFires(c,s,sh){var F=[],seen={},tok=String(c.resetToken||'');
+  function add(x){if(!x||typeof x!=='object'||!(+x.t))return;var t=+x.t;if(seen[t])return;seen[t]=1;var k=x.k==='g'?'g':'m';
+    F.push({t:t,k:k,pend:k==='g'?x.gg===c.gachaGiven:x.g===c.given})}
+  (Array.isArray(s.h)?s.h:[]).forEach(add);if(+s.t)add({t:s.t,k:s.k,g:s.g,gg:s.gg});
+  if(sh&&typeof sh==='object'&&sh.tok===tok){(Array.isArray(sh.h)?sh.h:[]).forEach(add);add(sh)}
+  return F}
+function rwShared(key){var o=null;try{o=JSON.parse(localStorage.getItem(key))}catch(e){}return (o&&typeof o==='object')?o:null}
+function rwPick(c,s,sh,mangaOk){ /* 回傳 'm'、'g' 或 ''（現在不能出） */
+  if(!c.enabled)return '';
+  var t=Date.now(),D=864e5,num=function(v,d){v=+v;return isFinite(v)?Math.max(0,v):d},
+    cdM=num(c.cooldownDays,7)*D,cdG=num(c.gachaCooldownDays,7)*D,gap=num(c.minGapDays,3)*D,wd=num(c.waitDays,14)*D,cap=Math.floor(num(c.weekMax,2)),
+    lg=rwDay(c.lastGiven),la=rwDay(c.lastGacha),F=rwFires(c,s,sh),i,x,last=0,lk='',n=0,bm=!mangaOk,bg=!c.gachaEnabled;
+  if(lg){last=lg;lk='m';if(t-lg<7*D)n++;if(t<lg+cdM)bm=true}
+  if(la){if(la>last||(la===last&&c.lastType==='g')){last=la;lk='g'}if(t-la<7*D)n++;if(t<la+cdG)bg=true}
+  for(i=0;i<F.length;i++){x=F[i];
+    if(!x.pend)continue;                          /* 已登記：以爸爸登記的 lastGiven/lastGacha 日期為準 */
+    if(t<x.t+wd)return '';                        /* 出過、爸爸還沒登記 → 等待（同一台，或 Safari 裡的別台） */
+    if(x.t>last){last=x.t;lk=x.k}                 /* 等太久沒登記：仍照時間算間隔、冷卻、上限 */
+    if(t-x.t<7*D)n++;
+    if(x.k==='m'&&t<x.t+cdM)bm=true;if(x.k==='g'&&t<x.t+cdG)bg=true}
+  if(last&&t<last+gap)return '';
+  if(n>=cap)return '';
+  var due=lk==='m'?'g':'m',ok={m:!bm,g:!bg};
+  return ok[due]?due:(ok[due==='m'?'g':'m']?(due==='m'?'g':'m'):'')}
+function rwRecord(c,s,key,k){var t=Date.now(),r={t:t,k:k,g:c.given,gg:c.gachaGiven},tok=String(c.resetToken||''),sh=rwShared(key);
+  s.n=(+s.n||0)+1;s.t=t;s.k=k;s.g=c.given;s.gg=c.gachaGiven;s.h=(Array.isArray(s.h)?s.h:[]).concat([r]).slice(-6);
+  var h=(sh&&sh.tok===tok&&Array.isArray(sh.h))?sh.h:[];if(sh&&sh.tok===tok&&+sh.t&&!h.some(function(y){return +y.t===+sh.t}))h=h.concat([{t:+sh.t,k:sh.k==='g'?'g':'m',g:sh.g,gg:sh.gg}]);
+  try{localStorage.setItem(key,JSON.stringify({t:t,k:k,g:c.given,gg:c.gachaGiven,tok:tok,h:h.concat([r]).slice(-6)}))}catch(e){}
+  return s}
+var RW_DEF={gachaEnabled:true,gachaGiven:0,lastGacha:'',gachaCooldownDays:7,minGapDays:3,weekMax:2,lastType:''};
+var RW_GCHEER=['轉轉轉～會轉出什麼呢？','好期待喔！','認真練習的獎勵！','今天也超棒的！','扭蛋時間到！'];
+var RW_GMSG='你可以去找爸爸<br>轉一次扭蛋機了 🎁';
 var SP_KEY='vocabApp.sys',SP_CFG_KEY='vocabApp.sysc',SP_URL='app.cfg';
-var SP_DEF={handwritingWeight:2,enabled:true,baseWords:30,stepWords:15,accuracy:0.8,cooldownDays:7,nextVolume:11,maxVolume:45,resetToken:'',given:0,lastGiven:'',waitDays:14};
+var SP_DEF={handwritingWeight:2,enabled:true,baseWords:30,stepWords:8,accuracy:0.8,cooldownDays:7,nextVolume:11,maxVolume:45,resetToken:'',given:0,lastGiven:'',waitDays:14,minFresh:80};(function(){for(var k in RW_DEF)SP_DEF[k]=RW_DEF[k]})();
 var SP_SH='sys.lt';
 var SP_LINES=['飛吧！🏐','下一球！🏐','漂亮的托球！🏐','好球！接得漂亮！🏐','這一球交給我！🏐','跳得好高！🏐','我們是最強的！🏐','把球連起來！🏐'];
 var SP_CHEER=['飛吧！','繼續連下去吧！','你是最強的二傳手！','下一球也要接起來！','這一球，漂亮！'];
@@ -367,44 +403,38 @@ function spSync(){ /* 連網時抓遠端設定並快取；失敗就用快取或�
 function spState(){var s=null;try{s=JSON.parse(localStorage.getItem(SP_KEY))}catch(e){}
   s=(s&&typeof s==='object')?s:{};s.r=String(s.r||'');s.n=+s.n||0;s.t=+s.t||0;s.v=+s.v||0;return s}
 function spPut(s){try{localStorage.setItem(SP_KEY,JSON.stringify(s))}catch(e){}}
-function spLog(ok,k){var s=spState();s.r=(s.r+new Array((k||1)+1).join(ok?'1':'0')).slice(-50);spPut(s)}
+function spLog(ok,k){var s=spState();s.r=(s.r+new Array((k||1)+1).join(ok?'1':'0')).slice(-50);if(ok)s.c=(+s.c||0)+(k||1);spPut(s)}
 function spWt(){var v=+spCfg().handwritingWeight;return isFinite(v)?Math.max(1,Math.min(5,Math.round(v))):2}
 function spPrep(c){ /* 套用 resetToken 與 nextVolume 下限 */
   var s=spState(),ch=false,tok=String(c.resetToken||'');
   if(!c._real){/* 沒有遠端設定時不處理重設 */}
   else if(s.tok===undefined){s.tok=tok;ch=true}
-  else if(s.tok!==tok){s.tok=tok;s.n=0;s.t=0;s.fin=false;delete s.g;s.v=Math.max(1,Math.floor(c.nextVolume)||11);ch=true}
+  else if(s.tok!==tok){s.tok=tok;s.n=0;s.t=0;s.fin=false;delete s.g;delete s.gg;delete s.k;delete s.h;s.c=0;s.v=Math.max(1,Math.floor(c.nextVolume)||11);ch=true}
   var lo=Math.floor(c.nextVolume)||11;if(!s.v||lo>s.v){s.v=lo;ch=true}
   if(ch)spPut(s);return s}
 function spLearned(){var n=0,seen={};allWords().forEach(function(w){if(seen[w.id])return;seen[w.id]=1;var st=D.stats[w.id];if(!st||st.c+(st.x||0)<3)return;
   var h=String(st.h||'').slice(-4),k=0;for(var i=0;i<h.length;i++)if(h[i]==='1')k++;if(k>=3)n++});return n}
 function spDay(d){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d||''));return m?(Date.parse(m[1]+'-'+m[2]+'-'+m[3]+'T00:00:00+08:00')||0):0}
-function spGate(c,s){ /* 共同規則：上次給的日期、同網域其他 App 的冷卻、等待登記 */
-  var t=Date.now(),cd=Math.max(0,+c.cooldownDays||0)*864e5,wd=Math.max(0,+c.waitDays||0)*864e5,L=[{t:s.t,g:s.g}],o=null,i,x;
-  try{o=JSON.parse(localStorage.getItem(SP_SH))}catch(e){}
-  if(o&&typeof o==='object'&&o.tok===String(c.resetToken||''))L.push(o);
-  var lg=spDay(c.lastGiven);if(lg&&t<lg+cd)return false;
-  for(i=0;i<L.length;i++){x=L[i];if(!(+x.t))continue;if(t<+x.t+cd)return false;if(x.g===c.given&&t<+x.t+wd)return false}
-  return true}
+function spGate(c,s){var over=Math.floor(c.nextVolume)>Math.floor(c.maxVolume);return rwPick(c,s,rwShared(SP_SH),!(over&&s.fin))}
 function spEval(){var c=spCfg(),s=spPrep(c),r=s.r,ok=0,i;for(i=0;i<r.length;i++)if(r[i]==='1')ok++;
-  var need=c.baseWords+c.stepWords*s.n,lw=spLearned(),a=r.length?ok/r.length:0,cd=c.cooldownDays*86400000,wait=s.t?Math.max(0,s.t+cd-Date.now()):0;
-  var over=Math.floor(c.nextVolume)>Math.floor(c.maxVolume),ready=!!c.enabled&&lw>=need&&r.length>=50&&a>=c.accuracy&&wait===0&&spGate(c,s)&&!(over&&s.fin);
-  return {cfg:c,st:s,learned:lw,need:need,answers:r.length,acc:a,cooldownMs:wait,volume:s.v,over:over,ready:ready}}
+  var need=c.baseWords+c.stepWords*s.n,lw=spLearned(),a=r.length?ok/r.length:0,fresh=+s.c||0,over=Math.floor(c.nextVolume)>Math.floor(c.maxVolume);
+  var prog=!!c.enabled&&lw>=need&&r.length>=50&&a>=c.accuracy&&fresh>=c.minFresh,k=prog?spGate(c,s):'';
+  return {cfg:c,st:s,learned:lw,need:need,answers:r.length,acc:a,fresh:fresh,volume:s.v,over:over,kind:k,ready:prog&&!!k}}
 function spCheck(force){ /* 一輪結束後呼叫；達標時約 70% 當下出現，否則等下一輪 */
   var e;try{e=spEval()}catch(x){return false}
   if(!e.ready)return false;
   if(!force&&Math.random()>=0.7)return false;
   spShow(e);return true}
 function spShow(e){var o=$('#spov');if(o)return;
-  o=document.createElement('div');o.id='spov';o.className='sp-ov';
-  var msg=e.over?'你已經集滿全套《排球少年!!》了！🏆<br>你是真正的單字王牌 🏐':'你可以去找爸爸換<br>下一集《排球少年!!》了 🏐';
-  o.innerHTML='<div><div style="text-align:center"><span class="sp-ball">🏐</span></div><div class="sp-card"><div class="sp-t">🎊 發現神秘彩蛋！🎊</div><div class="sp-m">'+msg+'</div><div class="sp-s">「'+esc(SP_CHEER[rnd(SP_CHEER.length)])+'」🔥</div><div style="text-align:center"><button class="btn green" style="display:inline-block;width:auto;font-size:30px;padding:18px 40px" data-a="sptake">🙌 收下</button></div></div></div>';
+  o=document.createElement('div');o.id='spov';o.className='sp-ov';o.setAttribute('data-k',e.kind);var gc=e.kind==='g';
+  var msg=gc?RW_GMSG:e.over?'你已經集滿全套《排球少年!!》了！🏆<br>你是真正的單字王牌 🏐':'你可以去找爸爸換<br>下一集《排球少年!!》了 🏐';
+  var pic=gc?'<span class="sp-ball sp-cap" aria-hidden="true"><i></i></span>':'<span class="sp-ball">🏐</span>',ch=gc?RW_GCHEER:SP_CHEER;
+  o.innerHTML='<div><div style="text-align:center">'+pic+'</div><div class="sp-card"><div class="sp-t">🎊 發現神秘彩蛋！🎊</div><div class="sp-m">'+msg+'</div><div class="sp-s">「'+esc(ch[rnd(ch.length)])+'」'+(gc?'✨':'🔥')+'</div><div style="text-align:center"><button class="btn green" style="display:inline-block;width:auto;font-size:30px;padding:18px 40px" data-a="sptake">🙌 收下</button></div></div></div>';
   document.body.appendChild(o);try{sndWin();setTimeout(function(){confetti(180)},900)}catch(x){}}
-function spTake(){var o=$('#spov');if(!o)return;o.remove();
+function spTake(){var o=$('#spov');if(!o)return;var k=o.getAttribute('data-k')==='g'?'g':'m';o.remove();
   var c=spCfg(),s=spPrep(c);
-  if(Math.floor(c.nextVolume)>Math.floor(c.maxVolume)){s.fin=true}else{s.v=s.v+1}
-  s.n++;s.t=Date.now();s.g=c.given;spPut(s);
-  try{localStorage.setItem(SP_SH,JSON.stringify({t:s.t,g:c.given,tok:String(c.resetToken||'')}))}catch(x){}
+  if(k==='m'){if(Math.floor(c.nextVolume)>Math.floor(c.maxVolume)){s.fin=true}else{s.v=s.v+1}}
+  s.c=0;rwRecord(c,s,SP_SH,k);spPut(s);
   confetti(80)}
 /* 一輪結束的稀有台詞（大獎優先；同一句不連續） */
 var QV_KEY='vocabApp.qv';
