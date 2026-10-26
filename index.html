@@ -90,6 +90,65 @@ textarea{min-height:130px}
 .otile.put{background:#9b6bff;color:#fff;box-shadow:0 6px 0 #6d3fd1}.otile.bad{background:#ef5b73;color:#fff;animation:shake .4s}
 .oans{background:#fff;border-radius:22px;border:4px dashed #d9ceff;padding:8px;align-items:center}
 .oend{font-size:40px;font-weight:800;align-self:flex-end}
+@font-face{font-family:"GardenRound";src:url("fonts/garden-round.woff2") format("woff2");font-display:swap}
+.gf,.gcard,.gwrap,.gpc,.grc{font-family:"GardenRound",ui-rounded,"Arial Rounded MT Bold","PingFang TC","Heiti TC",sans-serif}
+.gcard{display:block;width:100%;margin:16px 0 4px;border:0;border-radius:30px;background:#fffbea;box-shadow:0 6px 0 #c9e5a6,0 10px 18px rgba(90,120,60,.18);padding:12px 16px 10px;cursor:pointer;color:#5a6b3a;text-align:center;position:relative;overflow:hidden}
+.gcard:before{content:"";position:absolute;left:0;right:0;bottom:0;height:64px;background:#bfe59a;border-radius:50% 50% 0 0/26px 26px 0 0}
+.gcard>*{position:relative}
+.gcard:active{transform:translateY(4px);box-shadow:0 2px 0 #c9e5a6}
+.gct{font-size:30px;color:#e2698f;letter-spacing:1px}.gcs{font-size:21px;margin:2px 0 4px;color:#6a7a46}
+.gcp{display:flex;justify-content:center;gap:2px;height:60px;overflow:hidden}
+.gcell{display:inline-block;width:50px;height:60px;flex:0 0 50px}.gcell svg{width:100%;height:100%}
+.gcw{display:inline-block;margin-top:2px;background:#e8bf86;color:#6b4423;font-size:15px;padding:1px 12px;border-radius:10px;box-shadow:0 2px 0 #b98a52}
+.gmini{display:inline-block;width:56px;height:66px}.gmini svg{width:100%;height:100%}
+.gwrap{margin:-4px -4px 0;background:#d9f0c0 radial-gradient(circle,#c8e8a8 2px,transparent 2.5px) 0 0/26px 26px;border-radius:32px;padding:8px 8px 14px}
+.gskyb{position:relative;height:170px;border-radius:26px;background:linear-gradient(180deg,#c6ebff 0,#e8f7ff 60%,#fff8dc 100%);overflow:hidden;box-shadow:0 5px 0 rgba(120,160,80,.25)}
+.ghill{position:absolute;bottom:-40px;border-radius:50%;background:#a8dd84}.ghill.h1{left:-10%;width:70%;height:110px}.ghill.h2{right:-12%;width:75%;height:96px;background:#97d474}
+.gsun{position:absolute;right:26px;top:16px;width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff7c2,#ffe07a 65%);box-shadow:0 0 0 10px rgba(255,224,122,.28),0 0 0 22px rgba(255,224,122,.12)}
+.gcloud{position:absolute;width:110px;height:34px;border-radius:30px;background:#fff;animation:gdrift 18s ease-in-out infinite alternate}
+.gcloud:before,.gcloud:after{content:"";position:absolute;background:#fff;border-radius:50%}
+.gcloud:before{width:50px;height:50px;left:16px;top:-25px}.gcloud:after{width:38px;height:38px;left:56px;top:-17px}
+@keyframes gdrift{to{margin-left:36px}}
+.gtitle{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-size:30px;color:#fff;background:#e2698f;padding:4px 22px 6px;border-radius:22px;box-shadow:0 4px 0 #c24d74;white-space:nowrap;letter-spacing:2px}
+.gvis{position:absolute;width:48px;height:48px}.gvis svg{width:100%;height:100%;display:block}
+.gvis.fly{animation:gfloat 5s ease-in-out infinite alternate}.gvis.walk{animation:ghop 2.6s ease-in-out infinite}
+.gv1{animation-duration:6.5s}.gv2{animation-duration:4.2s}
+@keyframes gfloat{0%{transform:translate(0,0) rotate(-6deg)}50%{transform:translate(24px,-8px) rotate(4deg)}100%{transform:translate(46px,6px) rotate(-3deg)}}
+@keyframes ghop{0%,60%,100%{transform:translateY(0)}75%{transform:translateY(-8px)}}
+.gwing{transform-origin:30px 30px;animation:gflap .5s ease-in-out infinite alternate}@keyframes gflap{to{transform:scaleX(.55)}}
+.gbub{position:absolute;bottom:46px;left:50%;transform:translateX(-30%);background:#fff;color:#7a5a3a;font-size:15px;font-weight:400;padding:4px 10px;border-radius:14px;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.08);opacity:0;animation:gbub 7s ease-in-out infinite}
+.gbub:after{content:"";position:absolute;left:24%;bottom:-6px;border:6px solid transparent;border-top-color:#fff;border-bottom:0}
+@keyframes gbub{0%,8%{opacity:0;transform:translateX(-30%) scale(.7)}14%,55%{opacity:1;transform:translateX(-30%) scale(1)}62%,100%{opacity:0}}
+.gsum{text-align:center;font-size:23px;margin:12px 0 2px;color:#4f6a2e}.gnext{text-align:center;font-size:18px;color:#6a8a4e;margin-bottom:6px}
+.glegend{display:flex;justify-content:center;align-items:center;gap:4px;flex-wrap:wrap;font-size:16px;color:#6a7a46;margin:4px 0 6px}
+.glegend span{display:flex;flex-direction:column;align-items:center}.glegend i{display:block;width:40px;height:48px}.glegend svg{width:100%;height:100%}.glegend b{color:#a8c88a}
+.gbed{margin:10px 0}
+.gsign{display:flex;align-items:center;gap:10px;width:100%;border:0;background:#fff8e4;border-radius:22px;padding:6px 14px 6px 8px;cursor:pointer;color:#6b4423;min-height:52px;box-shadow:0 4px 0 #d8c39a;text-align:left;font-family:inherit}
+.gsign:active{transform:translateY(3px);box-shadow:0 1px 0 #d8c39a}
+.gsn{position:relative;background:#e8bf86;border-radius:12px;padding:5px 14px 6px;font-size:21px;color:#5a3714;box-shadow:inset 0 -4px 0 #d3a165,0 3px 0 #a87a45;white-space:nowrap;max-width:46%;overflow:hidden;text-overflow:ellipsis}
+.gsc{flex:1;font-size:18px;color:#6a7a46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gar{font-size:22px;color:#b98a52}
+.gsoil{margin:8px 4px 0;background:#c99a6b radial-gradient(circle,#b98558 1.5px,transparent 2px) 0 0/14px 14px;border-radius:24px;padding:8px;display:grid;grid-template-columns:repeat(auto-fill,52px);gap:4px;justify-content:center;box-shadow:inset 0 5px 0 #a8dd84,0 4px 0 #a97a4e}
+.gp{width:52px;height:60px;border:0;background:transparent;border-radius:14px;padding:0;cursor:pointer;display:block;contain:strict}
+.gp svg{width:52px;height:60px;display:block}.gp:active{background:rgba(255,255,255,.3)}
+.wilt svg{filter:saturate(.45)}
+.grew svg{animation:gwig 1.2s ease-in-out 2;transform-origin:50% 95%}
+@keyframes gwig{0%,100%{transform:rotate(0)}20%{transform:rotate(-6deg) scale(1.04)}45%{transform:rotate(5deg)}70%{transform:rotate(-3deg)}}
+.spark{position:relative}
+.spark:before,.spark:after{content:"✦";position:absolute;color:#ffd84d;font-size:14px;text-shadow:0 0 3px #fff;animation:gtw 1.6s ease-in-out infinite;pointer-events:none}
+.spark:before{left:2px;top:4px}.spark:after{right:4px;top:16px;animation-delay:.8s;font-size:11px}
+@keyframes gtw{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.15)}}
+.gpc{background:#fffbea;border-radius:32px;max-width:440px;width:100%;padding:18px 22px 22px;text-align:center;box-shadow:0 8px 0 #c9e5a6,0 16px 40px rgba(0,0,0,.25);color:#5a4a2a}
+.gbig svg{width:150px;height:174px;animation:gwig 1.2s ease-in-out 1;transform-origin:50% 95%}.gpw{font-size:46px;color:#3a2e5a}.gpz{font-size:28px;color:#6a5d94}
+.gps{display:inline-block;margin:8px 0 4px;background:#ffe3ef;color:#c0306a;border-radius:16px;padding:4px 16px;font-size:22px}.gpt{font-size:21px;color:#4a6a3e;line-height:1.5}
+.grc{position:relative;overflow:hidden;background:#fffbea;box-shadow:0 6px 0 #c9e5a6;text-align:center;padding-top:22px}
+.grt{font-size:24px;color:#3d86c6}.grn{font-size:21px;color:#4a6a3e;margin-top:8px}
+.grs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.gri{display:flex;flex-direction:column;align-items:center;width:96px;opacity:0;animation:pop .5s forwards}.gri b{font-size:18px;color:#3a2e5a}.gri small{font-size:15px;color:#d0457a}
+.gdrop{position:absolute;top:-24px;width:14px;height:18px;background:#7cc6ff;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;opacity:0;animation:gfall 1.1s ease-in forwards}
+.gdrop:before{content:"";position:absolute;left:3px;top:-6px;border:4px solid transparent;border-bottom:8px solid #7cc6ff;border-top:0}
+@keyframes gfall{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(130px);opacity:0}}
+.grv{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:20px;color:#7a4b00;flex-wrap:wrap}.grv .gmini{width:46px;height:46px}
+@media (prefers-reduced-motion:reduce){.gvis,.gcloud,.gwing,.grew svg,.gbig svg{animation:none}}
 @media (max-width:600px){.opt{font-size:26px}.tile{width:56px;height:56px;font-size:30px}.slot{width:48px;height:60px;line-height:60px;font-size:34px}.mgrid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
@@ -120,7 +179,7 @@ function migrateEx(){var n=0;D.weeks.forEach(function(wk){(wk.words||[]).forEach
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('儲存失敗，請檢查儲存空間')}}
 function allWords(){var r=[];D.weeks.forEach(function(w){w.words.forEach(function(x){r.push(x)})});return r}
 function findWeek(id){return D.weeks.filter(function(w){return w.id===id})[0]}
-function rec(id,ok,k){var s=D.stats[id]||(D.stats[id]={c:0,w:0});ok?s.c++:s.w++;s.ls=Date.now();k=(ok&&k>1)?k:1;if(k>1)s.x=(s.x||0)+k-1;s.h=String(s.h||'').concat(new Array(k+1).join(ok?'1':'0')).slice(-4);save();spLog(ok,k)}
+function rec(id,ok,k){try{gPre(id)}catch(e){}var s=D.stats[id]||(D.stats[id]={c:0,w:0});ok?s.c++:s.w++;s.ls=Date.now();k=(ok&&k>1)?k:1;if(k>1)s.x=(s.x||0)+k-1;s.h=String(s.h||'').concat(new Array(k+1).join(ok?'1':'0')).slice(-4);save();spLog(ok,k);try{gPost(id,ok)}catch(e){}}
 function acc(id){var s=D.stats[id];if(!s||s.c+s.w===0)return null;return s.c/(s.c+s.w)}
 
 /* ---------- 解析批次輸入 ---------- */
@@ -457,6 +516,175 @@ function qvShow(x){if($('#qvov')||$('#spov'))return;
   document.body.appendChild(o);try{sndOk()}catch(e){}}
 function praise2(){return Math.random()<0.05?SP_LINES[rnd(SP_LINES.length)]:praise()}
 
+/* ---------- 🌸 秘密花園（每天看得到的成長；只讀答題紀錄，不影響星星、計分、範圍或任何其他功能） ---------- */
+var GK='vocabApp.garden',GS=null,GCAP=2,GWILT=14;
+var GSTN=['種子','發芽','嫩葉','花苞','開花'],GSTE=['🌰','🌱','🌿','🌷','🌸'];
+function gToday(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function gClean(o){var r={v:1,p:{},vb:0,vs:0};if(!o||typeof o!=='object')return r;
+  var p=(o.p&&typeof o.p==='object')?o.p:{};Object.keys(p).forEach(function(k){var e=p[k];if(!e||typeof e!=='object')return;
+    var n=Math.max(0,Math.min(4,Math.floor(+e.p||0)));r.p[k]={p:n,d:/^\d{4}-\d{2}-\d{2}$/.test(String(e.d||''))?String(e.d):'',t:Math.max(0,Math.floor(+e.t||0))}});
+  r.vb=Math.max(0,Math.floor(+o.vb||0));r.vs=Math.max(0,Math.floor(+o.vs||0));return r}
+function gLoad(){if(GS)return GS;var o=null;try{o=JSON.parse(localStorage.getItem(GK))}catch(e){}GS=gClean(o);return GS}
+function gSave(){try{localStorage.setItem(GK,JSON.stringify(GS))}catch(e){}}
+function gMastered(s){if(!s||(+s.c||0)+(+s.x||0)<3)return false;var h=String(s.h||'').slice(-4),k=0;for(var i=0;i<h.length;i++)if(h[i]==='1')k++;return k>=3}
+/* 第一次看到某個字：依現有答題紀錄直接放到對應階段（已學會的字直接開花） */
+function gInit(id){var s=D.stats[id];if(!s)return {p:0,d:'',t:0};return {p:gMastered(s)?4:Math.min(3,(+s.c||0)+(+s.x||0)),d:'',t:0}}
+function gEnt(id){gLoad();var e=GS.p[id];if(!e){e=GS.p[id]=gInit(id)}return e}
+function gMigrate(){gLoad();var ch=false;allWords().forEach(function(w){if(!GS.p[w.id]){GS.p[w.id]=gInit(w.id);ch=true}});gVis();gSave()}
+function gStage(id){return gEnt(id).p}
+function gWilt(id){if(gStage(id)<1)return false;var s=D.stats[id];if(!s)return false;
+  if(+s.ls&&(Date.now()-s.ls)/864e5>=GWILT)return true;var h=String(s.h||'');return h.slice(-1)==='0'}
+function gPre(id){if(G&&G.gs0&&!(id in G.gs0))G.gs0[id]={s:gStage(id),w:gWilt(id)}}
+/* 只有「第一次就答對」才會長（手寫算 2 次）；每個字每天最多長 2 格；要開花還得真的學會（最近 4 次至少對 3 次） */
+function gPost(id,ok){var e=gEnt(id);if(!ok)return;
+  var k=(G&&view==='quiz'&&G.types&&G.types[G.i]==='write')?2:1,day=gToday();
+  if(e.d!==day){e.d=day;e.t=0}
+  if(e.p>=4){gSave();return}
+  var room=Math.max(0,GCAP-e.t),add=Math.min(k,room);
+  if(!add){if(G)G.gcap=true;gSave();return}
+  var np=e.p+add;if(np>=4&&!gMastered(D.stats[id]))np=3;
+  if(np>e.p){e.t+=np-e.p;e.p=np}else if(G&&e.p===3)G.gwait=true;
+  gSave()}
+function gBloomN(){var n=0;allWords().forEach(function(w){if(gStage(w.id)>=4)n++});return n}
+var GVK=[['butterfly','蝴蝶'],['bunny','小兔子'],['duckling','小鴨鴨'],['hedgehog','小刺蝟']];
+var GCHEER=['加油！','好漂亮喔！','今天也來澆水吧！','你好棒！','花開了耶！','我最喜歡這裡了！','再來玩喔！'];
+var GVC=['#ffb3d1','#a8dcff','#ffd27a','#d4b8ff','#b6ec9a','#ffb0a0'];
+function gVisN(vb){return vb>=5?1+Math.floor(vb/10):0}
+function gNextAt(vb){var n=gVisN(vb);return n===0?5:10*n}
+function gVis(){gLoad();var b=gBloomN();if(b>GS.vb)GS.vb=b;return gVisN(GS.vb)}
+function gHash(s){var h=7;s=String(s);for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
+var GFRUIT='🍎🍏🍐🍊🍋🍌🍉🍇🍓🫐🍈🍒🍑🥭🍍🥥🥝',GVEG='🥕🌽🥦🥬🥒🍅🍆🥔🧅🧄🌶🫑🥑🫛🍄',GTREE='🌳🌲🌴🌿🍀🍃🌱🌵🪴🍂🍁',GFLW='🌸🌷🌹🌺🌻🌼💐🪻';
+var GWSP=['tulip','daisy','sunflower','tree'];
+var GCOL=['#ffa8c5','#ffc98a','#cdb2ff','#ff9f9f','#9fd4ff','#ffe17a','#ffb3e6','#a8e6dc','#f7a8ff'];
+function gSpecies(w,wi){var e=String(w.emoji||''),c=e?Array.from(e)[0]:'';
+  if(c){if(GFRUIT.indexOf(c)>=0)return 'berry';if(GVEG.indexOf(c)>=0)return 'carrot';if(GTREE.indexOf(c)>=0)return 'tree';if(GFLW.indexOf(c)>=0)return gHash(w.id)%2?'tulip':'daisy'}
+  return GWSP[wi%GWSP.length]}
+function gWeekIdx(id){var r=0;D.weeks.forEach(function(wk,i){wk.words.forEach(function(x){if(x.id===id)r=i})});return r}
+/* ---- 手繪風 SVG ---- */
+var GOL='#6b4f3a';
+function gLeaf(x,y,d,s,c){return '<path d="M'+x+' '+y+' Q'+(x+d*s*0.5)+' '+(y-s*0.95)+' '+(x+d*s*1.05)+' '+(y-s*0.35)+' Q'+(x+d*s*0.55)+' '+(y+s*0.2)+' '+x+' '+y+'Z" fill="'+(c||'#7ed957')+'" stroke="'+GOL+'" stroke-width="2" stroke-linejoin="round"/>'}
+function gStem(y,c){return '<path d="M50 110 Q46 '+((110+y)/2)+' 50 '+y+'" stroke="'+(c||'#4caf50')+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>'}
+function gFace(x,y,s){s=s||1;return '<circle cx="'+(x-3.5*s)+'" cy="'+(y-1.5*s)+'" r="'+(1.4*s)+'" fill="#3b2a20"/><circle cx="'+(x+3.5*s)+'" cy="'+(y-1.5*s)+'" r="'+(1.4*s)+'" fill="#3b2a20"/><path d="M'+(x-3*s)+' '+(y+2*s)+' Q'+x+' '+(y+5*s)+' '+(x+3*s)+' '+(y+2*s)+'" stroke="#3b2a20" stroke-width="'+(1.4*s)+'" fill="none" stroke-linecap="round"/><circle cx="'+(x-6*s)+'" cy="'+(y+2*s)+'" r="'+(1.6*s)+'" fill="#ff9aa8" opacity=".7"/><circle cx="'+(x+6*s)+'" cy="'+(y+2*s)+'" r="'+(1.6*s)+'" fill="#ff9aa8" opacity=".7"/>'}
+function gPetals(cx,cy,n,rx,ry,dist,c){var h='';for(var i=0;i<n;i++){var a=360/n*i;h+='<ellipse cx="'+cx+'" cy="'+(cy-dist)+'" rx="'+rx+'" ry="'+ry+'" fill="'+c+'" stroke="'+GOL+'" stroke-width="1.8" transform="rotate('+a+' '+cx+' '+cy+')"/>'}return h}
+function gStraw(x,y){return '<path d="M'+x+' '+(y+12)+' Q'+(x-9)+' '+(y+2)+' '+(x-7)+' '+(y-3)+' Q'+x+' '+(y-6)+' '+(x+7)+' '+(y-3)+' Q'+(x+9)+' '+(y+2)+' '+x+' '+(y+12)+'Z" fill="#ff4f5e" stroke="'+GOL+'" stroke-width="1.8"/><path d="M'+(x-6)+' '+(y-4)+' L'+x+' '+(y-9)+' L'+(x+6)+' '+(y-4)+' L'+x+' '+(y-2)+'Z" fill="#5cbf4a"/><circle cx="'+(x-3)+'" cy="'+(y+1)+'" r=".9" fill="#ffe7a0"/><circle cx="'+(x+3)+'" cy="'+(y+2)+'" r=".9" fill="#ffe7a0"/><circle cx="'+x+'" cy="'+(y+6)+'" r=".9" fill="#ffe7a0"/>'}
+function gBody(sp,st,col){var p='';
+  if(st<=0){p='<ellipse cx="50" cy="103" rx="8.5" ry="6.5" fill="#c58f55" stroke="'+GOL+'" stroke-width="2"/><path d="M45.5 101 q3 -3.5 7 -1.5" stroke="#f0d2a8" stroke-width="2" fill="none" stroke-linecap="round"/>'+
+    '<path d="M70 92 l2 4 4 2 -4 2 -2 4 -2 -4 -4 -2 4 -2z" fill="#ffe27a" opacity=".9"/>'}
+  else if(st===1){p=gStem(90)+gLeaf(50,93,-1,14)+gLeaf(50,93,1,14)}
+  else if(st===2){
+    if(sp==='tree')p=gStem(72,'#9a6a3f')+gLeaf(50,88,-1,16)+gLeaf(50,80,1,16)+gLeaf(50,74,-1,12);
+    else if(sp==='carrot')p=gLeaf(50,106,-1,20,'#8fe06a')+gLeaf(50,106,1,20,'#8fe06a')+'<path d="M50 106 Q48 90 50 80" stroke="#4caf50" stroke-width="4" fill="none" stroke-linecap="round"/>'+gLeaf(50,84,1,12,'#8fe06a');
+    else if(sp==='berry')p=gStem(94)+gLeaf(50,100,-1,20)+gLeaf(50,100,1,20)+gLeaf(50,95,-1,14)+gLeaf(50,95,1,14);
+    else p=gStem(70)+gLeaf(50,98,-1,17)+gLeaf(50,84,1,15)+gLeaf(50,76,-1,11)}
+  else if(st===3){
+    if(sp==='tree')p='<path d="M46 110 L47 72 L53 72 L54 110Z" fill="#9a6a3f" stroke="'+GOL+'" stroke-width="2"/><circle cx="50" cy="58" r="23" fill="#7ccf6a" stroke="'+GOL+'" stroke-width="2.2"/><circle cx="42" cy="50" r="2.5" fill="#fff"/><circle cx="58" cy="60" r="2.5" fill="#fff"/><circle cx="48" cy="66" r="2.5" fill="#fff"/><circle cx="60" cy="47" r="2.5" fill="#fff"/>';
+    else if(sp==='carrot')p='<path d="M50 106 Q44 84 36 70 M50 106 Q50 82 50 62 M50 106 Q56 84 64 70" stroke="#4caf50" stroke-width="4" fill="none" stroke-linecap="round"/>'+gLeaf(37,72,-1,12,'#8fe06a')+gLeaf(50,64,1,12,'#8fe06a')+gLeaf(63,72,1,12,'#8fe06a')+'<ellipse cx="50" cy="106" rx="10" ry="4.5" fill="#ff8c2b" stroke="'+GOL+'" stroke-width="1.8"/>';
+    else if(sp==='berry')p='<circle cx="35" cy="96" r="14" fill="#6cc35a" stroke="'+GOL+'" stroke-width="2"/><circle cx="65" cy="96" r="14" fill="#6cc35a" stroke="'+GOL+'" stroke-width="2"/><circle cx="50" cy="86" r="16" fill="#7ed957" stroke="'+GOL+'" stroke-width="2"/>'+gPetals(40,88,5,2.6,3.4,3,'#fff')+gPetals(60,94,5,2.6,3.4,3,'#fff')+'<circle cx="40" cy="88" r="1.8" fill="#ffd84d"/><circle cx="60" cy="94" r="1.8" fill="#ffd84d"/>';
+    else if(sp==='sunflower')p=gStem(46)+gLeaf(50,96,-1,18)+gLeaf(50,80,1,17)+gLeaf(50,64,-1,13)+gPetals(50,42,8,2.6,5,8,'#ffd84d')+'<circle cx="50" cy="42" r="9" fill="#8fd16a" stroke="'+GOL+'" stroke-width="2"/>';
+    else if(sp==='daisy')p=gStem(50)+gLeaf(50,96,-1,17)+gLeaf(50,80,1,15)+'<path d="M42 50 Q50 30 58 50 Q50 56 42 50Z" fill="'+col+'" stroke="'+GOL+'" stroke-width="2"/><path d="M42 50 Q46 44 50 52 Q54 44 58 50 Q50 58 42 50Z" fill="#7ed957" stroke="'+GOL+'" stroke-width="1.8"/>';
+    else p=gStem(52)+gLeaf(50,96,-1,17)+gLeaf(50,80,1,15)+'<ellipse cx="50" cy="44" rx="8.5" ry="13" fill="'+col+'" stroke="'+GOL+'" stroke-width="2"/><path d="M41 50 Q50 60 59 50 Q50 54 41 50Z" fill="#7ed957" stroke="'+GOL+'" stroke-width="1.8"/>'}
+  else{
+    if(sp==='tree')p='<path d="M45 110 L46.5 70 L53.5 70 L55 110Z" fill="#9a6a3f" stroke="'+GOL+'" stroke-width="2"/><circle cx="34" cy="60" r="18" fill="#6cc35a" stroke="'+GOL+'" stroke-width="2.2"/><circle cx="66" cy="60" r="18" fill="#6cc35a" stroke="'+GOL+'" stroke-width="2.2"/><circle cx="50" cy="42" r="23" fill="#7ed957" stroke="'+GOL+'" stroke-width="2.2"/><circle cx="50" cy="60" r="14" fill="#7ed957"/>'+
+      [[40,38],[60,44],[30,62],[68,64],[50,58],[47,26]].map(function(q){return '<circle cx="'+q[0]+'" cy="'+q[1]+'" r="5" fill="#ff8a7a" stroke="'+GOL+'" stroke-width="1.5"/><circle cx="'+(q[0]-1.5)+'" cy="'+(q[1]-1.6)+'" r="1.3" fill="#fff" opacity=".8"/>'}).join('');
+    else if(sp==='carrot')p='<path d="M50 84 Q42 64 32 54 M50 84 Q50 60 50 44 M50 84 Q58 64 68 54" stroke="#4caf50" stroke-width="4" fill="none" stroke-linecap="round"/>'+gLeaf(33,56,-1,13,'#8fe06a')+gLeaf(50,46,1,13,'#8fe06a')+gLeaf(67,56,1,13,'#8fe06a')+
+      '<path d="M36 84 Q50 76 64 84 Q60 100 50 114 Q40 100 36 84Z" fill="#ff8c2b" stroke="'+GOL+'" stroke-width="2"/><path d="M42 98 l5 0 M54 104 l4 0" stroke="#d96a12" stroke-width="1.8" stroke-linecap="round"/>'+gFace(50,90,0.9);
+    else if(sp==='berry')p='<circle cx="33" cy="96" r="15" fill="#6cc35a" stroke="'+GOL+'" stroke-width="2"/><circle cx="67" cy="96" r="15" fill="#6cc35a" stroke="'+GOL+'" stroke-width="2"/><circle cx="50" cy="84" r="17" fill="#7ed957" stroke="'+GOL+'" stroke-width="2"/>'+gStraw(36,92)+gStraw(62,90)+gStraw(50,76)+gPetals(30,80,5,2.6,3.4,3,'#fff')+'<circle cx="30" cy="80" r="1.8" fill="#ffd84d"/>';
+    else if(sp==='sunflower')p=gStem(40)+gLeaf(50,96,-1,19)+gLeaf(50,80,1,18)+gLeaf(50,64,-1,14)+gPetals(50,36,12,4.5,9,14,'#ffd84d')+'<circle cx="50" cy="36" r="12" fill="#a8692e" stroke="'+GOL+'" stroke-width="2"/>'+gFace(50,36,1.1);
+    else if(sp==='daisy')p=gStem(46)+gLeaf(50,96,-1,17)+gLeaf(50,80,1,15)+gPetals(50,40,9,5,10,11,col)+'<circle cx="50" cy="40" r="9" fill="#ffd84d" stroke="'+GOL+'" stroke-width="2"/>'+gFace(50,40,0.9);
+    else p=gStem(50)+gLeaf(50,96,-1,18)+gLeaf(50,78,1,16)+'<path d="M36 46 Q33 26 41 20 L50 32 L59 20 Q67 26 64 46 Q50 58 36 46Z" fill="'+col+'" stroke="'+GOL+'" stroke-width="2.2" stroke-linejoin="round"/><path d="M44 30 L50 40 L56 30" fill="none" stroke="'+GOL+'" stroke-width="1.6" opacity=".55"/><path d="M40 30 q1 -5 4 -7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".7"/>'}
+  return p}
+/* 共用圖案：6 種植物 × 5 個階段只畫一次（<symbol>），每棵植物用 <use> 引用，顏色用 --pc 傳入；1500 棵也不卡 */
+var GSPS=['tulip','daisy','sunflower','tree','berry','carrot'];
+function gSprite(){if(document.getElementById('gsprite'))return;var h='<symbol id="gsoil" viewBox="0 0 100 120"><ellipse cx="50" cy="111" rx="32" ry="7.5" fill="#a0714a"/><ellipse cx="50" cy="108.5" rx="25" ry="4" fill="#bf8b5c"/></symbol>'+
+  '<symbol id="gdew" viewBox="0 0 100 120"><path d="M82 60 q-7 10 0 14 q7 -4 0 -14z" fill="#7ec8ff" stroke="#3b8fd6" stroke-width="2"/></symbol>';
+  GSPS.forEach(function(sp){for(var st=0;st<5;st++){if(st<2&&sp!=='tulip')continue;h+='<symbol id="gs-'+sp+'-'+st+'" viewBox="0 0 100 120">'+gBody(sp,st,'PCOL').replace(/fill="PCOL"/g,'style="fill:var(--pc,#ff8fb1)"')+'</symbol>'}});
+  var d=document.createElement('div');d.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
+  d.innerHTML='<svg id="gsprite" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="0" height="0"><defs>'+h+'</defs></svg>';document.body.appendChild(d)}
+function gUse(id,t){return '<use href="#'+id+'" xlink:href="#'+id+'"'+(t?' transform="'+t+'"':'')+'/>'}
+function plantSVG(sp,st,col,wilt){gSprite();var sid='gs-'+(st<2?'tulip':sp)+'-'+st; /* 種子、發芽大家長得一樣 */
+  return '<svg viewBox="0 0 100 120" aria-hidden="true" style="--pc:'+col+'">'+gUse('gsoil')+(wilt&&st>0?gUse(sid,'rotate(17 50 110)')+gUse('gdew'):gUse(sid))+'</svg>'}
+function gPlantFor(w,wi){var sp=gSpecies(w,wi==null?gWeekIdx(w.id):wi),col=GCOL[gHash(w.id)%GCOL.length];return plantSVG(sp,gStage(w.id),col,gWilt(w.id))}
+function visSVG(k,c){var O=' stroke="'+GOL+'" stroke-width="1.8"';
+  if(k==='butterfly')return '<svg viewBox="0 0 60 60" aria-hidden="true"><g class="gwing"><ellipse cx="18" cy="22" rx="13" ry="11" fill="'+c+'"'+O+'/><ellipse cx="42" cy="22" rx="13" ry="11" fill="'+c+'"'+O+'/><ellipse cx="21" cy="40" rx="9" ry="8" fill="#ffd84d"'+O+'/><ellipse cx="39" cy="40" rx="9" ry="8" fill="#ffd84d"'+O+'/><circle cx="17" cy="21" r="3.5" fill="#fff" opacity=".8"/><circle cx="43" cy="21" r="3.5" fill="#fff" opacity=".8"/></g><rect x="27.5" y="15" width="5" height="32" rx="2.5" fill="#5b3d2e"/><path d="M29 16 Q24 6 20 6 M31 16 Q36 6 40 6" stroke="#5b3d2e" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>';
+  if(k==='duckling')return '<svg viewBox="0 0 60 60" aria-hidden="true"><ellipse cx="28" cy="40" rx="18" ry="14" fill="#ffe36e"'+O+'/><path d="M14 36 Q22 30 30 38" stroke="'+GOL+'" stroke-width="1.8" fill="#ffd23f"/><circle cx="38" cy="22" r="12" fill="#ffe36e"'+O+'/><path d="M37 11 q2 -5 5 -2" stroke="'+GOL+'" stroke-width="1.8" fill="none"/><circle cx="41" cy="20" r="2.2" fill="#3b2a20"/><circle cx="41.7" cy="19.3" r=".7" fill="#fff"/><path d="M48 23 Q56 24 49 28Z" fill="#ff9f43"'+O+'/><circle cx="36" cy="27" r="2.4" fill="#ff9aa8" opacity=".75"/><path d="M24 53 l-2 4 M32 53 l2 4" stroke="#ff9f43" stroke-width="2.6" stroke-linecap="round"/></svg>';
+  if(k==='hedgehog')return '<svg viewBox="0 0 60 60" aria-hidden="true"><path d="M8 46 L6 38 L11 36 L8 28 L15 28 L14 19 L21 22 L23 13 L29 19 L33 11 L37 19 L43 15 L44 24 L50 44Z" fill="#a9774f"'+O+' stroke-linejoin="round"/><path d="M30 46 Q30 26 44 24 Q56 28 56 42 Q52 48 30 46Z" fill="#ffe2bf"'+O+'/><circle cx="46" cy="33" r="2.2" fill="#3b2a20"/><circle cx="46.7" cy="32.3" r=".7" fill="#fff"/><circle cx="56" cy="40" r="2.6" fill="#3b2a20"/><circle cx="44" cy="40" r="2.6" fill="#ff9aa8" opacity=".75"/><ellipse cx="20" cy="48" rx="4" ry="2.6" fill="#8a5f3a"/><ellipse cx="38" cy="48" rx="4" ry="2.6" fill="#8a5f3a"/></svg>';
+  return '<svg viewBox="0 0 60 60" aria-hidden="true"><ellipse cx="22" cy="13" rx="5.5" ry="12" fill="#fffaf2"'+O+'/><ellipse cx="22" cy="13" rx="2.6" ry="8" fill="#ffc2d4"/><ellipse cx="36" cy="13" rx="5.5" ry="12" fill="#fffaf2"'+O+'/><ellipse cx="36" cy="13" rx="2.6" ry="8" fill="#ffc2d4"/><ellipse cx="32" cy="44" rx="18" ry="13" fill="#fffaf2"'+O+'/><circle cx="29" cy="30" r="12.5" fill="#fffaf2"'+O+'/><circle cx="25" cy="29" r="2" fill="#3b2a20"/><circle cx="33" cy="29" r="2" fill="#3b2a20"/><circle cx="29" cy="33" r="1.6" fill="#ff8fb1"/><circle cx="21" cy="34" r="2.4" fill="#ff9aa8" opacity=".6"/><circle cx="37" cy="34" r="2.4" fill="#ff9aa8" opacity=".6"/><circle cx="50" cy="46" r="5" fill="#fffaf2"'+O+'/></svg>'}
+function gVisitor(i){var k=GVK[i%GVK.length];return {k:k[0],name:k[1],c:GVC[(i+Math.floor(i/GVK.length))%GVC.length]}}
+/* ---- 畫面 ---- */
+function gCounts(){var r={b:0,g:0,s:0,w:0};allWords().forEach(function(w){var s=gStage(w.id);if(s>=4)r.b++;else if(s>=1)r.g++;else r.s++;if(gWilt(w.id))r.w++});return r}
+function gHomeCard(){
+  if(!allWords().length)return '';
+  gMigrate();var c=gCounts(),i=D.weeks.length-1;while(i>0&&!D.weeks[i].words.length)i--;var wk=D.weeks[i],pv=(wk?wk.words:[]).slice(0,12).map(function(w){return {w:w,i:i}});
+  return '<button class="gcard" data-a="garden"><div class="gct">🌸 秘密花園</div><div class="gcs">開了 <b>'+c.b+'</b> 朵花・<b>'+c.g+'</b> 棵在長大'+(c.w?'・💧 '+c.w+' 棵口渴了':'')+'</div>'+
+    '<div class="gcp">'+pv.map(function(x){return '<span class="gcell">'+gPlantFor(x.w,x.i)+'</span>'}).join('')+'</div>'+(wk?'<div class="gcw">'+esc(wk.name)+'</div>':'')+'</button>'}
+function gSky(){var n=gVis(),h='';
+  var m=Math.min(n,8); /* 天空最多 8 隻，不會擠 */
+  for(var i=0;i<m;i++){var j=n-1-i,v=gVisitor(j),x=4+(i*29)%74,y=v.k==='butterfly'?10+(i*17)%40:96;
+    h+='<span class="gvis gv'+(i%3)+(v.k==='butterfly'?' fly':' walk')+'" style="left:'+x+'%;top:'+y+'px;animation-delay:-'+(i*1.3).toFixed(1)+'s" title="'+v.name+'">'+(i<3?'<b class="gbub" style="animation-delay:'+(i*2.2).toFixed(1)+'s">'+GCHEER[(j+new Date().getDate())%GCHEER.length]+'</b>':'')+visSVG(v.k,v.c)+'</span>'}
+  return h}
+function gardenView(){
+  gMigrate();var c=gCounts(),n=gVis(),nx=gNextAt(GS.vb),nv=gVisitor(n);
+  var h=topbar(true)+'<div class="gwrap"><div class="gskyb"><div class="gsun"></div><div class="gcloud" style="left:10%;top:24px"></div><div class="gcloud" style="left:58%;top:50px;transform:scale(.75)"></div><div class="ghill h1"></div><div class="ghill h2"></div>'+gSky()+
+    '<div class="gtitle">秘密花園</div></div>'+
+    '<div class="gsum">🌸 開花 <b>'+c.b+'</b>　🌱 長大中 <b>'+c.g+'</b>　🌰 種子 <b>'+c.s+'</b>'+(c.w?'　💧 口渴 <b>'+c.w+'</b>':'')+'</div>'+
+    '<div class="gnext">'+(n?'來玩的小動物：'+Array.apply(null,{length:n}).map(function(_,i){return gVisitor(i).name}).filter(function(v,i,a){return a.indexOf(v)===i}).join('、')+'。':'')+'再開 '+Math.max(1,nx-c.b)+' 朵花，'+nv.name+'就會來花園玩喔！</div>'+
+    '<div class="glegend">'+GSTN.map(function(s,i){return '<span><i>'+plantSVG('tulip',i,'#ff8fb1',false)+'</i>'+s+'</span>'}).join('<b>→</b>')+'</div>';
+  if(!D.weeks.length)h+='<div class="card mid">請爸媽先輸入單字，就可以開始種花囉！</div>';
+  var nb=0;for(var i=D.weeks.length-1;i>=0;i--){if(!D.weeks[i].words.length)continue;h+=gBedHTML(i,nb<3);nb++}
+  h+='<div class="mid" style="font-size:18px;margin:14px 0 4px">在挑戰裡第一次就答對，植物就會長大；每棵植物每天最多長 2 格喔 💧</div></div>';
+  app.innerHTML=h;gLazy();
+}
+/* 每週一個小花圃：最新 3 週預設打開，舊的收成一行（點一下打開）；打開的花圃捲到畫面附近才畫植物 */
+var GX={};
+function gBedOpen(id,def){return GX.hasOwnProperty(id)?GX[id]:def}
+function gBedHTML(i,def){var wk=D.weeks[i],open=gBedOpen(wk.id,def),b=0,g=0,s=0,wl=0;
+  wk.words.forEach(function(w){var st=gStage(w.id);if(st>=4)b++;else if(st>=1)g++;else s++;if(gWilt(w.id))wl++});
+  var head='<button class="gsign" data-a="gbed" data-id="'+wk.id+'" data-def="'+(def?1:0)+'" aria-expanded="'+open+'"><span class="gsn">'+esc(wk.name)+'</span><span class="gsc">🌸 '+b+'　🌱 '+g+'　🌰 '+s+(wl?'　💧 '+wl:'')+'</span><span class="gar">'+(open?'▾':'▸')+'</span></button>';
+  var rows=Math.ceil(wk.words.length/Math.max(1,Math.floor((Math.min(innerWidth,980)-60)/56)));
+  return '<div class="gbed'+(open?' open':'')+'" id="gb-'+wk.id+'" data-i="'+i+'">'+head+(open?'<div class="gsoil" data-lazy="1" style="min-height:'+(rows*60+16)+'px"></div>':'')+'</div>'}
+function gFill(el){if(!el||el.getAttribute('data-lazy')!=='1')return;var bed=el.parentNode,i=+bed.getAttribute('data-i'),wk=D.weeks[i];if(!wk)return;el.removeAttribute('data-lazy');el.style.minHeight='';
+  var td=gToday();el.innerHTML=wk.words.map(function(w){var st=gStage(w.id),wl=gWilt(w.id),e=GS.p[w.id],nw=e&&e.d===td&&e.t>0&&!wl;
+    return '<button class="gp'+(wl?' wilt':'')+(nw?(st>=4?' grew spark':' grew'):'')+'" data-a="gplant" data-id="'+w.id+'" aria-label="'+esc(w.en)+'">'+gPlantFor(w,i)+'</button>'}).join('')}
+var GIO=null;
+function gLazy(){var els=document.querySelectorAll('.gsoil[data-lazy="1"]');
+  if(!window.IntersectionObserver){for(var k=0;k<els.length;k++)gFill(els[k]);return}
+  if(GIO)GIO.disconnect();GIO=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){GIO.unobserve(e.target);gFill(e.target)}})},{rootMargin:'400px 0px'});
+  for(var j=0;j<els.length;j++)GIO.observe(els[j])}
+function gToggle(id,def){var el=document.getElementById('gb-'+id);if(!el)return;GX[id]=!gBedOpen(id,def);var t=document.createElement('div');t.innerHTML=gBedHTML(+el.getAttribute('data-i'),def);el.parentNode.replaceChild(t.firstChild,el);gLazy()}
+function gTip(id){var st=gStage(id),wl=gWilt(id),s=D.stats[id];
+  if(wl){var stale=s&&+s.ls&&(Date.now()-s.ls)/864e5>=GWILT;return stale?'好久沒見到它，有點口渴了 💧<br>在挑戰裡遇到它答對，就會恢復精神！':'上次答錯了，它有點沒精神 💧<br>下次答對，馬上就會恢復精神！'}
+  if(st>=4)return '開花了！你已經學會這個字了 🎉';
+  var e=gEnt(id),today=e.d===gToday()&&e.t>=GCAP;
+  if(today)return '今天已經喝飽水了，明天再來幫它長大 🌙';
+  if(st===3)return gMastered(s)?'再答對一次就會開花！':'快開花了！多答對幾次就會開花 🌷';
+  return st===0?'在挑戰裡答對它，種子就會發芽 🌱':'再答對 '+(3-st)+' 次就會長出花苞！'}
+function gOpen(id){var w=wordById(id);if(!w)return;var st=gStage(id);
+  var o=$('#gpov');if(o)o.remove();o=document.createElement('div');o.id='gpov';o.className='sp-ov';
+  o.innerHTML='<div class="gpc pop"><div class="gbig'+(gWilt(id)?' wilt':'')+'">'+gPlantFor(w)+'</div>'+
+    '<div class="gpw">'+(w.emoji?'<span>'+esc(w.emoji)+'</span> ':'')+esc(w.en)+'</div>'+(w.zh?'<div class="gpz">'+esc(w.zh)+'</div>':'')+
+    '<div class="gps">'+GSTE[st]+' '+GSTN[st]+'</div><div class="gpt">'+gTip(id)+'</div>'+
+    '<div class="row" style="margin-top:14px"><button class="btn blue" data-a="gsay" data-id="'+w.id+'">🔊 再聽一次</button><button class="btn green" data-a="gpclose">好！</button></div></div>';
+  document.body.appendChild(o);say(w.en)}
+/* 一輪結束：哪些植物喝到水、長大、恢復精神 */
+function gRound(){if(!G||!G.gs0)return null;var r={water:0,grew:[],rev:[],cap:!!G.gcap,wait:!!G.gwait,nv:[]};
+  Object.keys(G.gs0).forEach(function(id){var w=wordById(id);if(!w)return;r.water++;var a=G.gs0[id],s=gStage(id),wl=gWilt(id);
+    if(s>a.s)r.grew.push({w:w,from:a.s,to:s,rv:!!(a.w&&!wl)});else if(a.w&&!wl)r.rev.push({w:w,to:s})});
+  var before=GS.vs,n=gVis();if(n>before){for(var i=before;i<n;i++)r.nv.push(gVisitor(i));GS.vs=n}gSave();
+  return r}
+function gRoundCard(r){if(!r||!r.water)return '';
+  var items=r.grew.concat(r.rev).slice(0,8),drops='';for(var i=0;i<Math.min(10,r.water+2);i++)drops+='<i class="gdrop" style="left:'+(8+i*9)+'%;animation-delay:'+(0.2+i*0.12).toFixed(2)+'s"></i>';
+  var h='<div class="card grc">'+drops+'<div class="grt">💧 這一輪幫 <b>'+r.water+'</b> 棵植物澆了水</div>';
+  if(items.length)h+='<div class="grs">'+items.map(function(x,k){var up=x.from!=null;return '<div class="gri'+(up?' grew':'')+(up&&x.to>=4?' spark':'')+'" style="animation-delay:'+(1.3+k*0.15).toFixed(2)+'s"><span class="gmini">'+gPlantFor(x.w)+'</span><b>'+esc(x.w.en)+'</b><small>'+(up?(x.rv?'✨ ':'')+(x.to>=4?'🌸 開花了！':GSTN[x.from]+' → '+GSTN[x.to]):'✨ 恢復精神')+'</small></div>'}).join('')+'</div>';
+  else h+='<div class="grn">'+(r.cap?'植物今天都喝飽了，明天再來看它們長大 🌙':r.wait?'花苞們在等你多答對幾次就會開花 🌷':'第一次就答對，植物就會長大喔 🌱')+'</div>';
+  if(r.nv.length)h+='<div class="grv">'+r.nv.slice(-4).map(function(v){return '<span class="gmini">'+visSVG(v.k,v.c)+'</span>'}).join('')+'<b>有新朋友來花園玩了：'+r.nv.map(function(v){return v.name}).filter(function(v,i,a){return a.indexOf(v)===i}).join('、')+'！</b></div>';
+  return h+'</div>'}
+/* 匯出／匯入：花園進度（每個字取比較高的、小動物取比較多的） */
+function gExport(){gMigrate();return JSON.parse(JSON.stringify(GS))}
+function gImport(o,mode){var inc=(o&&typeof o==='object')?gClean(o):null;
+  if(mode==='replace'){GS=inc||gClean(null)}
+  else if(inc){gLoad();Object.keys(inc.p).forEach(function(k){var a=GS.p[k],b=inc.p[k];if(!a||b.p>a.p||(b.p===a.p&&b.d>a.d))GS.p[k]=b});GS.vb=Math.max(GS.vb,inc.vb);GS.vs=Math.max(GS.vs,inc.vs)}
+  gMigrate()}
+function gReset(){GS=gClean(null);gMigrate()}
 /* ---------- 畫面 ---------- */
 var app=$('#app');
 var view='home',G=null,editWeek=null;
@@ -464,7 +692,7 @@ function go(v){view=v;render()}
 function topbar(back){return '<div class="top">'+(back?'<button class="btn small gray" data-a="home">🏠 回首頁</button>':'<span></span>')+'<div class="stars">⭐ '+D.stars+'</div></div>'}
 function render(){
   if(view==='home')home();else if(view==='parent')parent();else if(view==='quizmenu')quizMenu();
-  else if(view==='quiz')quizQ();else if(view==='result')result();else if(view==='io')ioView();
+  else if(view==='quiz')quizQ();else if(view==='result')result();else if(view==='io')ioView();else if(view==='garden')gardenView();
   window.scrollTo(0,0);
 }
 
@@ -472,6 +700,7 @@ function home(){
   var n=allWords().length,wk=D.weeks[D.weeks.length-1];
   app.innerHTML=topbar(false)+'<h1>📚 單字小達人</h1><div class="hero pop">🦄</div>'+
   '<div class="mid">'+(n?'已經學了 '+n+' 個單字'+(wk?'，本週：'+esc(wk.name):''):'請爸媽先到「家長區」輸入這週的單字喔')+'</div>'+
+  gHomeCard()+
   '<div class="grid g2" style="margin-top:20px">'+
   '<button class="btn green" style="font-size:34px;padding:36px" data-a="quizmenu">🎮 開始挑戰</button>'+
   '<button class="btn blue" style="font-size:34px;padding:36px" data-a="learn">🔊 聽聽看單字</button>'+
@@ -528,7 +757,7 @@ function parent(){
 
 function ioView(){
   app.innerHTML=topbar(true)+'<h2>📦 匯出／匯入（搬到另一台 iPad）</h2>'+
-  '<div class="card"><b>匯出</b><div class="mid" style="text-align:left;font-size:20px">會帶走：單字、答題紀錄、⭐ '+D.stars+' 顆星星和設定。</div><div class="row" style="margin:10px 0"><button class="btn blue" data-a="exportfile">💾 下載 JSON 檔</button><button class="btn purple" data-a="exportcopy">📋 複製文字代碼</button></div>'+
+  '<div class="card"><b>匯出</b><div class="mid" style="text-align:left;font-size:20px">會帶走：單字、答題紀錄、⭐ '+D.stars+' 顆星星、🌸 花園和設定。</div><div class="row" style="margin:10px 0"><button class="btn blue" data-a="exportfile">💾 下載 JSON 檔</button><button class="btn purple" data-a="exportcopy">📋 複製文字代碼</button></div>'+
   '<textarea id="code" readonly placeholder="按「複製文字代碼」後會顯示在這裡"></textarea></div>'+
   '<div class="card"><b>匯入</b><p class="mid" style="text-align:left">選擇 JSON 檔，或把文字代碼貼到下面。代碼裡有單字、答題紀錄和⭐星星。「合併匯入」會保留兩邊的單字，星星取比較多的那邊，每個字的紀錄取練習比較多的那份。</p>'+
   '<input type="file" id="file" accept=".json,application/json" style="font-size:18px;margin-bottom:10px">'+
@@ -539,12 +768,13 @@ function ioView(){
 function exportText(){var o={},k;for(k in D)o[k]=D[k];o.app='vocab';o.fmt=2;o.exported=new Date().toISOString();
   try{o.scope=localStorage.getItem(SC_KEY)||lastScope}catch(e){o.scope=lastScope}
   try{var q=JSON.parse(localStorage.getItem(QV_KEY));if(q&&typeof q==='object')o.qv=q}catch(e){}
+  try{o.garden=gExport()}catch(e){}
   return JSON.stringify(o)}
 function cleanStat(s){if(!s||typeof s!=='object')return null;var r={c:+s.c||0,w:+s.w||0};if(+s.ls)r.ls=+s.ls;if(+s.x)r.x=+s.x;if(s.h!==undefined)r.h=String(s.h||'').replace(/[^01]/g,'').slice(-4);return r}
 function statN(s){return s?(+s.c||0)+(+s.w||0):-1}
 /* 同一個字兩邊都有紀錄：取作答次數多的那份（一樣多就取最近練習的），不相加以免重複計算 */
 function pickStat(a,b){if(!a)return b;if(!b)return a;var na=statN(a),nb=statN(b);if(nb!==na)return nb>na?b:a;return (+b.ls||0)>(+a.ls||0)?b:a}
-var EXTRA_KEYS={app:1,fmt:1,exported:1,scope:1,qv:1};
+var EXTRA_KEYS={app:1,fmt:1,exported:1,scope:1,qv:1,garden:1};
 function doImport(txt,mode){
   var o;try{o=JSON.parse(String(txt).trim())}catch(e){toast('格式不正確，請確認內容完整');return}
   if(o&&o.app==='vocab'&&o.data&&!o.weeks)o=o.data;
@@ -569,7 +799,7 @@ function doImport(txt,mode){
   if(o.qv&&typeof o.qv==='object'){try{var cq={};if(mode!=='replace'){cq=JSON.parse(localStorage.getItem(QV_KEY))||{}}
     var q={k:Math.max(+cq.k||0,+o.qv.k||0),last:(+o.qv.at||0)>=(+cq.at||0)?o.qv.last:cq.last,at:Math.max(+cq.at||0,+o.qv.at||0)};localStorage.setItem(QV_KEY,JSON.stringify(q))}catch(e){}}
   if(!scopeOk(lastScope))lastScope='mixrev';
-  migrateEx();save();go('home');
+  migrateEx();save();try{gImport(o.garden,mode)}catch(e){}go('home');
   var nst=Object.keys(st).length;
   notice((mode==='replace'?'✅ 已取代成匯入的資料':'✅ 合併匯入完成')+'\n已匯入 '+nWords+' 個單字'+(mode==='replace'?'':'（新增 '+added+' 個）')+'、'+nst+' 個字的答題紀錄\n'+(hasStars?'⭐ 星星：現在共 '+D.stars+' 顆':'⭐ 這份代碼是舊版的，裡面沒有星星；星星維持 '+D.stars+' 顆'));
   toast(hasStars?'已匯入 '+nWords+' 個單字、⭐ '+D.stars+' 顆星星':'已匯入 '+nWords+' 個單字');
@@ -646,7 +876,7 @@ function startQuiz(g,sc){
     if(g==='mix'){var ts=['spell'];if(pool.length>=2)ts.push('listen');if(picPool.length)ts.push('pic');if(pool.length>=2&&pool.some(canCloze)&&i%5===2)ts=['cloze'];if(pool.some(canOrder)&&i%5===3)ts=['order'];if(pool.length>=2&&i%5===4)ts=['match'];t=ts[rnd(ts.length)]}
     types.push(t);
   }
-  G={g:g,pool:pool,types:types,i:0,ok:0,first:0,gained:0,recent:[],requeue:[],locked:false,mix:mix,rev:false};
+  G={g:g,pool:pool,types:types,i:0,ok:0,first:0,gained:0,recent:[],requeue:[],locked:false,mix:mix,rev:false,gs0:{}};
   if(mix)mix.plan=bucketPlan(N,mix.share);
   view='quiz';quizQ();
 }
@@ -1080,15 +1310,16 @@ function onFlip(i){
 }
 function finish(){
   var bonus=0;if(G.first===G.types.length&&G.types.length>=3){bonus=3;D.stars+=3;G.gained+=3}
-  save();view='result';sndWin();confetti(160);render();
+  save();try{G.gr=gRound()}catch(e){G.gr=null}view='result';sndWin();confetti(160);render();
   spSync().then(function(){var g=G;setTimeout(function(){if(view==='result'&&!spCheck())qvMaybe(g)},1400)});
 }
 function result(){
   var n=G.types.length,p=G.first/n;
   var face=p>=.9?'🏆':p>=.6?'🎉':'💪';
   app.innerHTML=topbar(false)+'<div class="hero pop">'+face+'</div><h1>'+(p>=.9?'太厲害了！':p>=.6?'表現很棒！':'再接再厲！')+'</h1>'+
-  '<div class="card mid" style="font-size:30px">第一次就答對：<b>'+G.first+' / '+n+'</b><br>這次獲得：<b style="color:#e08a00">⭐ '+G.gained+'</b>'+(G.first===n&&n>=3?'<br>全對獎勵 +3 ⭐':'')+'</div>'+
-  '<div class="grid g2"><button class="btn green" data-a="again">🔁 再玩一次</button><button class="btn blue" data-a="home">🏠 回首頁</button></div>';
+  '<div class="card mid" style="font-size:30px">第一次就答對：<b>'+G.first+' / '+n+'</b><br>這次獲得：<b style="color:#e08a00">⭐ '+G.gained+'</b>'+(G.first===n&&n>=3?'<br>全對獎勵 +3 ⭐':'')+'</div>'+(function(){try{return gRoundCard(G.gr)}catch(e){return ''}})()+
+  '<div class="grid g2"><button class="btn green" data-a="again">🔁 再玩一次</button><button class="btn blue" data-a="home">🏠 回首頁</button></div>'+
+  (G.gr&&G.gr.water?'<button class="btn" style="width:100%;margin-top:14px;background:#ff8fb1;box-shadow:0 6px 0 #d0457a" data-a="garden">🌸 去花園看看</button>':'');
 }
 
 /* ---------- 事件 ---------- */
@@ -1103,6 +1334,11 @@ document.addEventListener('click',function(e){
     case 'parent':go('parent');break;
     case 'io':go('io');break;
     case 'learn':learn();break;
+    case 'garden':{var gq=$('#gpov');if(gq)gq.remove();go('garden');break}
+    case 'gbed':sndTap();gToggle(el.dataset.id,el.dataset.def==='1');break;
+    case 'gplant':sndTap();gOpen(el.dataset.id);break;
+    case 'gsay':{var gw=wordById(el.dataset.id);if(gw)say(gw.en);break}
+    case 'gpclose':{var gp=$('#gpov');if(gp)gp.remove();break}
     case 'quizmenu':go('quizmenu');break;
     case 'say':say(el.dataset.t,!!el.dataset.s);break;
     case 'addweek':{
@@ -1122,7 +1358,7 @@ document.addEventListener('click',function(e){
       if(x.id===el.dataset.id){var en=prompt('英文',x.en);if(en===null)return;var zh=prompt('中文意思（可留白）',x.zh||'');var em=prompt('emoji（可留白）',x.emoji||'');
         var nz=(zh||'').trim(),ne=(em||'').trim();if(x.auto){if(nz!==(x.zh||''))delete x.auto.zh;if(ne!==(x.emoji||''))delete x.auto.emoji}
         if(en.trim())x.en=en.trim();x.zh=nz;x.emoji=ne;if(hasEx(x))x.exForm=findForm(x.ex,x.en);save()}})});parent();break;
-    case 'resetstats':if(confirm('確定清除答題紀錄與星星？')){D.stats={};D.stars=0;save();parent()}break;
+    case 'resetstats':if(confirm('確定清除答題紀錄與星星？（花園也會重新從種子開始）')){D.stats={};D.stars=0;save();try{gReset()}catch(e){}parent()}break;
     case 'exportfile':{
       var blob=new Blob([exportText()],{type:'application/json'}),u=URL.createObjectURL(blob),l=document.createElement('a');
       l.href=u;l.download='vocab-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(l);l.click();l.remove();
@@ -1172,10 +1408,10 @@ window.addEventListener('resize',function(){if(G&&G.hw&&G.hw.phase==='write')hwS
 
 /* 測試用匯出 */
 window.__vocab={parseLines:parseLines,findForm:findForm,sentLocal:sentLocal,orderTokens:orderTokens};
-load();render();
+load();try{gMigrate()}catch(e){}render();
 spSync();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
-window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,qv:qvMaybe,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned},start:startQuiz,next:quizQ,go:go,learn:learn};
+window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,qv:qvMaybe,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned},start:startQuiz,next:quizQ,go:go,learn:learn,g:{st:gStage,wilt:gWilt,state:function(){return gLoad()},reload:function(){GS=null;return gLoad()},open:gOpen,fin:finish}};
 })();
 </script>
 </body>
