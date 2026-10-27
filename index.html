@@ -517,7 +517,7 @@ function qvShow(x){if($('#qvov')||$('#spov'))return;
   document.body.appendChild(o);try{sndOk()}catch(e){}}
 function praise2(){return Math.random()<0.05?SP_LINES[rnd(SP_LINES.length)]:praise()}
 
-/* ---------- 🌸 秘密花園（每天看得到的成長；只讀答題紀錄，不影響星星、計分、範圍或任何其他功能） ---------- */
+/* ---------- 🌸 花園（每天看得到的成長；只讀答題紀錄，不影響星星、計分、範圍或任何其他功能） ---------- */
 var GK='vocabApp.garden',GS=null,GCAP=2,GWILT=14;
 var GSTN=['種子','發芽','嫩葉','花苞','開花'],GSTE=['🌰','🌱','🌿','🌷','🌸'];
 function gToday(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
@@ -616,7 +616,7 @@ function gCounts(){var r={b:0,g:0,s:0,w:0};allWords().forEach(function(w){var s=
 function gHomeCard(){
   if(!allWords().length)return '';
   gMigrate();var c=gCounts(),i=D.weeks.length-1;while(i>0&&!D.weeks[i].words.length)i--;var wk=D.weeks[i],pv=(wk?wk.words:[]).slice(0,12).map(function(w){return {w:w,i:i}});
-  return '<button class="gcard" data-a="garden"><div class="gct">🌸 秘密花園</div><div class="gcs">開了 <b>'+c.b+'</b> 朵花・<b>'+c.g+'</b> 棵在長大'+(c.w?'・💧 '+c.w+' 棵口渴了':'')+'</div>'+
+  return '<button class="gcard" data-a="garden"><div class="gct">🌸 Ante島</div><div class="gcs">開了 <b>'+c.b+'</b> 朵花・<b>'+c.g+'</b> 棵在長大'+(c.w?'・💧 '+c.w+' 棵口渴了':'')+'</div>'+
     '<div class="gcp">'+pv.map(function(x){return '<span class="gcell">'+gPlantFor(x.w,x.i)+'</span>'}).join('')+'</div>'+(wk?'<div class="gcw">'+esc(wk.name)+'</div>':'')+'</button>'}
 function gSky(){var n=gVis(),h='';
   var m=Math.min(n,8); /* 天空最多 8 隻，不會擠 */
@@ -626,9 +626,9 @@ function gSky(){var n=gVis(),h='';
 function gardenView(){
   gMigrate();var c=gCounts(),n=gVis(),nx=gNextAt(GS.vb),nv=gVisitor(n);
   var h=topbar(true)+'<div class="gwrap"><div class="gskyb"><div class="gsun"></div><div class="gcloud" style="left:10%;top:24px"></div><div class="gcloud" style="left:58%;top:50px;transform:scale(.75)"></div><div class="ghill h1"></div><div class="ghill h2"></div>'+gSky()+
-    '<div class="gtitle">秘密花園</div></div>'+
+    '<div class="gtitle">Ante島</div></div>'+
     '<div class="gsum">🌸 開花 <b>'+c.b+'</b>　🌱 長大中 <b>'+c.g+'</b>　🌰 種子 <b>'+c.s+'</b>'+(c.w?'　💧 口渴 <b>'+c.w+'</b>':'')+'</div>'+
-    '<div class="gnext">'+(n?'來玩的小動物：'+Array.apply(null,{length:n}).map(function(_,i){return gVisitor(i).name}).filter(function(v,i,a){return a.indexOf(v)===i}).join('、')+'。':'')+'再開 '+Math.max(1,nx-c.b)+' 朵花，'+nv.name+'就會來花園玩喔！</div>'+
+    '<div class="gnext">'+(n?'來玩的小動物：'+Array.apply(null,{length:n}).map(function(_,i){return gVisitor(i).name}).filter(function(v,i,a){return a.indexOf(v)===i}).join('、')+'。':'')+'再開 '+Math.max(1,nx-c.b)+' 朵花，'+nv.name+'就會來Ante島玩喔！</div>'+
     '<div class="glegend">'+GSTN.map(function(s,i){return '<span><i>'+plantSVG('tulip',i,'#ff8fb1',false)+'</i>'+s+'</span>'}).join('<b>→</b>')+'</div>';
   if(!D.weeks.length)h+='<div class="card mid">請爸媽先輸入單字，就可以開始種花囉！</div>';
   var nb=0;for(var i=D.weeks.length-1;i>=0;i--){if(!D.weeks[i].words.length)continue;h+=gBedHTML(i,nb<3);nb++}
@@ -677,7 +677,7 @@ function gRoundCard(r){if(!r||!r.water)return '';
   var h='<div class="card grc">'+drops+'<div class="grt">💧 這一輪幫 <b>'+r.water+'</b> 棵植物澆了水</div>';
   if(items.length)h+='<div class="grs">'+items.map(function(x,k){var up=x.from!=null;return '<div class="gri'+(up?' grew':'')+(up&&x.to>=4?' spark':'')+'" style="animation-delay:'+(1.3+k*0.15).toFixed(2)+'s"><span class="gmini">'+gPlantFor(x.w)+'</span><b>'+esc(x.w.en)+'</b><small>'+(up?(x.rv?'✨ ':'')+(x.to>=4?'🌸 開花了！':GSTN[x.from]+' → '+GSTN[x.to]):'✨ 恢復精神')+'</small></div>'}).join('')+'</div>';
   else h+='<div class="grn">'+(r.cap?'植物今天都喝飽了，明天再來看它們長大 🌙':r.wait?'花苞們在等你多答對幾次就會開花 🌷':'第一次就答對，植物就會長大喔 🌱')+'</div>';
-  if(r.nv.length)h+='<div class="grv">'+r.nv.slice(-4).map(function(v){return '<span class="gmini">'+visSVG(v.k,v.c)+'</span>'}).join('')+'<b>有新朋友來花園玩了：'+r.nv.map(function(v){return v.name}).filter(function(v,i,a){return a.indexOf(v)===i}).join('、')+'！</b></div>';
+  if(r.nv.length)h+='<div class="grv">'+r.nv.slice(-4).map(function(v){return '<span class="gmini">'+visSVG(v.k,v.c)+'</span>'}).join('')+'<b>有新朋友來Ante島玩了：'+r.nv.map(function(v){return v.name}).filter(function(v,i,a){return a.indexOf(v)===i}).join('、')+'！</b></div>';
   return h+'</div>'}
 /* 匯出／匯入：花園進度（每個字取比較高的、小動物取比較多的） */
 function gExport(){gMigrate();return JSON.parse(JSON.stringify(GS))}
@@ -759,7 +759,7 @@ function parent(){
 
 function ioView(){
   app.innerHTML=topbar(true)+'<h2>📦 匯出／匯入（搬到另一台 iPad）</h2>'+
-  '<div class="card"><b>匯出</b><div class="mid" style="text-align:left;font-size:20px">會帶走：單字、答題紀錄、⭐ '+D.stars+' 顆星星、🌸 花園和設定。</div><div class="row" style="margin:10px 0"><button class="btn blue" data-a="exportfile">💾 下載 JSON 檔</button><button class="btn purple" data-a="exportcopy">📋 複製文字代碼</button></div>'+
+  '<div class="card"><b>匯出</b><div class="mid" style="text-align:left;font-size:20px">會帶走：單字、答題紀錄、⭐ '+D.stars+' 顆星星、🌸 Ante島的花和設定。</div><div class="row" style="margin:10px 0"><button class="btn blue" data-a="exportfile">💾 下載 JSON 檔</button><button class="btn purple" data-a="exportcopy">📋 複製文字代碼</button></div>'+
   '<textarea id="code" readonly placeholder="按「複製文字代碼」後會顯示在這裡"></textarea></div>'+
   '<div class="card"><b>匯入</b><p class="mid" style="text-align:left">選擇 JSON 檔，或把文字代碼貼到下面。代碼裡有單字、答題紀錄和⭐星星。「合併匯入」會保留兩邊的單字，星星取比較多的那邊，每個字的紀錄取練習比較多的那份。</p>'+
   '<input type="file" id="file" accept=".json,application/json" style="font-size:18px;margin-bottom:10px">'+
@@ -1321,7 +1321,7 @@ function result(){
   app.innerHTML=topbar(false)+'<div class="hero pop">'+face+'</div><h1>'+(p>=.9?'太厲害了！':p>=.6?'表現很棒！':'再接再厲！')+'</h1>'+
   '<div class="card mid" style="font-size:30px">第一次就答對：<b>'+G.first+' / '+n+'</b><br>這次獲得：<b style="color:#e08a00">⭐ '+G.gained+'</b>'+(G.first===n&&n>=3?'<br>全對獎勵 +3 ⭐':'')+'</div>'+(function(){try{return gRoundCard(G.gr)}catch(e){return ''}})()+
   '<div class="grid g2"><button class="btn green" data-a="again">🔁 再玩一次</button><button class="btn blue" data-a="home">🏠 回首頁</button></div>'+
-  (G.gr&&G.gr.water?'<button class="btn" style="width:100%;margin-top:14px;background:#ff8fb1;box-shadow:0 6px 0 #d0457a" data-a="garden">🌸 去花園看看</button>':'');
+  (G.gr&&G.gr.water?'<button class="btn" style="width:100%;margin-top:14px;background:#ff8fb1;box-shadow:0 6px 0 #d0457a" data-a="garden">🌸 去Ante島看看</button>':'');
 }
 
 /* ---------- 事件 ---------- */
@@ -1360,7 +1360,7 @@ document.addEventListener('click',function(e){
       if(x.id===el.dataset.id){var en=prompt('英文',x.en);if(en===null)return;var zh=prompt('中文意思（可留白）',x.zh||'');var em=prompt('emoji（可留白）',x.emoji||'');
         var nz=(zh||'').trim(),ne=(em||'').trim();if(x.auto){if(nz!==(x.zh||''))delete x.auto.zh;if(ne!==(x.emoji||''))delete x.auto.emoji}
         if(en.trim())x.en=en.trim();x.zh=nz;x.emoji=ne;if(hasEx(x))x.exForm=findForm(x.ex,x.en);save()}})});parent();break;
-    case 'resetstats':if(confirm('確定清除答題紀錄與星星？（花園也會重新從種子開始）')){D.stats={};D.stars=0;save();try{gReset()}catch(e){}parent()}break;
+    case 'resetstats':if(confirm('確定清除答題紀錄與星星？（Ante島的花也會重新從種子開始）')){D.stats={};D.stars=0;save();try{gReset()}catch(e){}parent()}break;
     case 'exportfile':{
       var blob=new Blob([exportText()],{type:'application/json'}),u=URL.createObjectURL(blob),l=document.createElement('a');
       l.href=u;l.download='vocab-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(l);l.click();l.remove();
