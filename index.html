@@ -150,6 +150,7 @@ textarea{min-height:130px}
 .grv{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:20px;color:#7a4b00;flex-wrap:wrap}.grv .gmini{width:46px;height:46px}
 @media (prefers-reduced-motion:reduce){.gvis,.gcloud,.gwing,.grew svg,.gbig svg{animation:none}}
 @media (max-width:600px){.opt{font-size:26px}.tile{width:56px;height:56px;font-size:30px}.slot{width:48px;height:60px;line-height:60px;font-size:34px}.mgrid{grid-template-columns:repeat(3,1fr)}}
+.btn.hubb{background:#ff8fb8;text-decoration:none;font-size:17px;padding:8px 14px;opacity:.92}
 </style>
 </head>
 <body>
@@ -689,7 +690,8 @@ function gReset(){GS=gClean(null);gMigrate()}
 var app=$('#app');
 var view='home',G=null,editWeek=null;
 function go(v){view=v;render()}
-function topbar(back){return '<div class="top">'+(back?'<button class="btn small gray" data-a="home">🏠 回首頁</button>':'<span></span>')+'<div class="stars">⭐ '+D.stars+'</div></div>'}
+function hubBtn(){try{if(localStorage.getItem('hub.on'))return '<a class="btn small hubb" href="/" aria-label="回到遊樂園選遊戲">🎡 選遊戲</a>'}catch(e){}return ''}
+function topbar(back){return '<div class="top">'+(back?'<button class="btn small gray" data-a="home">🏠 回首頁</button>':(hubBtn()||'<span></span>'))+'<div class="stars">⭐ '+D.stars+'</div></div>'}
 function render(){
   if(view==='home')home();else if(view==='parent')parent();else if(view==='quizmenu')quizMenu();
   else if(view==='quiz')quizQ();else if(view==='result')result();else if(view==='io')ioView();else if(view==='garden')gardenView();
