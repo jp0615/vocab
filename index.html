@@ -149,6 +149,23 @@ textarea{min-height:130px}
 @keyframes gfall{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(130px);opacity:0}}
 .grv{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:20px;color:#7a4b00;flex-wrap:wrap}.grv .gmini{width:46px;height:46px}
 @media (prefers-reduced-motion:reduce){.gvis,.gcloud,.gwing,.grew svg,.gbig svg{animation:none}}
+.vfbtn{display:flex;align-items:center;gap:12px;width:100%;margin:12px 0 2px;border:0;border-radius:26px;background:#e6f5ff;box-shadow:0 6px 0 #a9d6f5,0 10px 18px rgba(60,120,170,.15);padding:10px 18px;cursor:pointer;color:#2f6f9f;text-align:left}
+.vfbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #a9d6f5}
+.vfcan{flex:0 0 66px;height:50px}.vfcan svg{width:100%;height:100%;animation:vftilt 2.4s ease-in-out infinite;transform-origin:30% 80%}
+@keyframes vftilt{0%,60%,100%{transform:rotate(0)}75%{transform:rotate(14deg)}}
+.vft{display:flex;flex-direction:column}.vft b{font-size:28px;font-weight:400;color:#2f78b5}.vft small{font-size:20px;color:#4f86ad}
+.vfdone{margin:12px 0 2px;text-align:center;font-size:20px;color:#5b7aa0;background:#eef6ff;border-radius:20px;padding:10px 14px}
+.vfnote{font-size:17px;color:#5b7aa0;margin-top:6px}
+.vfw{position:relative;height:150px;width:220px;margin:6px auto 0}
+.vfpour{position:absolute;left:6px;top:0;width:96px;height:72px}.vfpour svg{width:100%;height:100%;animation:vfpour 1.4s ease-in-out forwards;transform-origin:30% 80%}
+@keyframes vfpour{0%{transform:rotate(-8deg)}35%,80%{transform:rotate(22deg)}100%{transform:rotate(0)}}
+.vfw i{position:absolute;top:44px;width:9px;height:12px;background:#7cc6ff;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;opacity:0;animation:vfdrip .7s ease-in 2}
+@keyframes vfdrip{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(54px);opacity:0}}
+.vfpl{position:absolute;left:116px;top:20px;width:80px;height:96px}.vfpl svg{width:100%;height:100%;transform-origin:50% 95%}.vfpl.up svg{animation:vfup 1.3s .9s ease-out both}
+@keyframes vfup{0%{transform:rotate(16deg);filter:saturate(.45)}60%{transform:rotate(-5deg);filter:none}100%{transform:none;filter:none}}
+.vfwt{position:absolute;left:0;right:0;bottom:-4px;font-size:21px;color:#2f78b5}
+.hint2{display:inline-block;background:#fff6d6;border-radius:18px;padding:6px 16px;color:#7a5a00}.hint2 b{font-size:34px;color:#3a2e5a;letter-spacing:2px;margin-left:4px}.hint2 small{font-size:18px;color:#8a7a50}
+@media (prefers-reduced-motion:reduce){.vfcan svg,.vfpour svg,.vfpl svg,.vfw i{animation:none}}
 @media (max-width:600px){.opt{font-size:26px}.tile{width:56px;height:56px;font-size:30px}.slot{width:48px;height:60px;line-height:60px;font-size:34px}.mgrid{grid-template-columns:repeat(3,1fr)}}
 .btn.hubb{background:#ff8fb8;text-decoration:none;font-size:17px;padding:8px 14px;opacity:.92}
 </style>
@@ -180,7 +197,7 @@ function migrateEx(){var n=0;D.weeks.forEach(function(wk){(wk.words||[]).forEach
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('儲存失敗，請檢查儲存空間')}}
 function allWords(){var r=[];D.weeks.forEach(function(w){w.words.forEach(function(x){r.push(x)})});return r}
 function findWeek(id){return D.weeks.filter(function(w){return w.id===id})[0]}
-function rec(id,ok,k){try{gPre(id)}catch(e){}var s=D.stats[id]||(D.stats[id]={c:0,w:0});ok?s.c++:s.w++;s.ls=Date.now();k=(ok&&k>1)?k:1;if(k>1)s.x=(s.x||0)+k-1;s.h=String(s.h||'').concat(new Array(k+1).join(ok?'1':'0')).slice(-4);save();spLog(ok,k);try{gPost(id,ok)}catch(e){}}
+function rec(id,ok,k){try{gPre(id)}catch(e){}var s=D.stats[id]||(D.stats[id]={c:0,w:0});ok?s.c++:s.w++;s.ls=Date.now();k=(ok&&k>1)?k:1;if(k>1)s.x=(s.x||0)+k-1;s.h=String(s.h||'').concat(new Array(k+1).join(ok?'1':'0')).slice(-4);try{var fr=ok?fkOk(vfL(),id):(fkMiss(vfL(),id),0);if(G&&G.fix&&G.fres&&!(id in G.fres))G.fres[id]=ok?(fr===1?1:2):0}catch(e){}save();if(!(G&&G.fix))spLog(ok,k);try{gPost(id,ok)}catch(e){}}
 function acc(id){var s=D.stats[id];if(!s||s.c+s.w===0)return null;return s.c/(s.c+s.w)}
 
 /* ---------- 解析批次輸入 ---------- */
@@ -534,7 +551,7 @@ function gEnt(id){gLoad();var e=GS.p[id];if(!e){e=GS.p[id]=gInit(id)}return e}
 function gMigrate(){gLoad();var ch=false;allWords().forEach(function(w){if(!GS.p[w.id]){GS.p[w.id]=gInit(w.id);ch=true}});gVis();gSave()}
 function gStage(id){return gEnt(id).p}
 function gWilt(id){if(gStage(id)<1)return false;var s=D.stats[id];if(!s)return false;
-  if(+s.ls&&(Date.now()-s.ls)/864e5>=GWILT)return true;var h=String(s.h||'');return h.slice(-1)==='0'}
+  if(+s.ls&&(Date.now()-s.ls)/864e5>=GWILT)return true;var e=D.fix&&D.fix[id];if(e)return !e.p;var h=String(s.h||'');return h.slice(-1)==='0'}
 function gPre(id){if(G&&G.gs0&&!(id in G.gs0))G.gs0[id]={s:gStage(id),w:gWilt(id)}}
 /* 只有「第一次就答對」才會長（手寫算 2 次）；每個字每天最多長 2 格；要開花還得真的學會（最近 4 次至少對 3 次） */
 function gPost(id,ok){var e=gEnt(id);if(!ok)return;
@@ -627,7 +644,7 @@ function gardenView(){
   gMigrate();var c=gCounts(),n=gVis(),nx=gNextAt(GS.vb),nv=gVisitor(n);
   var h=topbar(true)+'<div class="gwrap"><div class="gskyb"><div class="gsun"></div><div class="gcloud" style="left:10%;top:24px"></div><div class="gcloud" style="left:58%;top:50px;transform:scale(.75)"></div><div class="ghill h1"></div><div class="ghill h2"></div>'+gSky()+
     '<div class="gtitle">Ante島</div></div>'+
-    '<div class="gsum">🌸 開花 <b>'+c.b+'</b>　🌱 長大中 <b>'+c.g+'</b>　🌰 種子 <b>'+c.s+'</b>'+(c.w?'　💧 口渴 <b>'+c.w+'</b>':'')+'</div>'+
+    '<div class="gsum">🌸 開花 <b>'+c.b+'</b>　🌱 長大中 <b>'+c.g+'</b>　🌰 種子 <b>'+c.s+'</b>'+(c.w?'　💧 口渴 <b>'+c.w+'</b>':'')+'</div>'+vfEntry()+
     '<div class="gnext">'+(n?'來玩的小動物：'+Array.apply(null,{length:n}).map(function(_,i){return gVisitor(i).name}).filter(function(v,i,a){return a.indexOf(v)===i}).join('、')+'。':'')+'再開 '+Math.max(1,nx-c.b)+' 朵花，'+nv.name+'就會來Ante島玩喔！</div>'+
     '<div class="glegend">'+GSTN.map(function(s,i){return '<span><i>'+plantSVG('tulip',i,'#ff8fb1',false)+'</i>'+s+'</span>'}).join('<b>→</b>')+'</div>';
   if(!D.weeks.length)h+='<div class="card mid">請爸媽先輸入單字，就可以開始種花囉！</div>';
@@ -653,7 +670,8 @@ function gLazy(){var els=document.querySelectorAll('.gsoil[data-lazy="1"]');
   for(var j=0;j<els.length;j++)GIO.observe(els[j])}
 function gToggle(id,def){var el=document.getElementById('gb-'+id);if(!el)return;GX[id]=!gBedOpen(id,def);var t=document.createElement('div');t.innerHTML=gBedHTML(+el.getAttribute('data-i'),def);el.parentNode.replaceChild(t.firstChild,el);gLazy()}
 function gTip(id){var st=gStage(id),wl=gWilt(id),s=D.stats[id];
-  if(wl){var stale=s&&+s.ls&&(Date.now()-s.ls)/864e5>=GWILT;return stale?'好久沒見到它，有點口渴了 💧<br>在挑戰裡遇到它答對，就會恢復精神！':'上次答錯了，它有點沒精神 💧<br>下次答對，馬上就會恢復精神！'}
+  if(wl){var stale=s&&+s.ls&&(Date.now()-s.ls)/864e5>=GWILT;return stale?'好久沒見到它，有點口渴了 💧<br>按「💧 幫花澆水」或在挑戰裡答對它，就會恢復精神！':'上次答錯了，它有點沒精神 💧<br>按「💧 幫花澆水」答對它，就會站起來喔！'}
+  var fe=D.fix&&D.fix[id];if(fe&&fe.p)return fe.p===fkDay()?'今天喝到水了！💧<br>明天再答對一次，就會完全恢復精神 🌙':'它在等你再澆一次水 💧<br>這次答對，就會完全恢復精神！';
   if(st>=4)return '開花了！你已經學會這個字了 🎉';
   var e=gEnt(id),today=e.d===gToday()&&e.t>=GCAP;
   if(today)return '今天已經喝飽水了，明天再來幫它長大 🌙';
@@ -686,6 +704,65 @@ function gImport(o,mode){var inc=(o&&typeof o==='object')?gClean(o):null;
   else if(inc){gLoad();Object.keys(inc.p).forEach(function(k){var a=GS.p[k],b=inc.p[k];if(!a||b.p>a.p||(b.p===a.p&&b.d>a.d))GS.p[k]=b});GS.vb=Math.max(GS.vb,inc.vb);GS.vs=Math.max(GS.vs,inc.vs)}
   gMigrate()}
 function gReset(){GS=gClean(null);gMigrate()}
+
+/* ---------- 💧 幫花澆水：答錯的字會在清單裡等你；隔天以後再答對，花才會完全恢復精神 ---------- */
+/* ---- 修補清單共用核心：答錯的題目先記下來；要在「比答錯那天更晚的一天」再答對才離開清單（台灣時間），最多留最新 20 個 ---- */
+var FK_CAP=20,FK_RE=/^\d{4}-\d{2}-\d{2}$/;
+function fkDay(t){return new Date((t==null?Date.now():+t)+288e5).toISOString().slice(0,10)}
+function fkCap(o){var ks=Object.keys(o);if(ks.length>FK_CAP){ks.sort(function(a,b){return (o[b].t-o[a].t)||(o[b].m>o[a].m?1:o[b].m<o[a].m?-1:0)});ks.slice(FK_CAP).forEach(function(k){delete o[k]})}return o}
+function fkClean(o){var r={};if(!o||typeof o!=='object'||Array.isArray(o))return r;
+  Object.keys(o).forEach(function(k){var e=o[k];if(!e||typeof e!=='object'||!FK_RE.test(String(e.m||'')))return;
+    var x={m:String(e.m),t:Math.max(0,+e.t||0),p:FK_RE.test(String(e.p||''))?String(e.p):''};if(x.p&&x.p<x.m)x.p='';if(e.q!==undefined)x.q=e.q;r[k]=x});
+  return fkCap(r)}
+function fkMiss(L,k,q){var e=L[k]||{};e.m=fkDay();e.t=Date.now();e.p='';if(q!==undefined)e.q=q;L[k]=e;fkCap(L);return e}
+/* 答對：0＝不在清單、1＝今天有進步（明天再來）、2＝修好了（離開清單） */
+function fkOk(L,k){var e=L[k];if(!e)return 0;var d=fkDay();if(d>e.m){delete L[k];return 2}e.p=d;return 1}
+function fkDue(e){return !!e&&e.p!==fkDay()}
+function fkMerge(a,b){a=fkClean(a);b=fkClean(b);
+  Object.keys(b).forEach(function(k){var x=a[k],y=b[k];if(!x){a[k]=y;return}
+    var m=x.m>y.m?x.m:y.m,p=x.p>y.p?x.p:y.p,z={m:m,t:Math.max(x.t,y.t),p:p>=m?p:''};
+    if(x.q!==undefined||y.q!==undefined)z.q=(y.t>x.t&&y.q!==undefined)?y.q:(x.q!==undefined?x.q:y.q);a[k]=z});
+  return fkCap(a)}
+var VF_ROUND=10,VF_MIN=5;
+function vfL(){if(!D.fix||typeof D.fix!=='object'||Array.isArray(D.fix))D.fix={};return D.fix}
+/* 第一次升級：把「上次答錯」的字放進清單（答錯日＝上次練習那天） */
+function vfSeed(){if(D.fixv)return;D.fixv=1;var L=vfL();
+  allWords().forEach(function(w){var s=D.stats[w.id];if(s&&!L[w.id]&&String(s.h||'').slice(-1)==='0'){var t=+s.ls||Date.now();L[w.id]={m:fkDay(t),t:t,p:''}}});fkCap(L);save()}
+function vfStale(id){var s=D.stats[id];return !!(s&&+s.ls&&(Date.now()-s.ls)/864e5>=GWILT&&gStage(id)>=1)}
+function vfInfo(){var L=vfL(),td=fkDay(),r={due:[],done:0,stale:[]},seen={};
+  allWords().forEach(function(w){if(seen[w.id])return;seen[w.id]=1;var e=L[w.id];
+    if(e){if(e.p===td)r.done++;else r.due.push(w)}else if(vfStale(w.id))r.stale.push(w)});
+  r.due.sort(function(a,b){return L[a.id].t-L[b.id].t});
+  r.stale.sort(function(a,b){return (+D.stats[a.id].ls||0)-(+D.stats[b.id].ls||0)});return r}
+function vfPlan(){var f=vfInfo(),p=f.due.slice(0,VF_ROUND);for(var i=0;p.length<VF_MIN&&i<f.stale.length;i++)p.push(f.stale[i]);return p}
+var VF_CAN='<svg viewBox="0 0 80 60" aria-hidden="true"><path d="M50 30 L71 15 l5 5 -21 19z" fill="#8fd0ff" stroke="#6b4f3a" stroke-width="2.5" stroke-linejoin="round"/><path d="M69 12 l9 9" stroke="#6b4f3a" stroke-width="4" stroke-linecap="round"/><path d="M20 24 q13 -18 26 0" fill="none" stroke="#6b4f3a" stroke-width="3.5" stroke-linecap="round"/><path d="M12 24 h40 a3 3 0 0 1 3 3 v19 a8 8 0 0 1 -8 8 h-30 a8 8 0 0 1 -8 -8 v-19 a3 3 0 0 1 3 -3z" fill="#7cc6ff" stroke="#6b4f3a" stroke-width="2.5"/><path d="M16 34 h36" stroke="#fff" stroke-width="3" opacity=".6"/><circle cx="24" cy="44" r="3" fill="#fff" opacity=".75"/></svg>';
+/* 首頁／島上的入口 */
+function vfEntry(){if(!allWords().length)return '';vfSeed();var f=vfInfo(),n=f.due.length,m=f.stale.length;
+  if(n||m)return '<button class="vfbtn gf" data-a="fix"><span class="vfcan">'+VF_CAN+'</span><span class="vft"><b>💧 幫花澆水</b><small>'+(n?'還有 '+n+' 朵花等你澆水':m>VF_ROUND?'有幾朵花好久沒見了，來澆澆水吧':'有 '+m+' 朵花好久沒見，有點口渴了')+'</small></span></button>';
+  if(f.done)return '<div class="vfdone gf">🌙 今天澆過 '+f.done+' 朵花了，明天再來看看它們</div>';
+  return ''}
+function startFix(){vfSeed();var plan=vfPlan();if(!plan.length){toast('花都很有精神喔 🌸');go('garden');return}
+  var all=allWords(),types=plan.map(function(w){var ts=['spell'];if(all.length>=2){ts.push('listen');if(hasPic(w))ts.push('pic')}return ts[rnd(ts.length)]});
+  G={g:'fix',fix:true,pool:all,fq:plan,types:types,i:0,ok:0,first:0,gained:0,recent:[],requeue:[],locked:false,mix:null,rev:false,gs0:{},fres:{}};
+  view='quiz';quizQ()}
+/* 答對時：小水壺澆水，花慢慢站起來 */
+function vfAnim(w,first){var r=first?G.fres[w.id]:-1;
+  var t=r===2?'✨ 恢復精神了！':r===1?'💧 喝到水了！明天再來看看它':'💧 下次再幫它澆一次水';
+  var d='';for(var i=0;i<5;i++)d+='<i style="left:'+(52+i*7)+'%;animation-delay:'+(0.25+i*0.13).toFixed(2)+'s"></i>';
+  return '<div class="vfw gf"><span class="vfpour">'+VF_CAN+'</span>'+d+'<span class="vfpl'+(r>0?' up':'')+(r===2?' spark':'')+'">'+gPlantFor(w)+'</span><div class="vfwt">'+t+'</div></div>'}
+function fixResult(){var rv=[],pg=[],tr=[];
+  G.fq.forEach(function(w){var r=G.fres[w.id];(r===2?rv:r===1?pg:tr).push(w)});
+  var f=vfInfo(),drops='';for(var i=0;i<10;i++)drops+='<i class="gdrop" style="left:'+(8+i*9)+'%;animation-delay:'+(0.2+i*0.12).toFixed(2)+'s"></i>';
+  function cell(w,lb,k,cls){return '<div class="gri'+cls+'" style="animation-delay:'+(1.1+k*0.12).toFixed(2)+'s"><span class="gmini">'+gPlantFor(w)+'</span><b>'+esc(w.en)+'</b><small>'+lb+'</small></div>'}
+  var k=0,items=rv.map(function(w){return cell(w,'✨ 恢復精神',k++,' grew spark')}).concat(pg.map(function(w){return cell(w,'💧 明天再看看',k++,' grew')})).concat(tr.map(function(w){return cell(w,'🌱 下次再試',k++,'')}));
+  var msg=f.due.length?'還有 '+f.due.length+' 朵花等你澆水，慢慢來就好 💧':pg.length||f.done?'今天的水都澆好了！明天再來看看它們 🌙':'所有的花都很有精神 🌸';
+  app.innerHTML=topbar(false)+'<div class="card grc">'+drops+'<div class="grt">💧 澆水完成！</div><div class="grs">'+items.join('')+'</div>'+
+    '<div class="grn">'+msg+'</div>'+(pg.length?'<div class="vfnote">今天答對的花喝到水了；隔天再答對一次，就會完全恢復精神喔！</div>':'')+'</div>'+
+    '<div class="grid g2">'+(f.due.length?'<button class="btn green" data-a="fix">💧 繼續澆水</button>':'<button class="btn" style="background:#ff8fb1;box-shadow:0 6px 0 #d0457a" data-a="garden">🌸 去Ante島看看</button>')+'<button class="btn blue" data-a="home">🏠 回首頁</button></div>'}
+/* 第二次還沒答對：再唸一次、把字秀出來 */
+function hint2(txt,aud){if(!G||!G.w)return false;G.nw=(G.nw||0)+1;if(G.nw<2)return false;
+  var w=G.w,m=$('#msg');txt=txt||w.en;if(aud)sayParts([aud]);else say(w.en);
+  if(m)m.innerHTML='<span class="hint2">💡 仔細聽聽看：<b>'+esc(txt)+'</b>'+(w.zh&&!aud?'<small>（'+esc(w.zh)+'）</small>':'')+'</span>';return true}
 /* ---------- 畫面 ---------- */
 var app=$('#app');
 var view='home',G=null,editWeek=null;
@@ -702,7 +779,7 @@ function home(){
   var n=allWords().length,wk=D.weeks[D.weeks.length-1];
   app.innerHTML=topbar(false)+'<h1>📚 單字小達人</h1><div class="hero pop">🦄</div>'+
   '<div class="mid">'+(n?'已經學了 '+n+' 個單字'+(wk?'，本週：'+esc(wk.name):''):'請爸媽先到「家長區」輸入這週的單字喔')+'</div>'+
-  gHomeCard()+
+  gHomeCard()+vfEntry()+
   '<div class="grid g2" style="margin-top:20px">'+
   '<button class="btn green" style="font-size:34px;padding:36px" data-a="quizmenu">🎮 開始挑戰</button>'+
   '<button class="btn blue" style="font-size:34px;padding:36px" data-a="learn">🔊 聽聽看單字</button>'+
@@ -759,7 +836,7 @@ function parent(){
 
 function ioView(){
   app.innerHTML=topbar(true)+'<h2>📦 匯出／匯入（搬到另一台 iPad）</h2>'+
-  '<div class="card"><b>匯出</b><div class="mid" style="text-align:left;font-size:20px">會帶走：單字、答題紀錄、⭐ '+D.stars+' 顆星星、🌸 Ante島的花和設定。</div><div class="row" style="margin:10px 0"><button class="btn blue" data-a="exportfile">💾 下載 JSON 檔</button><button class="btn purple" data-a="exportcopy">📋 複製文字代碼</button></div>'+
+  '<div class="card"><b>匯出</b><div class="mid" style="text-align:left;font-size:20px">會帶走：單字、答題紀錄、⭐ '+D.stars+' 顆星星、🌸 Ante島的花和設定、💧 等你澆水的花。</div><div class="row" style="margin:10px 0"><button class="btn blue" data-a="exportfile">💾 下載 JSON 檔</button><button class="btn purple" data-a="exportcopy">📋 複製文字代碼</button></div>'+
   '<textarea id="code" readonly placeholder="按「複製文字代碼」後會顯示在這裡"></textarea></div>'+
   '<div class="card"><b>匯入</b><p class="mid" style="text-align:left">選擇 JSON 檔，或把文字代碼貼到下面。代碼裡有單字、答題紀錄和⭐星星。「合併匯入」會保留兩邊的單字，星星取比較多的那邊，每個字的紀錄取練習比較多的那份。</p>'+
   '<input type="file" id="file" accept=".json,application/json" style="font-size:18px;margin-bottom:10px">'+
@@ -795,13 +872,14 @@ function doImport(txt,mode){
     });
     Object.keys(st).forEach(function(k){D.stats[k]=pickStat(D.stats[k],st[k])});
     D.stars=Math.max(+D.stars||0,inStars);
+    D.fix=fkMerge(D.fix,o.fix);if(o.fixv)D.fixv=1;
   }
   /* 範圍與台詞輪替（新版代碼才有） */
   if(typeof o.scope==='string'&&mode==='replace'){lastScope=o.scope;try{localStorage.setItem(SC_KEY,o.scope);localStorage.setItem(SC_KEY+'.m','1')}catch(e){}}
   if(o.qv&&typeof o.qv==='object'){try{var cq={};if(mode!=='replace'){cq=JSON.parse(localStorage.getItem(QV_KEY))||{}}
     var q={k:Math.max(+cq.k||0,+o.qv.k||0),last:(+o.qv.at||0)>=(+cq.at||0)?o.qv.last:cq.last,at:Math.max(+cq.at||0,+o.qv.at||0)};localStorage.setItem(QV_KEY,JSON.stringify(q))}catch(e){}}
   if(!scopeOk(lastScope))lastScope='mixrev';
-  migrateEx();save();try{gImport(o.garden,mode)}catch(e){}go('home');
+  D.fix=fkClean(D.fix);migrateEx();save();try{vfSeed()}catch(e){}try{gImport(o.garden,mode)}catch(e){}go('home');
   var nst=Object.keys(st).length;
   notice((mode==='replace'?'✅ 已取代成匯入的資料':'✅ 合併匯入完成')+'\n已匯入 '+nWords+' 個單字'+(mode==='replace'?'':'（新增 '+added+' 個）')+'、'+nst+' 個字的答題紀錄\n'+(hasStars?'⭐ 星星：現在共 '+D.stars+' 顆':'⭐ 這份代碼是舊版的，裡面沒有星星；星星維持 '+D.stars+' 顆'));
   toast(hasStars?'已匯入 '+nWords+' 個單字、⭐ '+D.stars+' 顆星星':'已匯入 '+nWords+' 個單字');
@@ -894,10 +972,11 @@ function qHead(){
 }
 function quizQ(){
   if(G.i>=G.types.length){return finish()}
-  var t=G.types[G.i];G.locked=false;G.tried=false;G.sayAfter=null;G.rev=false;spSeq++;
+  var t=G.types[G.i];G.locked=false;G.tried=false;G.nw=0;G.sayAfter=null;G.rev=false;spSeq++;
   if(t==='match')return matchQ();
   var w;
-  if(G.requeue.length&&G.requeue[0].at<=G.i&&okFor(t,G.requeue[0].w)){w=G.requeue.shift().w}
+  if(G.fix)w=G.fq[G.i];
+  else if(G.requeue.length&&G.requeue[0].at<=G.i&&okFor(t,G.requeue[0].w)){w=G.requeue.shift().w}
   else if(G.mix)w=pickMix(t,G.mix.plan[G.i],G.recent);
   else w=pickWord(G.pool.filter(function(x){return okFor(t,x)}),G.recent);
   G.recent.push(w.id);if(G.recent.length>3)G.recent.shift();
@@ -1176,7 +1255,7 @@ function onTile(k){
   }else{
     sndNo();if(!G.tried){G.tried=true;rec(G.w.id,false);G.mistake=true}
     var el=document.querySelectorAll('.tile')[k];if(el){el.classList.add('bad')}
-    $('#msg').textContent=tryag();
+    if(!hint2())$('#msg').textContent=tryag();
     setTimeout(function(){if(el)el.classList.remove('bad')},450);
   }
 }
@@ -1190,11 +1269,11 @@ function right(spell){
   // 第一次就答對才記為正確
   var firstTry=!G.tried;
   if(firstTry){rec(G.w.id,true,G.types[G.i]==='write'?spWt():1);G.first++;G.gained++;D.stars++;save()}
-  else{G.requeue.push({w:G.w,at:G.i+3})}
+  else if(!G.fix){G.requeue.push({w:G.w,at:G.i+3})}
   G.ok++;sndOk();confetti(firstTry?70:30);
-  var m=$('#msg');if(m){m.textContent=praise2();m.classList.add('pop')}
+  var m=$('#msg');if(m){m.textContent=praise2();m.classList.add('pop');if(G.fix)m.innerHTML=esc(m.textContent)+vfAnim(G.w,firstTry)}
   if(G.sayAfter)sayParts([G.sayAfter]);else say(G.w.en);
-  G.i++;setTimeout(quizQ,G.sayAfter?Math.min(5000,1800+G.sayAfter.length*90):1500);
+  G.i++;setTimeout(quizQ,G.sayAfter?Math.min(5000,1800+G.sayAfter.length*90):G.fix?2600:1500);
 }
 function onAns(i){
   if(G.locked)return;
@@ -1204,7 +1283,7 @@ function onAns(i){
   }else{
     sndNo();btn.classList.add('no');btn.style.pointerEvents='none';
     if(!G.tried){G.tried=true;rec(G.w.id,false)}
-    $('#msg').textContent=tryag();
+    if(!hint2())$('#msg').textContent=tryag();
   }
 }
 
@@ -1228,7 +1307,7 @@ function clozeSay(slow){if(!G||!G.cl)return;var p=[];if(G.cl.pre.trim())p.push(G
 function clozeAns(k){
   if(G.locked)return;var o=G.opts[k],btn=document.querySelectorAll('.opt')[k];
   if(o.ok){G.locked=true;btn.classList.add('ok');var g=$('#sent .gap');if(g){g.textContent=o.t}right()}
-  else{sndNo();btn.classList.add('no');btn.style.pointerEvents='none';if(!G.tried){G.tried=true;rec(G.w.id,false)}$('#msg').textContent=tryag()}
+  else{sndNo();btn.classList.add('no');btn.style.pointerEvents='none';if(!G.tried){G.tried=true;rec(G.w.id,false)}if(!hint2(G.w.ex,G.w.ex))$('#msg').textContent=tryag()}
 }
 /* ---------- 句子排排看 ---------- */
 function orderTokens(ex){
@@ -1262,7 +1341,7 @@ function orderPick(k){
   if(!r.bank.length){
     var bad=-1;for(var i=0;i<r.ans.length;i++){if(r.toks[r.ans[i]].t.toLowerCase()!==r.toks[i].t.toLowerCase()){bad=i;break}}
     if(bad<0){G.locked=true;orderDraw();right()}
-    else{r.bad=bad;sndNo();if(!G.tried){G.tried=true;rec(G.w.id,false)}orderDraw();$('#msg').textContent='順序不太對，點紅色的字拿回來再試試 💪'}
+    else{r.bad=bad;sndNo();if(!G.tried){G.tried=true;rec(G.w.id,false)}orderDraw();if(!hint2(G.w.ex,G.w.ex))$('#msg').textContent='順序不太對，點紅色的字拿回來再試試 💪'}
   }
 }
 function orderBack(k){var r=G.or;if(G.locked)return;var v=r.ans.splice(k,1)[0];r.bank.push(v);r.bad=-1;sndTap();orderDraw()}
@@ -1313,9 +1392,11 @@ function onFlip(i){
 function finish(){
   var bonus=0;if(G.first===G.types.length&&G.types.length>=3){bonus=3;D.stars+=3;G.gained+=3}
   save();try{G.gr=gRound()}catch(e){G.gr=null}view='result';sndWin();confetti(160);render();
+  if(G.fix)return;
   spSync().then(function(){var g=G;setTimeout(function(){if(view==='result'&&!spCheck())qvMaybe(g)},1400)});
 }
 function result(){
+  if(G.fix)return fixResult();
   var n=G.types.length,p=G.first/n;
   var face=p>=.9?'🏆':p>=.6?'🎉':'💪';
   app.innerHTML=topbar(false)+'<div class="hero pop">'+face+'</div><h1>'+(p>=.9?'太厲害了！':p>=.6?'表現很棒！':'再接再厲！')+'</h1>'+
@@ -1342,6 +1423,7 @@ document.addEventListener('click',function(e){
     case 'gsay':{var gw=wordById(el.dataset.id);if(gw)say(gw.en);break}
     case 'gpclose':{var gp=$('#gpov');if(gp)gp.remove();break}
     case 'quizmenu':go('quizmenu');break;
+    case 'fix':{var gf=$('#gpov');if(gf)gf.remove();sndTap();startFix();break}
     case 'say':say(el.dataset.t,!!el.dataset.s);break;
     case 'addweek':{
       var ws=parseLines($('#batch').value);if(!ws.length){toast('請輸入至少一個英文單字');return}
@@ -1360,7 +1442,7 @@ document.addEventListener('click',function(e){
       if(x.id===el.dataset.id){var en=prompt('英文',x.en);if(en===null)return;var zh=prompt('中文意思（可留白）',x.zh||'');var em=prompt('emoji（可留白）',x.emoji||'');
         var nz=(zh||'').trim(),ne=(em||'').trim();if(x.auto){if(nz!==(x.zh||''))delete x.auto.zh;if(ne!==(x.emoji||''))delete x.auto.emoji}
         if(en.trim())x.en=en.trim();x.zh=nz;x.emoji=ne;if(hasEx(x))x.exForm=findForm(x.ex,x.en);save()}})});parent();break;
-    case 'resetstats':if(confirm('確定清除答題紀錄與星星？（Ante島的花也會重新從種子開始）')){D.stats={};D.stars=0;save();try{gReset()}catch(e){}parent()}break;
+    case 'resetstats':if(confirm('確定清除答題紀錄與星星？（Ante島的花也會重新從種子開始）')){D.stats={};D.stars=0;D.fix={};D.fixv=1;save();try{gReset()}catch(e){}parent()}break;
     case 'exportfile':{
       var blob=new Blob([exportText()],{type:'application/json'}),u=URL.createObjectURL(blob),l=document.createElement('a');
       l.href=u;l.download='vocab-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(l);l.click();l.remove();
@@ -1410,10 +1492,10 @@ window.addEventListener('resize',function(){if(G&&G.hw&&G.hw.phase==='write')hwS
 
 /* 測試用匯出 */
 window.__vocab={parseLines:parseLines,findForm:findForm,sentLocal:sentLocal,orderTokens:orderTokens};
-load();try{gMigrate()}catch(e){}render();
+load();try{vfSeed()}catch(e){}try{gMigrate()}catch(e){}render();
 spSync();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
-window.__vocabDebug={OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,qv:qvMaybe,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned},start:startQuiz,next:quizQ,go:go,learn:learn,g:{st:gStage,wilt:gWilt,state:function(){return gLoad()},reload:function(){GS=null;return gLoad()},open:gOpen,fin:finish}};
+window.__vocabDebug={fix:{info:vfInfo,plan:vfPlan,day:fkDay,start:startFix},OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,qv:qvMaybe,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned},start:startQuiz,next:quizQ,go:go,learn:learn,g:{st:gStage,wilt:gWilt,state:function(){return gLoad()},reload:function(){GS=null;return gLoad()},open:gOpen,fin:finish}};
 })();
 </script>
 </body>
