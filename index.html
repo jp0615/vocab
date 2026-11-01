@@ -91,7 +91,7 @@ textarea{min-height:130px}
 .oans{background:#fff;border-radius:22px;border:4px dashed #d9ceff;padding:8px;align-items:center}
 .oend{font-size:40px;font-weight:800;align-self:flex-end}
 @font-face{font-family:"GardenRound";src:url("fonts/garden-round.woff2") format("woff2");font-display:swap}
-.gf,.gcard,.gwrap,.gpc,.grc{font-family:"GardenRound",ui-rounded,"Arial Rounded MT Bold","PingFang TC","Heiti TC",sans-serif}
+.gf,.gcard,.gwrap,.gpc,.grc,.btn.shop{font-family:"GardenRound",ui-rounded,"Arial Rounded MT Bold","PingFang TC","Heiti TC",sans-serif}
 .gcard{display:block;width:100%;margin:16px 0 4px;border:0;border-radius:30px;background:#fffbea;box-shadow:0 6px 0 #c9e5a6,0 10px 18px rgba(90,120,60,.18);padding:12px 16px 10px;cursor:pointer;color:#5a6b3a;text-align:center;position:relative;overflow:hidden}
 .gcard:before{content:"";position:absolute;left:0;right:0;bottom:0;height:64px;background:#bfe59a;border-radius:50% 50% 0 0/26px 26px 0 0}
 .gcard>*{position:relative}
@@ -149,6 +149,32 @@ textarea{min-height:130px}
 @keyframes gfall{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(130px);opacity:0}}
 .grv{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:20px;color:#7a4b00;flex-wrap:wrap}.grv .gmini{width:46px;height:46px}
 @media (prefers-reduced-motion:reduce){.gvis,.gcloud,.gwing,.grew svg,.gbig svg{animation:none}}
+.gyard{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0 4px;padding:10px 10px 8px;border-radius:24px;background:linear-gradient(180deg,#c8eca8,#a8dd84);box-shadow:inset 0 -6px 0 rgba(90,150,60,.22)}
+.gslot{aspect-ratio:1;display:flex;align-items:flex-end;justify-content:center;position:relative;border-radius:18px;min-width:0}
+.gslot svg{width:100%;height:100%;max-width:100px;display:block}
+.gyard.edit .gslot{background:rgba(255,255,255,.32);border:2.5px dashed rgba(255,255,255,.95);cursor:pointer}
+.gyard.edit .gslot.on{border-style:solid;background:rgba(255,255,255,.18)}
+.gyard.picking .gslot{animation:gglow 1s ease-in-out infinite alternate}
+@keyframes gglow{from{box-shadow:0 0 0 0 rgba(255,255,255,0)}to{box-shadow:0 0 0 5px rgba(255,255,255,.95)}}
+.gplus{font-size:28px;color:#fff;margin:auto}
+.gx{position:absolute;top:-7px;right:-7px;width:28px;height:28px;border-radius:50%;background:#ef5b73;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 rgba(0,0,0,.2);cursor:pointer}
+.gmill{animation:gspin 7s linear infinite}@keyframes gspin{to{transform:rotate(360deg)}}
+.shhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 6px}
+.shtitle{font-size:34px;color:#c24d74}
+.shbal{background:#fff;border-radius:22px;padding:6px 18px;font-size:22px;color:#6b4f3a;box-shadow:0 4px 0 #f3c94b;text-align:center;line-height:1.25}
+.shbal b{color:#e08a00;font-size:28px;font-weight:400}.shbal small{display:block;font-size:15px;color:#9a8a70}
+.shtip{font-size:18px;color:#5a7a3a;text-align:center;margin:8px 4px 0}
+.shgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px}
+.shit{background:#fffdf6;border-radius:22px;padding:10px 8px 12px;text-align:center;box-shadow:0 4px 0 rgba(120,160,80,.25);display:flex;flex-direction:column;align-items:center;gap:3px}
+.shit.own{background:#fff4f8;box-shadow:0 4px 0 #f2b6c9}
+.shit.lock .shart{filter:grayscale(1);opacity:.45}
+.shart{width:84px;height:84px}.shart svg{width:100%;height:100%}
+.shit b{font-size:20px;color:#6b4f3a;font-weight:400}.shit small{font-size:15px;color:#b08a3a}
+.shit .btn{padding:8px 10px;font-size:17px;width:100%;font-weight:400;margin-top:4px}
+.shlock,.shneed{font-size:15px;color:#9a8aa8;padding:9px 0 4px}
+.btn.pick{background:#ff8fb1}
+.btn.shop{display:flex;flex-direction:column;align-items:center;width:100%;box-sizing:border-box;margin-top:12px;background:#ff9ec0;color:#fff}.btn.shop small{font-size:17px;font-weight:700;opacity:.95;margin-top:2px}
+@media (prefers-reduced-motion:reduce){.gmill,.gyard.picking .gslot{animation:none}}
 .vfbtn{display:flex;align-items:center;gap:12px;width:100%;margin:12px 0 2px;border:0;border-radius:26px;background:#e6f5ff;box-shadow:0 6px 0 #a9d6f5,0 10px 18px rgba(60,120,170,.15);padding:10px 18px;cursor:pointer;color:#2f6f9f;text-align:left}
 .vfbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #a9d6f5}
 .vfcan{flex:0 0 66px;height:50px}.vfcan svg{width:100%;height:100%;animation:vftilt 2.4s ease-in-out infinite;transform-origin:30% 80%}
@@ -189,9 +215,9 @@ function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a
 
 /* ---------- 資料 ---------- */
 var D;
-function blank(){return {v:1,weeks:[],stats:{},stars:0,slow:false}}
+function blank(){return {v:1,weeks:[],stats:{},stars:0,slow:false,shop:{o:{},p:{}}}}
 function load(){try{D=JSON.parse(localStorage.getItem(KEY))||blank()}catch(e){D=blank()}
-  D.weeks=D.weeks||[];D.stats=D.stats||{};D.stars=D.stars||0;migrateEx()}
+  D.weeks=D.weeks||[];D.stats=D.stats||{};D.stars=D.stars||0;D.shop=shNorm(D.shop);migrateEx()}
 /* 舊資料（還沒有例句欄位）自動帶入內建例句；家長刪掉的（空字串）不會再自動補 */
 function migrateEx(){var n=0;D.weeks.forEach(function(wk){(wk.words||[]).forEach(function(w){if(w&&w.en&&w.ex===undefined){if(fillEx(w))n++;else{w.ex='';w.exZh='';w.exForm=''}}})});if(n)try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('儲存失敗，請檢查儲存空間')}}
@@ -643,13 +669,13 @@ function gSky(){var n=gVis(),h='';
 function gardenView(){
   gMigrate();var c=gCounts(),n=gVis(),nx=gNextAt(GS.vb),nv=gVisitor(n);
   var h=topbar(true)+'<div class="gwrap"><div class="gskyb"><div class="gsun"></div><div class="gcloud" style="left:10%;top:24px"></div><div class="gcloud" style="left:58%;top:50px;transform:scale(.75)"></div><div class="ghill h1"></div><div class="ghill h2"></div>'+gSky()+
-    '<div class="gtitle">Ante島</div></div>'+
+    '<div class="gtitle">Ante島</div></div>'+(gYardShown()?gYard(false):'')+
     '<div class="gsum">🌸 開花 <b>'+c.b+'</b>　🌱 長大中 <b>'+c.g+'</b>　🌰 種子 <b>'+c.s+'</b>'+(c.w?'　💧 口渴 <b>'+c.w+'</b>':'')+'</div>'+vfEntry()+
     '<div class="gnext">'+(n?'來玩的小動物：'+Array.apply(null,{length:n}).map(function(_,i){return gVisitor(i).name}).filter(function(v,i,a){return a.indexOf(v)===i}).join('、')+'。':'')+'再開 '+Math.max(1,nx-c.b)+' 朵花，'+nv.name+'就會來Ante島玩喔！</div>'+
     '<div class="glegend">'+GSTN.map(function(s,i){return '<span><i>'+plantSVG('tulip',i,'#ff8fb1',false)+'</i>'+s+'</span>'}).join('<b>→</b>')+'</div>';
   if(!D.weeks.length)h+='<div class="card mid">請爸媽先輸入單字，就可以開始種花囉！</div>';
   var nb=0;for(var i=D.weeks.length-1;i>=0;i--){if(!D.weeks[i].words.length)continue;h+=gBedHTML(i,nb<3);nb++}
-  h+='<div class="mid" style="font-size:18px;margin:14px 0 4px">在挑戰裡第一次就答對，植物就會長大；每棵植物每天最多長 2 格喔 💧</div></div>';
+  h+='<div class="mid" style="font-size:18px;margin:14px 0 4px">在挑戰裡第一次就答對，植物就會長大；每棵植物每天最多長 2 格喔 💧</div>'+shBtn()+'</div>';
   app.innerHTML=h;gLazy();
 }
 /* 每週一個小花圃：最新 3 週預設打開，舊的收成一行（點一下打開）；打開的花圃捲到畫面附近才畫植物 */
@@ -763,6 +789,78 @@ function fixResult(){var rv=[],pg=[],tr=[];
 function hint2(txt,aud){if(!G||!G.w)return false;G.nw=(G.nw||0)+1;if(G.nw<2)return false;
   var w=G.w,m=$('#msg');txt=txt||w.en;if(aud)sayParts([aud]);else say(w.en);
   if(m)m.innerHTML='<span class="hint2">💡 仔細聽聽看：<b>'+esc(txt)+'</b>'+(w.zh&&!aud?'<small>（'+esc(w.zh)+'）</small>':'')+'</span>';return true}
+/* ---------- 🛍️ 星星小舖（用星星換Ante島的小擺設；不影響星星、紀錄、花園成長或任何其他功能） ---------- */
+var SHOP=[
+ {id:'fence',n:'白色小籬笆',p:25},{id:'sign',n:'指路小木牌',p:30},{id:'mail',n:'小信箱',p:40},{id:'bench',n:'木頭長椅',p:45},
+ {id:'lamp',n:'暖暖路燈',p:55},{id:'picnic',n:'野餐墊',p:70},{id:'pond',n:'小池塘',p:100,u:5},{id:'arch',n:'花拱門',p:130,u:10},
+ {id:'swing',n:'盪鞦韆',p:160,u:15},{id:'balloon',n:'熱氣球',p:260,u:20},{id:'mill',n:'小風車',p:320,u:30},{id:'house',n:'小木屋',p:400,u:40}];
+var SH_SLOTS=6;
+/* ---- ⭐ 星星小舖共用核心（三個 App 同一份）：D.stars 永遠是「總共拿過」的星星，買東西不會扣它；
+   可用星星＝總共拿過－買過的東西加起來的價錢（k:1＝重設前就買好、已經付清的，不再算）。
+   合併匯入：買過的東西取聯集，可用星星重新算，不會因為匯入變多；擺設用本機的（本機沒擺才用匯入的） ---- */
+var SHI={};SHOP.forEach(function(it){SHI[it.id]=it});
+function shPClean(p,o){var r={},used={};if(!p||typeof p!=='object')return r;
+  Object.keys(p).forEach(function(k){var id=p[k];if(typeof id!=='string'||!o[id]||used[id]||!shSlotOk(k,id))return;used[id]=1;r[k]=id});return r}
+function shNorm(s){var r={o:{},p:{}};if(!s||typeof s!=='object')return r;var o=(s.o&&typeof s.o==='object')?s.o:{};
+  Object.keys(o).forEach(function(id){if(!SHI.hasOwnProperty(id))return;var x=o[id]||{},t=Math.max(1,Math.floor(+x.t||0)||1);r.o[id]=x.k?{t:t,k:1}:{t:t}});
+  r.p=shPClean(s.p,r.o);return r}
+function shSpent(s){s=s||D.shop;var n=0;for(var id in s.o)if(!s.o[id].k)n+=SHI[id].p;return n}
+function shBal(){return Math.max(0,(+D.stars||0)-shSpent())}
+function shOwn(id){return !!(D.shop&&D.shop.o[id])}
+function shNOwn(){return Object.keys(D.shop.o).length}
+function shCan(id){var it=SHI[id];return !!it&&!shOwn(id)&&shUnl(it)&&shBal()>=it.p}
+function shBuy(id){if(!shCan(id))return false;D.shop.o[id]={t:Date.now()};save();return true}
+function shPaid(){for(var id in D.shop.o)D.shop.o[id].k=1}
+function shMerge(a,b){a=shNorm(a);b=shNorm(b);var o={},id;for(id in a.o)o[id]=a.o[id];
+  for(id in b.o){var x=b.o[id],y=o[id];o[id]=!y?x:(x.k&&y.k?{t:Math.min(x.t,y.t),k:1}:{t:Math.min(x.t,y.t)})}
+  return {o:o,p:shPClean(Object.keys(a.p).length?a.p:b.p,o)}}
+/* ---- 星星小舖核心結束 ---- */
+
+function shUnl(it){if(!it.u)return true;gLoad();return Math.max(GS.vb,gBloomN())>=it.u}
+function shSlotOk(k,id){return /^[0-5]$/.test(k)}
+/* 原創圓圓的擺設圖（60×60） */
+function decoSVG(id){var O=' stroke="'+GOL+'" stroke-width="1.8" stroke-linejoin="round"',S='<svg viewBox="0 0 60 60" aria-hidden="true">',E='</svg>';
+  if(id==='fence')return S+[8,22,36,50].map(function(x){return '<path d="M'+(x-5)+' 52V24l5-6 5 6v28z" fill="#fffaf2"'+O+'/>'}).join('')+'<rect x="2" y="30" width="56" height="6" rx="3" fill="#fffaf2"'+O+'/><rect x="2" y="42" width="56" height="6" rx="3" fill="#fffaf2"'+O+'/><ellipse cx="30" cy="55" rx="27" ry="3" fill="#7cc35c" opacity=".5"/>'+E;
+  if(id==='sign')return S+'<rect x="27" y="10" width="6" height="46" rx="3" fill="#b07a4f"'+O+'/><path d="M8 14h34l8 7-8 7H8z" fill="#ffd89a"'+O+'/><path d="M52 32H18l-8 7 8 7h34z" fill="#ffc2d4"'+O+'/><path d="M15 21h22M22 39h22" stroke="'+GOL+'" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>'+E;
+  if(id==='mail')return S+'<rect x="27" y="30" width="6" height="26" rx="2" fill="#b07a4f"'+O+'/><path d="M10 34V22a12 12 0 0 1 12-12h16a12 12 0 0 1 12 12v12z" fill="#7ec8ff"'+O+'/><path d="M10 22a12 12 0 0 1 24 0v12" fill="none"'+O+'/><rect x="13" y="25" width="16" height="4" rx="2" fill="#fff" opacity=".8"/><path d="M44 12v-8h9v6h-9" fill="#ff7a8a"'+O+'/>'+E;
+  if(id==='bench')return S+'<rect x="6" y="14" width="48" height="7" rx="3.5" fill="#d9a066"'+O+'/><rect x="6" y="23" width="48" height="7" rx="3.5" fill="#d9a066"'+O+'/><rect x="4" y="34" width="52" height="7" rx="3.5" fill="#e8b47a"'+O+'/><path d="M11 41v14M49 41v14M13 30v4M47 30v4" stroke="'+GOL+'" stroke-width="3.2" stroke-linecap="round"/>'+E;
+  if(id==='lamp')return S+'<circle cx="30" cy="15" r="13" fill="#fff3b0" opacity=".55"/><rect x="27.5" y="22" width="5" height="32" rx="2.5" fill="#6d8f7a"'+O+'/><path d="M21 9h18l-3 13H24z" fill="#ffe27a"'+O+'/><path d="M19 9h22l-4-5H23z" fill="#6d8f7a"'+O+'/><rect x="22" y="52" width="16" height="5" rx="2.5" fill="#6d8f7a"'+O+'/>'+E;
+  if(id==='picnic')return S+'<path d="M4 46l12-16h34l8 16z" fill="#fff"'+O+'/><path d="M10 38h44M7 42h48M19 30l-6 16M31 30v16M43 30l6 16" stroke="#ff8aa3" stroke-width="3"/><path d="M4 46l12-16h34l8 16z" fill="none"'+O+'/><path d="M26 30a8 7 0 0 1 16 0" fill="none" stroke="#b07a4f" stroke-width="2.6"/><rect x="24" y="28" width="20" height="10" rx="3" fill="#e8b47a"'+O+'/><circle cx="29" cy="27" r="3" fill="#ff6b6b"'+O+'/>'+E;
+  if(id==='pond')return S+'<ellipse cx="30" cy="42" rx="27" ry="13" fill="#bfe6a5"'+O+'/><ellipse cx="30" cy="42" rx="22" ry="9.5" fill="#8fd3ff"/><path d="M16 42q6-3 12 0M32 46q5-3 10 0" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M38 38a5 3.2 0 1 0 8 1l-4 0z" fill="#7cc35c"'+O+'/><circle cx="20" cy="38" r="2.4" fill="#ffc2d4"'+O+'/><path d="M50 36V18M54 38V24M50 22q-3-2-3-6q3 1 3 6M54 28q3-2 3-6q-3 1-3 6" stroke="#5aa04a" stroke-width="2" fill="#5aa04a" stroke-linecap="round"/>'+E;
+  if(id==='arch')return S+'<path d="M8 56V30a22 22 0 0 1 44 0v26h-8V30a14 14 0 0 0-28 0v26z" fill="#a8dd84"'+O+'/>'+[[10,30,'#ffc2d4'],[13,18,'#ffe27a'],[22,10,'#ff8fb1'],[34,9,'#fff'],[44,15,'#ffc2d4'],[50,26,'#ff8fb1'],[10,44,'#fff'],[50,42,'#ffe27a']].map(function(f){return '<circle cx="'+f[0]+'" cy="'+f[1]+'" r="4.6" fill="'+f[2]+'"'+O+'/><circle cx="'+f[0]+'" cy="'+f[1]+'" r="1.4" fill="#ffb84d"/>'}).join('')+E;
+  if(id==='swing')return S+'<path d="M6 56L14 6M54 56L46 6" stroke="#b07a4f" stroke-width="5" stroke-linecap="round"/><rect x="8" y="3" width="44" height="7" rx="3.5" fill="#d9a066"'+O+'/><path d="M22 10v28M38 10v28" stroke="'+GOL+'" stroke-width="1.6"/><rect x="17" y="37" width="26" height="6" rx="3" fill="#ff9aa8"'+O+'/>'+E;
+  if(id==='balloon')return S+'<path d="M30 3a20 20 0 0 1 20 20c0 11-12 18-15 23h-10C22 41 10 34 10 23A20 20 0 0 1 30 3z" fill="#ffc2d4"'+O+'/><path d="M30 3c-7 6-9 30-5 43M30 3c7 6 9 30 5 43" fill="#fff6c8" stroke="'+GOL+'" stroke-width="1.4"/><path d="M26 46l-1 5M34 46l1 5" stroke="'+GOL+'" stroke-width="1.6"/><rect x="23" y="50" width="14" height="8" rx="2.5" fill="#d9a066"'+O+'/>'+E;
+  if(id==='mill')return S+'<path d="M22 56l4-34h8l4 34z" fill="#fffaf2"'+O+'/><path d="M20 24l10-9 10 9z" fill="#ff8fb1"'+O+'/><rect x="27" y="44" width="6" height="12" rx="3" fill="#b07a4f"'+O+'/><g class="gmill" style="transform-origin:30px 20px">'+[0,90,180,270].map(function(a){return '<path d="M30 20l4-17h-8z" transform="rotate('+a+' 30 20)" fill="#ffe9a8"'+O+'/>'}).join('')+'<circle cx="30" cy="20" r="3" fill="#ffb84d"'+O+'/></g>'+E;
+  return S+'<rect x="10" y="26" width="40" height="30" rx="4" fill="#ffe9c7"'+O+'/><path d="M4 30L30 8l26 22z" fill="#ff9aa8"'+O+'/><rect x="25" y="38" width="11" height="18" rx="5" fill="#b07a4f"'+O+'/><rect x="14" y="32" width="9" height="9" rx="2" fill="#bfe6ff"'+O+'/><rect x="39" y="32" width="9" height="9" rx="2" fill="#bfe6ff"'+O+'/><rect x="40" y="10" width="6" height="11" fill="#d9a066"'+O+'/><circle cx="34" cy="48" r="1.2" fill="#ffe27a"/>'+E}
+/* Ante島廣場：6 個空位，擺在花圃上面，不會擠到植物 */
+var SHPICK=null,SHASK=null;
+function gYard(edit){var p=D.shop.p,h='<div class="gyard'+(edit?' edit':'')+(edit&&SHPICK?' picking':'')+'">';
+  for(var i=0;i<SH_SLOTS;i++){var id=p[i];
+    h+='<div class="gslot'+(id?' on':'')+'"'+(edit?' data-a="shslot" data-k="'+i+'"':'')+'>'+(id?decoSVG(id)+(edit?'<b class="gx" data-a="shrm" data-k="'+i+'">✕</b>':''):(edit?'<span class="gplus">＋</span>':''))+'</div>'}
+  return h+'</div>'}
+function gYardShown(){for(var k in D.shop.p)return true;return false}
+function shBalHTML(){return '<div class="shbal">可以用 <b>⭐ '+shBal()+'</b> 顆<small>總共拿過 ⭐ '+(+D.stars||0)+' 顆</small></div>'}
+function shSlotOf(id){for(var k in D.shop.p)if(D.shop.p[k]===id)return k;return null}
+function shopView(){var bal=shBal();
+  var h=topbar(true)+'<div class="gwrap"><div class="shhead"><div class="shtitle">🛍️ 星星小舖</div>'+shBalHTML()+'</div>'+
+  '<div class="shtip">'+(SHPICK?'👇 點一個空位，把「'+SHI[SHPICK].n+'」擺上去（點有東西的位子可以換掉）':shNOwn()?'點「📍 擺到島上」再點空位，就能布置你的Ante島廣場；按 ✕ 可以收起來':'用練習拿到的星星，買小擺設來布置Ante島吧！買東西不會讓「總共拿過」的星星變少喔')+'</div>'+gYard(true)+'<div class="shgrid">';
+  SHOP.forEach(function(it){var own=shOwn(it.id),unl=shUnl(it),slot=own?shSlotOf(it.id):null,b;
+    if(own)b=slot!==null?'<button class="btn small gray" data-a="shrm" data-k="'+slot+'">✔ 擺好了・收起來</button>':'<button class="btn small blue'+(SHPICK===it.id?' pick':'')+'" data-a="shpick" data-id="'+it.id+'">'+(SHPICK===it.id?'👇 點上面的空位':'📍 擺到島上')+'</button>';
+    else if(!unl)b='<div class="shlock">🔒 開過 '+it.u+' 朵花就能買</div>';
+    else if(bal<it.p)b='<div class="shneed">還差 ⭐ '+(it.p-bal)+' 顆</div>';
+    else b='<button class="btn small '+(SHASK===it.id?'green':'yellow')+'" data-a="shbuy" data-id="'+it.id+'">'+(SHASK===it.id?'✅ 確定要買':'⭐ '+it.p+' 買')+'</button>';
+    h+='<div class="shit'+(own?' own':'')+(!unl&&!own?' lock':'')+'"><div class="shart">'+decoSVG(it.id)+'</div><b>'+it.n+'</b><small>⭐ '+it.p+'</small>'+b+'</div>'});
+  app.innerHTML=h+'</div><div class="mid" style="font-size:18px;margin:12px 0 4px">在挑戰裡第一次就答對會拿到星星 ⭐，越常練習就能買越多東西！</div><div class="grid g2"><button class="btn green" data-a="garden">🌸 去看Ante島</button><button class="btn purple" data-a="home">🏠 回首頁</button></div></div>'}
+function shBtn(){return '<button class="btn shop" data-a="shop">🛍️ 星星小舖<small>可以用 ⭐ '+shBal()+' 顆</small></button>'}
+function shAct(a,el){var id=el.getAttribute('data-id'),k=el.getAttribute('data-k');
+  if(a==='shop'){SHPICK=null;SHASK=null;go('shop');return}
+  if(a==='shbuy'){if(SHASK!==id){SHASK=id;sndTap();shopView();return}SHASK=null;
+    if(shBuy(id)){SHPICK=id;sndWin();confetti(80);toast('買到「'+SHI[id].n+'」了！點上面的空位擺上去吧');shopView();window.scrollTo(0,0)}else{toast('星星還不夠喔');shopView()}return}
+  SHASK=null;
+  if(a==='shpick'){SHPICK=SHPICK===id?null:id;sndTap();shopView();if(SHPICK)window.scrollTo(0,0);return}
+  if(a==='shrm'){if(D.shop.p[k]){delete D.shop.p[k];save();sndTap()}SHPICK=null;shopView();return}
+  if(a==='shslot'){if(!SHPICK){if(!D.shop.p[k])toast(shNOwn()?'先在下面點「📍 擺到島上」，再點這個空位':'先用星星買一個小擺設吧！');return}
+    var old=shSlotOf(SHPICK);if(old!==null)delete D.shop.p[old];D.shop.p[k]=SHPICK;SHPICK=null;save();sndOk();shopView()}}
 /* ---------- 畫面 ---------- */
 var app=$('#app');
 var view='home',G=null,editWeek=null;
@@ -771,7 +869,7 @@ function hubBtn(){try{if(localStorage.getItem('hub.on'))return '<a class="btn sm
 function topbar(back){return '<div class="top">'+(back?'<button class="btn small gray" data-a="home">🏠 回首頁</button>':(hubBtn()||'<span></span>'))+'<div class="stars">⭐ '+D.stars+'</div></div>'}
 function render(){
   if(view==='home')home();else if(view==='parent')parent();else if(view==='quizmenu')quizMenu();
-  else if(view==='quiz')quizQ();else if(view==='result')result();else if(view==='io')ioView();else if(view==='garden')gardenView();
+  else if(view==='quiz')quizQ();else if(view==='result')result();else if(view==='io')ioView();else if(view==='garden')gardenView();else if(view==='shop')shopView();
   window.scrollTo(0,0);
 }
 
@@ -783,6 +881,7 @@ function home(){
   '<div class="grid g2" style="margin-top:20px">'+
   '<button class="btn green" style="font-size:34px;padding:36px" data-a="quizmenu">🎮 開始挑戰</button>'+
   '<button class="btn blue" style="font-size:34px;padding:36px" data-a="learn">🔊 聽聽看單字</button>'+
+  shBtn().replace('btn shop','btn shop" style="grid-column:1/-1;margin-top:0')+
   '<button class="btn purple" data-a="parent">👨‍👩‍👧 家長區</button>'+
   '<button class="btn yellow" data-a="io">📦 匯出／匯入</button></div>';
 }
@@ -836,9 +935,9 @@ function parent(){
 
 function ioView(){
   app.innerHTML=topbar(true)+'<h2>📦 匯出／匯入（搬到另一台 iPad）</h2>'+
-  '<div class="card"><b>匯出</b><div class="mid" style="text-align:left;font-size:20px">會帶走：單字、答題紀錄、⭐ '+D.stars+' 顆星星、🌸 Ante島的花和設定、💧 等你澆水的花。</div><div class="row" style="margin:10px 0"><button class="btn blue" data-a="exportfile">💾 下載 JSON 檔</button><button class="btn purple" data-a="exportcopy">📋 複製文字代碼</button></div>'+
+  '<div class="card"><b>匯出</b><div class="mid" style="text-align:left;font-size:20px">會帶走：單字、答題紀錄、⭐ '+D.stars+' 顆星星、🌸 Ante島的花和設定、💧 等你澆水的花、🛍️ 星星小舖買的東西和擺設。</div><div class="row" style="margin:10px 0"><button class="btn blue" data-a="exportfile">💾 下載 JSON 檔</button><button class="btn purple" data-a="exportcopy">📋 複製文字代碼</button></div>'+
   '<textarea id="code" readonly placeholder="按「複製文字代碼」後會顯示在這裡"></textarea></div>'+
-  '<div class="card"><b>匯入</b><p class="mid" style="text-align:left">選擇 JSON 檔，或把文字代碼貼到下面。代碼裡有單字、答題紀錄和⭐星星。「合併匯入」會保留兩邊的單字，星星取比較多的那邊，每個字的紀錄取練習比較多的那份。</p>'+
+  '<div class="card"><b>匯入</b><p class="mid" style="text-align:left">選擇 JSON 檔，或把文字代碼貼到下面。代碼裡有單字、答題紀錄和⭐星星。「合併匯入」會保留兩邊的單字，星星取比較多的那邊，每個字的紀錄取練習比較多的那份；星星小舖買過的東西兩邊都留下，可以用的星星會重新算。</p>'+
   '<input type="file" id="file" accept=".json,application/json" style="font-size:18px;margin-bottom:10px">'+
   '<textarea id="paste" placeholder="在此貼上文字代碼"></textarea>'+
   '<div class="row" style="margin-top:10px"><button class="btn green" data-a="import" data-m="merge">合併匯入（保留現有）</button><button class="btn red" data-a="import" data-m="replace">取代全部資料</button></div></div>';
@@ -864,7 +963,7 @@ function doImport(txt,mode){
   var hasStars=o.stars!==undefined&&o.stars!==null,inStars=Math.max(0,Math.floor(+o.stars||0)),added=0;
   if(mode==='replace'){
     if(!confirm('確定要用匯入的資料取代目前全部資料嗎？'))return;
-    var nd=blank(),k;for(k in o)if(!EXTRA_KEYS[k])nd[k]=o[k];nd.stats=st;nd.stars=inStars;D=nd;added=nWords;
+    var nd=blank(),k;for(k in o)if(!EXTRA_KEYS[k])nd[k]=o[k];nd.stats=st;nd.stars=inStars;nd.shop=shNorm(o.shop);D=nd;added=nWords;
   }else{
     o.weeks.forEach(function(w){
       var ex=findWeek(w.id);
@@ -873,13 +972,14 @@ function doImport(txt,mode){
     Object.keys(st).forEach(function(k){D.stats[k]=pickStat(D.stats[k],st[k])});
     D.stars=Math.max(+D.stars||0,inStars);
     D.fix=fkMerge(D.fix,o.fix);if(o.fixv)D.fixv=1;
+    D.shop=shMerge(D.shop,o.shop);
   }
   /* 範圍與台詞輪替（新版代碼才有） */
   if(typeof o.scope==='string'&&mode==='replace'){lastScope=o.scope;try{localStorage.setItem(SC_KEY,o.scope);localStorage.setItem(SC_KEY+'.m','1')}catch(e){}}
   if(o.qv&&typeof o.qv==='object'){try{var cq={};if(mode!=='replace'){cq=JSON.parse(localStorage.getItem(QV_KEY))||{}}
     var q={k:Math.max(+cq.k||0,+o.qv.k||0),last:(+o.qv.at||0)>=(+cq.at||0)?o.qv.last:cq.last,at:Math.max(+cq.at||0,+o.qv.at||0)};localStorage.setItem(QV_KEY,JSON.stringify(q))}catch(e){}}
   if(!scopeOk(lastScope))lastScope='mixrev';
-  D.fix=fkClean(D.fix);migrateEx();save();try{vfSeed()}catch(e){}try{gImport(o.garden,mode)}catch(e){}go('home');
+  D.fix=fkClean(D.fix);D.shop=shNorm(D.shop);SHPICK=null;SHASK=null;migrateEx();save();try{vfSeed()}catch(e){}try{gImport(o.garden,mode)}catch(e){}go('home');
   var nst=Object.keys(st).length;
   notice((mode==='replace'?'✅ 已取代成匯入的資料':'✅ 合併匯入完成')+'\n已匯入 '+nWords+' 個單字'+(mode==='replace'?'':'（新增 '+added+' 個）')+'、'+nst+' 個字的答題紀錄\n'+(hasStars?'⭐ 星星：現在共 '+D.stars+' 顆':'⭐ 這份代碼是舊版的，裡面沒有星星；星星維持 '+D.stars+' 顆'));
   toast(hasStars?'已匯入 '+nWords+' 個單字、⭐ '+D.stars+' 顆星星':'已匯入 '+nWords+' 個單字');
@@ -1417,6 +1517,7 @@ document.addEventListener('click',function(e){
     case 'parent':go('parent');break;
     case 'io':go('io');break;
     case 'learn':learn();break;
+    case 'shop':case 'shbuy':case 'shpick':case 'shrm':case 'shslot':shAct(a,el);break;
     case 'garden':{var gq=$('#gpov');if(gq)gq.remove();go('garden');break}
     case 'gbed':sndTap();gToggle(el.dataset.id,el.dataset.def==='1');break;
     case 'gplant':sndTap();gOpen(el.dataset.id);break;
@@ -1442,7 +1543,7 @@ document.addEventListener('click',function(e){
       if(x.id===el.dataset.id){var en=prompt('英文',x.en);if(en===null)return;var zh=prompt('中文意思（可留白）',x.zh||'');var em=prompt('emoji（可留白）',x.emoji||'');
         var nz=(zh||'').trim(),ne=(em||'').trim();if(x.auto){if(nz!==(x.zh||''))delete x.auto.zh;if(ne!==(x.emoji||''))delete x.auto.emoji}
         if(en.trim())x.en=en.trim();x.zh=nz;x.emoji=ne;if(hasEx(x))x.exForm=findForm(x.ex,x.en);save()}})});parent();break;
-    case 'resetstats':if(confirm('確定清除答題紀錄與星星？（Ante島的花也會重新從種子開始）')){D.stats={};D.stars=0;D.fix={};D.fixv=1;save();try{gReset()}catch(e){}parent()}break;
+    case 'resetstats':if(confirm('確定清除答題紀錄與星星？（Ante島的花也會重新從種子開始，星星小舖買的東西也會清空）')){D.stats={};D.stars=0;D.fix={};D.fixv=1;D.shop=shNorm(null);SHPICK=null;SHASK=null;save();try{gReset()}catch(e){}parent()}break;
     case 'exportfile':{
       var blob=new Blob([exportText()],{type:'application/json'}),u=URL.createObjectURL(blob),l=document.createElement('a');
       l.href=u;l.download='vocab-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(l);l.click();l.remove();
