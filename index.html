@@ -194,6 +194,18 @@ textarea{min-height:130px}
 @media (prefers-reduced-motion:reduce){.vfcan svg,.vfpour svg,.vfpl svg,.vfw i{animation:none}}
 @media (max-width:600px){.opt{font-size:26px}.tile{width:56px;height:56px;font-size:30px}.slot{width:48px;height:60px;line-height:60px;font-size:34px}.mgrid{grid-template-columns:repeat(3,1fr)}}
 .btn.hubb{background:#ff8fb8;text-decoration:none;font-size:17px;padding:8px 14px;opacity:.92}
+.skcard{text-align:center}.sken{font-size:64px;font-weight:800;color:#3a2e5a;letter-spacing:1px;line-height:1.2;word-break:break-word}.skzh{font-size:22px;color:#8e8aa5}
+.skmic{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:210px;height:210px;margin:16px auto 8px;border:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff9ec0,#ff5c93);color:#fff;font-size:80px;line-height:1;box-shadow:0 8px 0 #c93a6e;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.skmic span{font-size:20px;font-weight:700;padding:0 18px}.skmic:active{transform:translateY(4px);box-shadow:0 4px 0 #c93a6e}
+.skmic.on{background:radial-gradient(circle at 35% 30%,#ffc078,#ff7a3d);box-shadow:0 8px 0 #c8561f;animation:skp 1s ease-in-out infinite}
+@keyframes skp{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.skok{font-size:42px;color:#e0529c;font-weight:800;animation:skj .7s both}.skok i{display:inline-block;font-style:normal;animation:skh 1.2s ease-in-out .2s 2}
+@keyframes skj{0%{transform:scale(.4) rotate(-8deg);opacity:0}60%{transform:scale(1.15) rotate(4deg);opacity:1}100%{transform:scale(1)}}
+@keyframes skh{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px) rotate(10deg)}}
+.skmiss{font-size:30px;color:#6b5fa5;font-weight:700}.skheard{font-size:16px;color:#a29dbb;margin-top:4px}
+.sknote{font-size:19px;color:#5b4f8f;background:#f3efff;border-radius:16px;padding:10px 14px;margin:10px 0;line-height:1.5;text-align:left}
+.skfb{min-height:54px;margin:4px 0 10px}
+@media (prefers-reduced-motion:reduce){.skmic.on,.skok,.skok i{animation:none}}
 </style>
 </head>
 <body>
@@ -861,6 +873,156 @@ function shAct(a,el){var id=el.getAttribute('data-id'),k=el.getAttribute('data-k
   if(a==='shrm'){if(D.shop.p[k]){delete D.shop.p[k];save();sndTap()}SHPICK=null;shopView();return}
   if(a==='shslot'){if(!SHPICK){if(!D.shop.p[k])toast(shNOwn()?'先在下面點「📍 擺到島上」，再點這個空位':'先用星星買一個小擺設吧！');return}
     var old=shSlotOf(SHPICK);if(old!==null)delete D.shop.p[old];D.shop.p[k]=SHPICK;SHPICK=null;save();sndOk();shopView()}}
+/* ---------- 🎤 唸唸看：唸單字給 App 聽 ----------
+   只會加一點星星（每個字每天第一次唸對 ⭐1，每天最多 SK_CAP 顆）；不寫入答題紀錄、不影響Ante島。
+   錄音只放在這台裝置的記憶體裡，這一輪結束就丟掉，不會上傳。 */
+var SK_N=8,SK_CAP=8,SK_KEY='vocabApp.speak',SK_MODE='vocabApp.micmode',K=null,SKR=null,SKA=null,skSeq=0;
+function skRecCls(){return window.SpeechRecognition||window.webkitSpeechRecognition||null}
+function skCanRecord(){return !!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)}
+function skSeqMode(){try{return localStorage.getItem(SK_MODE)==='seq'}catch(e){return false}}
+function skSetSeq(){try{localStorage.setItem(SK_MODE,'seq')}catch(e){}}
+function skDay(){return new Date(Date.now()+288e5).toISOString().slice(0,10)}
+function skDayState(){var s=null;try{s=JSON.parse(localStorage.getItem(SK_KEY))}catch(e){}if(!s||s.d!==skDay()||!s.w)s={d:skDay(),w:{},n:0};return s}
+function skStar(id){var s=skDayState();if(s.w[id]||s.n>=SK_CAP)return false;s.w[id]=1;s.n++;try{localStorage.setItem(SK_KEY,JSON.stringify(s))}catch(e){}D.stars=(+D.stars||0)+1;save();return true}
+/* 寬鬆比對：大小寫、標點不管；包含、差一兩個字母、同音字、單複數都算對 */
+var SK_NUM='zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty'.split(' ');
+var SK_HOM='to two too|for four|see sea|sun son|i eye|right write|here hear|be bee|pair pear|flower flour|night knight|eight ate|one won|red read|blue blew|meet meat|no know|tail tale|deer dear|our hour|by buy bye|wood would|ant aunt|rose rows|ice eyes|cheese she|bear bare|wear where|week weak|new knew|not knot|hole whole|plane plain|sail sale|tea tee|pea pee|peace piece|rain reign|road rode|so sew|stair stare|ball bowl|cat cut|bag bug'.split('|').map(function(g){return g.split(' ')});
+function skNorm(s){return String(s||'').toLowerCase().replace(/[’'`]/g,'').replace(/[^a-z0-9]+/g,' ').replace(/\b\d+\b/g,function(m){var n=+m;return n<=20?SK_NUM[n]:m}).replace(/\s+/g,' ').trim()}
+function skLev(a,b){if(a===b)return 0;var m=a.length,n=b.length,p=[],i,j;for(j=0;j<=n;j++)p[j]=j;
+  for(i=1;i<=m;i++){var c=[i];for(j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
+function skTol(t){return t.length<=2?0:t.length<=4?1:t.length<=8?2:3}
+function skSame(a,t){if(a===t)return true;if(a===t+'s'||a+'s'===t||a===t+'es'||a+'es'===t)return true;
+  if(SK_HOM.some(function(g){return g.indexOf(a)>=0&&g.indexOf(t)>=0}))return true;
+  return skLev(a,t)<=skTol(t)}
+function skMatch(alts,word){var t=skNorm(word);if(!t)return false;var tn=t.replace(/ /g,''),tw=t.split(' ');
+  return (alts||[]).some(function(x){var a=skNorm(x);if(!a)return false;
+    if(a===t||a.replace(/ /g,'')===tn||(' '+a+' ').indexOf(' '+t+' ')>=0)return true;
+    var aw=a.split(' ');if(tw.length===1)return aw.some(function(w){return skSame(w,t)})||skSame(a.replace(/ /g,''),t);
+    var tol=Math.max(2,Math.floor(tn.length*.25));
+    for(var i=0;i+tw.length<=aw.length;i++)if(skLev(aw.slice(i,i+tw.length).join(''),tn)<=tol)return true;
+    return skLev(a.replace(/ /g,''),tn)<=tol})}
+function skPick(sc){
+  var pool=scopeWords(sc).filter(function(w){return /[a-z]/i.test(w.en||'')}),nw=null,ow=null;
+  if(sc==='mixrev'){nw=newWords().filter(function(w){return /[a-z]/i.test(w.en||'')});ow=oldWords().filter(function(w){return /[a-z]/i.test(w.en||'')});if(!nw.length||!ow.length)nw=ow=null}
+  var out=[],seen={};function key(w){return skNorm(w.en)}
+  function left(a){return a.filter(function(w){return !seen[key(w)]})}
+  while(out.length<SK_N){var src=nw?(out.length%3===2?ow:nw):pool,c=left(src),wf=src===ow?revWeight:weight;if(!c.length){c=left(pool);wf=weight}if(!c.length)break;
+    var w=pickWord(c,[],wf);seen[key(w)]=1;out.push(w)}
+  return shuffle(out)}
+function skStart(sc){
+  if(!scopeOk(sc))sc='mixrev';lastScope=sc;try{localStorage.setItem(SC_KEY,sc)}catch(e){}
+  var ws=skPick(sc);if(!ws.length){toast('這個範圍沒有單字');return}
+  skCleanup();
+  var R=skRecCls();
+  K={sc:sc,ws:ws,i:-1,ok:0,stars:0,norec:!R,nomic:!skCanRecord()&&!R,note:''};
+  if(!R)K.note=skCanRecord()?'這台裝置現在沒辦法「聽懂」英文，我們改成錄音模式：按 🎤 唸，再按 ▶️ 聽聽自己的聲音，跟 🔊 標準發音比比看！':'';
+  if(K.nomic)K.note='這台裝置沒辦法用麥克風，可以按 🔊 聽標準發音，跟著大聲唸喔！';
+  view='speak';skNext();
+}
+function skNext(){skAbort();skDrop();K.i++;
+  if(K.i>=K.ws.length){view='speakres';render();sndWin();if(K.ok)confetti(120);return}
+  K.w=K.ws[K.i];K.phase='idle';K.miss=0;K.heard='';K.got=false;K.star=false;K.onlyRec=false;
+  render();setTimeout(function(){if(view==='speak'&&K&&K.phase==='idle')say(K.w.en)},250)}
+function skDrop(){if(SKA){try{SKA.pause()}catch(e){}SKA=null}if(K&&K.url){try{URL.revokeObjectURL(K.url)}catch(e){}K.url=null}}
+function skAbort(){var r=SKR;SKR=null;if(!r)return;r.dead=true;clearTimeout(r.timer);
+  if(r.rec){try{r.rec.abort()}catch(e){}}if(r.mr&&r.mr.state!=='inactive'){try{r.mr.stop()}catch(e){}}if(r.stream){try{r.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}r.stream=null}}
+function skCleanup(){skAbort();skDrop()}
+var SK_PERM='麥克風還沒打開喔！請爸媽在 iPad 的「設定」裡允許這個網頁使用麥克風（和「語音辨識」），再回來按 🎤。現在可以先按 🔊 跟著唸。';
+function skMic(onlyRec){
+  if(!K||K.nomic)return;if(SKR){skStop();return}
+  try{if('speechSynthesis' in window)speechSynthesis.cancel()}catch(e){}spSeq++;if(SKA){try{SKA.pause()}catch(e){}}
+  var R=skRecCls(),useRec=!!R&&!K.norec&&!onlyRec,seq=skSeqMode();
+  var wantMr=skCanRecord()&&(!useRec||!seq);
+  var r={id:++skSeq,chunks:[],alts:[],useRec:useRec,onlyRec:!!onlyRec,recDone:!useRec,mrDone:!wantMr};
+  SKR=r;K.listen=true;K.lmode=useRec?'rec':'mr';skDraw();
+  (wantMr?skRecorder(r):Promise.resolve(false)).then(function(okMr){if(r.dead||SKR!==r)return;
+    if(useRec){skRecog(r,R);return}
+    if(okMr){r.timer=setTimeout(function(){skStop()},4000);return}
+    SKR=null;K.listen=false;K.note=r.denied?SK_PERM:'麥克風現在打不開，可以先按 🔊 聽標準發音，跟著唸喔！';skDraw()})}
+function skRecorder(r){
+  return navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
+    if(r.dead){st.getTracks().forEach(function(t){t.stop()});return false}
+    r.stream=st;var ty='',tys=['audio/mp4','audio/webm;codecs=opus','audio/webm'];
+    for(var i=0;i<tys.length;i++){try{if(MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(tys[i])){ty=tys[i];break}}catch(e){}}
+    var mr=ty?new MediaRecorder(st,{mimeType:ty}):new MediaRecorder(st);r.mr=mr;
+    mr.ondataavailable=function(e){if(e.data&&e.data.size)r.chunks.push(e.data)};
+    mr.onstop=function(){r.blob=r.chunks.length?new Blob(r.chunks,{type:mr.mimeType||ty||'audio/mp4'}):null;
+      if(r.stream){try{r.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}r.stream=null}r.mrDone=true;skCheck(r)};
+    mr.start();return true
+  }).catch(function(e){r.denied=!!(e&&(e.name==='NotAllowedError'||e.name==='SecurityError'||e.name==='PermissionDeniedError'));r.mrDone=true;return false})}
+function skRecog(r,R){var rec;
+  try{rec=new R();rec.lang='en-US';rec.interimResults=false;rec.maxAlternatives=5;rec.continuous=false}catch(e){r.err='init';r.recDone=true;skEnd(r);return}
+  r.rec=rec;
+  rec.onresult=function(e){try{for(var i=0;i<e.results.length;i++)for(var j=0;j<e.results[i].length;j++)r.alts.push(e.results[i][j].transcript)}catch(x){}};
+  rec.onerror=function(e){r.err=(e&&e.error)||'error'};
+  rec.onend=function(){if(r.recDone)return;r.recDone=true;skEnd(r)};
+  try{rec.start()}catch(e){r.err='start';r.recDone=true;skEnd(r);return}
+  r.timer=setTimeout(function(){skStop()},7000)}
+function skStop(){var r=SKR;if(!r)return;clearTimeout(r.timer);
+  if(r.rec&&!r.recDone){try{r.rec.stop()}catch(e){}r.timer=setTimeout(function(){if(!r.recDone){r.recDone=true;try{r.rec.abort()}catch(e){}skEnd(r)}},1800);return}
+  r.recDone=true;skEnd(r)}
+function skEnd(r){clearTimeout(r.timer);if(r.dead)return;
+  if(r.mr&&r.mr.state!=='inactive')setTimeout(function(){try{r.mr.stop()}catch(e){r.mrDone=true;skCheck(r)}},250);
+  else{r.mrDone=true;skCheck(r)}}
+function skCheck(r){if(r.dead||SKR!==r||!r.recDone||!r.mrDone)return;SKR=null;K.listen=false;
+  if(r.blob&&r.blob.size>0){skDrop();K.url=URL.createObjectURL(r.blob)}
+  r.blob=null;r.chunks=[];
+  if(r.onlyRec){if(!K.url)K.note=r.denied?SK_PERM:'剛剛沒有錄到聲音，再按一次試試看';skDraw();return}
+  if(!r.useRec){if(K.url){K.phase='rec';K.note=K.note||''}else K.note=r.denied?SK_PERM:'剛剛沒有錄到聲音，再按一次 🎤 試試看';skDraw();return}
+  var e=r.err;
+  if(e==='not-allowed'||e==='service-not-allowed'){
+    if(r.denied||(!r.mr&&!skCanRecord())){K.note=SK_PERM;skDraw();return}
+    K.norec=true;K.note='這台 iPad 現在沒辦法「聽懂」英文，我們改成錄音模式：按 🎤 唸，再按 ▶️ 聽聽自己的聲音，跟 🔊 標準發音比比看！';
+    if(K.url)K.phase='rec';skDraw();return}
+  if(e==='network'||e==='language-not-supported'||e==='bad-grammar'||e==='init'||e==='start'){
+    K.norec=true;K.note=(e==='network'?'現在沒有網路，App 暫時聽不懂英文。':'App 現在聽不懂英文。')+'我們先改成錄音模式：按 🎤 唸，再按 ▶️ 聽聽自己的聲音！';
+    if(K.url)K.phase='rec';skDraw();return}
+  if((e==='audio-capture'||e==='aborted')&&r.mr&&!skSeqMode()){skSetSeq();skDrop();K.note='再按一次 🎤，唸給我聽聽看';skDraw();return}
+  if(e==='audio-capture'){K.norec=true;K.note='麥克風現在打不開，可以先按 🔊 聽標準發音，跟著唸喔！';skDraw();return}
+  if(r.mr&&r.alts.length&&!K.url&&!skSeqMode())skSetSeq(); /* 一起錄音沒錄到：以後改成「先聽懂，再另外錄」 */
+  K.heard=r.alts[0]?String(r.alts[0]).trim():'';
+  if(skMatch(r.alts,K.w.en)){K.phase='ok';K.note='';if(!K.got){K.got=true;K.ok++;if(skStar(K.w.id)){K.star=true;K.stars++}}sndOk();confetti(60)}
+  else{K.phase='miss';K.miss++;tone(440,0,.18,'sine',.12);tone(392,.16,.22,'sine',.12)}
+  skDraw()}
+function skDraw(){if(view==='speak')speakView()}
+function speakView(){
+  if(!K||!K.w){go('home');return}
+  var w=K.w,n=K.ws.length,ph=K.phase,fb='';
+  if(ph==='ok')fb='<div class="skok">唸得好棒！<i>🌟</i>'+(K.star?' <span style="font-size:28px;color:#e08a00">⭐ +1</span>':'')+'</div>';
+  else if(ph==='miss')fb='<div class="skmiss">再唸一次給我聽聽看 🙂</div>'+(K.miss>=2?'<div class="mid" style="font-size:20px;margin-top:4px">沒關係！先按 🔊 再聽一次，想再試就按 🎤，也可以換下一個字喔</div>':'');
+  else if(ph==='rec')fb='<div class="skmiss" style="color:#1f9e8f">錄好了！按 ▶️ 聽聽自己的聲音 👂</div>';
+  if((ph==='ok'||ph==='miss')&&K.heard)fb+='<div class="skheard">我聽到：'+esc(K.heard)+'</div>';
+  var recMode=K.norec||!skRecCls(),lab=K.listen?(K.lmode==='rec'?'我在聽…':'錄音中…再按一下停'):(recMode?'按一下，開始錄音':ph==='ok'?'想再唸一次也可以':'按一下，唸給我聽');
+  var mic=K.nomic?'':'<button class="skmic'+(K.listen?' on':'')+'" data-a="skmic" aria-label="'+lab+'">'+(K.listen?'👂':'🎤')+'<span>'+lab+'</span></button>';
+  var std='<button class="btn small blue" data-a="sksay">🔊 標準發音</button>';
+  var row='<div class="row" style="margin-top:6px">'+(K.url?'<button class="btn small green" data-a="skplay">▶️ 聽聽我的</button>':'')+std+
+    (!K.url&&!recMode&&skSeqMode()&&(ph==='ok'||ph==='miss')&&skCanRecord()?'<button class="btn small gray" data-a="skrec">🎙️ 錄下來聽聽</button>':'')+
+    '<button class="btn small gray" data-a="sksay" data-s="1">🐢 慢慢唸</button></div>';
+  var canNext=ph==='ok'||ph==='rec'||K.miss>=2||K.nomic||(recMode&&K.url);
+  var next=canNext&&!K.listen?'<button class="btn '+(ph==='ok'||ph==='rec'?'green':'purple')+'" style="width:100%;margin-top:14px;font-size:28px" data-a="sknext">'+(K.i+1<n?'➡️ 下一個':'🏁 唸完了')+'</button>':'';
+  app.innerHTML=topbar(true)+'<h2>🎤 唸唸看 <span style="font-size:20px;color:#8e8aa5">'+(K.i+1)+' / '+n+'</span></h2>'+
+    '<div class="card skcard">'+(w.emoji?'<div style="font-size:64px">'+esc(w.emoji)+'</div>':'')+'<div class="sken">'+esc(w.en)+'</div>'+(w.zh?'<div class="skzh">'+esc(w.zh)+'</div>':'')+
+    mic+'<div class="skfb">'+fb+'</div>'+row+'</div>'+
+    (K.note?'<div class="sknote">💡 '+esc(K.note)+'</div>':'')+next;
+}
+function speakRes(){
+  if(!K){go('home');return}
+  var n=K.ws.length,rm=K.norec&&!K.ok;
+  app.innerHTML=topbar(false)+'<div class="hero pop">🎤</div><h1>唸完了！好棒！</h1>'+
+    '<div class="card mid" style="font-size:28px">'+(rm?'練習了 <b>'+n+'</b> 個字<br>記得常常聽聽自己的聲音喔 👂':'唸得好棒的字：<b>'+K.ok+' / '+n+'</b>'+(K.stars?'<br>這次獲得：<b style="color:#e08a00">⭐ '+K.stars+'</b>':''))+'</div>'+
+    '<div class="grid g2"><button class="btn green" data-a="skagain">🔁 再唸一輪</button><button class="btn blue" data-a="home">🏠 回首頁</button></div>';
+}
+function skAct(a,el){
+  if(a==='speak'){var s=$('#scope');skStart(s?s.value:lastScope);return}
+  if(a==='skagain'){skStart(K?K.sc:lastScope);return}
+  if(!K||view!=='speak')return;
+  if(a==='skmic')skMic(false);
+  else if(a==='skrec')skMic(true);
+  else if(a==='sksay'){if(SKR)skAbort(),K.listen=false,skDraw();if(SKA){try{SKA.pause()}catch(e){}}say(K.w.en,el.dataset.s==='1')}
+  else if(a==='skplay'){if(!K.url)return;try{if('speechSynthesis' in window)speechSynthesis.cancel()}catch(e){}if(SKA){try{SKA.pause()}catch(e){}}
+    SKA=new Audio(K.url);var p=SKA.play();if(p&&p.catch)p.catch(function(){toast('播放不出來，再按一次試試看')})}
+  else if(a==='sknext')skNext();
+}
 /* ---------- 畫面 ---------- */
 var app=$('#app');
 var view='home',G=null,editWeek=null;
@@ -868,7 +1030,8 @@ function go(v){view=v;render()}
 function hubBtn(){try{if(localStorage.getItem('hub.on'))return '<a class="btn small hubb" href="/" aria-label="回到遊樂園選遊戲">🎡 選遊戲</a>'}catch(e){}return ''}
 function topbar(back){return '<div class="top">'+(back?'<button class="btn small gray" data-a="home">🏠 回首頁</button>':(hubBtn()||'<span></span>'))+'<div class="stars">⭐ '+D.stars+'</div></div>'}
 function render(){
-  if(view==='home')home();else if(view==='parent')parent();else if(view==='quizmenu')quizMenu();
+  if(view!=='speak'&&view!=='speakres')skCleanup();else if(view!=='speak')skAbort();
+  if(view==='speak')speakView();else if(view==='speakres')speakRes();else if(view==='home')home();else if(view==='parent')parent();else if(view==='quizmenu')quizMenu();
   else if(view==='quiz')quizQ();else if(view==='result')result();else if(view==='io')ioView();else if(view==='garden')gardenView();else if(view==='shop')shopView();
   window.scrollTo(0,0);
 }
@@ -1020,7 +1183,8 @@ function quizMenu(){
   '<button class="btn red" data-a="start" data-g="match">🃏 翻牌配對</button>'+
   '<button class="btn purple" style="background:#e0529c" data-a="start" data-g="write">✍️ 手寫單字</button>'+
   '<button class="btn blue" style="background:#1fb5a8" data-a="start" data-g="cloze">🧩 句子填空</button>'+
-  '<button class="btn yellow" style="background:#ff9a3c;color:#fff" data-a="start" data-g="order">🚂 句子排排看</button></div>';
+  '<button class="btn yellow" style="background:#ff9a3c;color:#fff" data-a="start" data-g="order">🚂 句子排排看</button>'+
+  '<button class="btn" style="grid-column:1/-1;background:#ff5c93;box-shadow:0 6px 0 #c93a6e" data-a="speak">🎤 唸唸看<span style="display:block;font-size:18px;font-weight:600;opacity:.9">唸給 App 聽，再聽聽自己的聲音</span></button></div>';
   $('#scope').value=lastScope;
 }
 function hasPic(w){return !!(w.emoji||w.zh)}
@@ -1559,6 +1723,7 @@ document.addEventListener('click',function(e){
       else{var f=$('#file').files[0];if(!f){toast('請選擇檔案或貼上代碼');return}
         var r=new FileReader();r.onload=function(){doImport(String(r.result),el.dataset.m)};r.readAsText(f)}
       break}
+    case 'speak':case 'skagain':case 'skmic':case 'skrec':case 'sksay':case 'skplay':case 'sknext':skAct(a,el);break;
     case 'start':{var sc=$('#scope').value;startQuiz(el.dataset.g,sc);break}
     case 'again':startQuiz(G.g,lastScope);break;
     case 'quit':if(confirm('要結束這次挑戰嗎？')){G=null;go('home')}break;
@@ -1596,7 +1761,7 @@ window.__vocab={parseLines:parseLines,findForm:findForm,sentLocal:sentLocal,orde
 load();try{vfSeed()}catch(e){}try{gMigrate()}catch(e){}render();
 spSync();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
-window.__vocabDebug={fix:{info:vfInfo,plan:vfPlan,day:fkDay,start:startFix},OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,qv:qvMaybe,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned},start:startQuiz,next:quizQ,go:go,learn:learn,g:{st:gStage,wilt:gWilt,state:function(){return gLoad()},reload:function(){GS=null;return gLoad()},open:gOpen,fin:finish}};
+window.__vocabDebug={sk:{match:skMatch,norm:skNorm,K:function(){return K},day:skDayState},fix:{info:vfInfo,plan:vfPlan,day:fkDay,start:startFix},OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,qv:qvMaybe,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned},start:startQuiz,next:quizQ,go:go,learn:learn,g:{st:gStage,wilt:gWilt,state:function(){return gLoad()},reload:function(){GS=null;return gLoad()},open:gOpen,fin:finish}};
 })();
 </script>
 </body>
