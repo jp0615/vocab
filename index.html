@@ -1092,6 +1092,7 @@ function parent(){
     });
     h+='</div>';
   });
+  h+=BX.ui();
   h+='<div class="card"><button class="btn small red" data-a="resetstats">清除所有答題紀錄與星星</button></div>';
   app.innerHTML=h;
 }
@@ -1116,7 +1117,7 @@ function statN(s){return s?(+s.c||0)+(+s.w||0):-1}
 /* 同一個字兩邊都有紀錄：取作答次數多的那份（一樣多就取最近練習的），不相加以免重複計算 */
 function pickStat(a,b){if(!a)return b;if(!b)return a;var na=statN(a),nb=statN(b);if(nb!==na)return nb>na?b:a;return (+b.ls||0)>(+a.ls||0)?b:a}
 var EXTRA_KEYS={app:1,fmt:1,exported:1,scope:1,qv:1,garden:1};
-function doImport(txt,mode){
+function doImport(txt,mode,q){
   var o;try{o=JSON.parse(String(txt).trim())}catch(e){toast('格式不正確，請確認內容完整');return}
   if(o&&o.app==='vocab'&&o.data&&!o.weeks)o=o.data;
   if(!o||!Array.isArray(o.weeks)){toast('這不是單字資料');return}
@@ -1125,7 +1126,7 @@ function doImport(txt,mode){
   var st={};Object.keys(o.stats&&typeof o.stats==='object'?o.stats:{}).forEach(function(k){var c=cleanStat(o.stats[k]);if(c)st[k]=c});
   var hasStars=o.stars!==undefined&&o.stars!==null,inStars=Math.max(0,Math.floor(+o.stars||0)),added=0;
   if(mode==='replace'){
-    if(!confirm('確定要用匯入的資料取代目前全部資料嗎？'))return;
+    if(!q&&!confirm('確定要用匯入的資料取代目前全部資料嗎？'))return;if(!q)try{BX.reset()}catch(e){}
     var nd=blank(),k;for(k in o)if(!EXTRA_KEYS[k])nd[k]=o[k];nd.stats=st;nd.stars=inStars;nd.shop=shNorm(o.shop);D=nd;added=nWords;
   }else{
     o.weeks.forEach(function(w){
@@ -1142,7 +1143,7 @@ function doImport(txt,mode){
   if(o.qv&&typeof o.qv==='object'){try{var cq={};if(mode!=='replace'){cq=JSON.parse(localStorage.getItem(QV_KEY))||{}}
     var q={k:Math.max(+cq.k||0,+o.qv.k||0),last:(+o.qv.at||0)>=(+cq.at||0)?o.qv.last:cq.last,at:Math.max(+cq.at||0,+o.qv.at||0)};localStorage.setItem(QV_KEY,JSON.stringify(q))}catch(e){}}
   if(!scopeOk(lastScope))lastScope='mixrev';
-  D.fix=fkClean(D.fix);D.shop=shNorm(D.shop);SHPICK=null;SHASK=null;migrateEx();save();try{vfSeed()}catch(e){}try{gImport(o.garden,mode)}catch(e){}go('home');
+  D.fix=fkClean(D.fix);D.shop=shNorm(D.shop);SHPICK=null;SHASK=null;migrateEx();save();try{vfSeed()}catch(e){}try{gImport(o.garden,mode)}catch(e){}if(q)return true;go('home');
   var nst=Object.keys(st).length;
   notice((mode==='replace'?'✅ 已取代成匯入的資料':'✅ 合併匯入完成')+'\n已匯入 '+nWords+' 個單字'+(mode==='replace'?'':'（新增 '+added+' 個）')+'、'+nst+' 個字的答題紀錄\n'+(hasStars?'⭐ 星星：現在共 '+D.stars+' 顆':'⭐ 這份代碼是舊版的，裡面沒有星星；星星維持 '+D.stars+' 顆'));
   toast(hasStars?'已匯入 '+nWords+' 個單字、⭐ '+D.stars+' 顆星星':'已匯入 '+nWords+' 個單字');
@@ -1701,13 +1702,13 @@ document.addEventListener('click',function(e){
       var tgt=fw.words.filter(isMiss);
       fillWords(tgt,true).then(function(st){save();if(view==='parent')parent();notice(fillReport(st))});break}
     case 'rename':{var wk2=findWeek(el.dataset.id),nm=prompt('新的週名稱',wk2.name);if(nm){wk2.name=nm;save();parent()}break}
-    case 'delweek':if(confirm('確定刪除這一週的所有單字？')){D.weeks=D.weeks.filter(function(w){return w.id!==el.dataset.id});save();parent()}break;
-    case 'delw':D.weeks.forEach(function(w){w.words=w.words.filter(function(x){return x.id!==el.dataset.id})});delete D.stats[el.dataset.id];save();parent();break;
+    case 'delweek':if(confirm('確定刪除這一週的所有單字？')){D.weeks=D.weeks.filter(function(w){return w.id!==el.dataset.id});save();BX.reset();parent()}break;
+    case 'delw':D.weeks.forEach(function(w){w.words=w.words.filter(function(x){return x.id!==el.dataset.id})});delete D.stats[el.dataset.id];save();BX.reset();parent();break;
     case 'editw':D.weeks.forEach(function(w){w.words.forEach(function(x){
       if(x.id===el.dataset.id){var en=prompt('英文',x.en);if(en===null)return;var zh=prompt('中文意思（可留白）',x.zh||'');var em=prompt('emoji（可留白）',x.emoji||'');
         var nz=(zh||'').trim(),ne=(em||'').trim();if(x.auto){if(nz!==(x.zh||''))delete x.auto.zh;if(ne!==(x.emoji||''))delete x.auto.emoji}
         if(en.trim())x.en=en.trim();x.zh=nz;x.emoji=ne;if(hasEx(x))x.exForm=findForm(x.ex,x.en);save()}})});parent();break;
-    case 'resetstats':if(confirm('確定清除答題紀錄與星星？（Ante島的花也會重新從種子開始，星星小舖買的東西也會清空）')){D.stats={};D.stars=0;D.fix={};D.fixv=1;D.shop=shNorm(null);SHPICK=null;SHASK=null;save();try{gReset()}catch(e){}parent()}break;
+    case 'resetstats':if(confirm('確定清除答題紀錄與星星？（Ante島的花也會重新從種子開始，星星小舖買的東西也會清空）')){D.stats={};D.stars=0;D.fix={};D.fixv=1;D.shop=shNorm(null);SHPICK=null;SHASK=null;save();try{gReset()}catch(e){}BX.reset();parent()}break;
     case 'exportfile':{
       var blob=new Blob([exportText()],{type:'application/json'}),u=URL.createObjectURL(blob),l=document.createElement('a');
       l.href=u;l.download='vocab-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(l);l.click();l.remove();
@@ -1762,6 +1763,123 @@ load();try{vfSeed()}catch(e){}try{gMigrate()}catch(e){}render();
 spSync();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 window.__vocabDebug={sk:{match:skMatch,norm:skNorm,K:function(){return K},day:skDayState},fix:{info:vfInfo,plan:vfPlan,day:fkDay,start:startFix},OCR:OCR,hwOcrImage:hwOcrImage,hwResult:hwResult,getG:function(){return G},setG:function(g){G=g},D:function(){return D},x:{ev:spEval,ck:spCheck,qv:qvMaybe,wt:spWt,take:spTake,sync:spSync,dec:spDecode,learned:spLearned},start:startQuiz,next:quizQ,go:go,learn:learn,g:{st:gStage,wilt:gWilt,state:function(){return gLoad()},reload:function(){GS=null;return gLoad()},open:gOpen,fin:finish}};
+/* ---------- 雲端同步：同一個家庭連結的裝置互相合併進度（家長設定裡設定；本機資料一直保留） ---------- */
+var BX=(function(){
+  var P='brie-yuleyuan-a9c67d',K='AIzaSyC_SGM8zRL3s8ALY2PUCBG7yEceXsvrID0',
+    FS='https://firestore.googleapis.com/v1/projects/'+P+'/databases/(default)/documents/families/',
+    ORG='https://jp0615.github.io/',A=null,busy=0,lastRun=0,again=0,st='';
+  function g(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  function s(k,v){try{if(v===null||v===undefined)localStorage.removeItem(k);else localStorage.setItem(k,String(v))}catch(e){}}
+  function J(k){try{var o=JSON.parse(g(k));return (o&&typeof o==='object')?o:null}catch(e){return null}}
+  function hs(t){t=String(t);var h=5381,i;for(i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return t.length+':'+(h>>>0).toString(36)}
+  function okF(f){return typeof f==='string'&&/^[A-Za-z0-9_-]{32,64}$/.test(f)}
+  function fid(){var f=g('bx.f');return okF(f)?f:null}
+  function pf(t){t=String(t||'').trim();var m=t.match(/[?&#]family=([A-Za-z0-9_-]{32,64})/);if(m)return m[1];return okF(t)?t:null}
+  function setF(f){if(!okF(f)||g('bx.f')===f)return false;
+    try{var ks=[],i;for(i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^bx\.(e|h|c|m|rp|sh|ok|lh)(\.|$)/.test(k))ks.push(k)}ks.forEach(function(k){localStorage.removeItem(k)})}catch(e){}
+    s('bx.f',f);return true}
+  function link(){var f=fid();return f?ORG+'?family='+f:''}
+  /* 匿名登入（每台裝置一次），token 過期自動換新 */
+  function su(){return fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+K,{method:'POST',headers:{'Content-Type':'application/json'},body:'{"returnSecureToken":true}'})
+    .then(function(r){return r.json()}).then(function(j){return {i:j.idToken,r:j.refreshToken,x:Date.now()+(+j.expiresIn||3600)*1e3}})}
+  function tok(){var t=J('bx.a'),now=Date.now(),p;
+    if(t&&t.i&&+t.x>now+12e4)return Promise.resolve(t.i);
+    if(t&&t.r)p=fetch('https://securetoken.googleapis.com/v1/token?key='+K,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(t.r)})
+      .then(function(r){if(r.status>=400&&r.status<500)return su();if(!r.ok)throw 0;return r.json().then(function(j){return {i:j.id_token,r:j.refresh_token,x:now+(+j.expires_in||3600)*1e3}})});
+    else p=su();
+    return p.then(function(n){if(!n||!n.i)throw 0;s('bx.a',JSON.stringify(n));return n.i})}
+  function get(f,t){return fetch(FS+f,{headers:{Authorization:'Bearer '+t},cache:'no-store'}).then(function(r){
+    if(r.status===404)return {ut:null,d:{}};if(!r.ok)throw r.status;
+    return r.json().then(function(j){var d=null;try{d=JSON.parse(j.fields.d.stringValue)}catch(e){}return {ut:j.updateTime,d:(d&&typeof d==='object')?d:{}}})})}
+  function put(f,t,ut,d,ka){var b=JSON.stringify({fields:{v:{integerValue:'1'},u:{integerValue:String(Date.now())},d:{stringValue:JSON.stringify(d)}}});
+    return fetch(FS+f+'?'+(ut?'currentDocument.updateTime='+encodeURIComponent(ut):'currentDocument.exists=false'),
+      {method:'PATCH',keepalive:!!ka&&b.length<6e4,headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:b})
+      .then(function(r){if(r.ok)return true;if(r.status===400||r.status===409||r.status===412)return false;throw r.status})}
+  /* 其他本機設定：兩邊合併 */
+  function hu(a,b){var m={},o=[];[a,b].forEach(function(x){(Array.isArray(x&&x.h)?x.h:[]).concat(x&&+x.t?[{t:+x.t,k:x.k,g:x.g,gg:x.gg}]:[]).forEach(function(y){if(y&&+y.t&&!m[+y.t]){m[+y.t]=1;o.push(y)}})});
+    o.sort(function(x,y){return x.t-y.t});return o.slice(-6)}
+  function cl(o){return JSON.parse(JSON.stringify(o))}
+  function sm(a,b,lt){if(!b||typeof b!=='object')return a;if(!a||typeof a!=='object')return cl(b);
+    var at=+a.t||0,bt=+b.t||0;if(a.tok!==undefined&&b.tok!==undefined&&String(a.tok)!==String(b.tok)){var ct=ctk();
+      if(ct!==null&&String(b.tok)===ct)return cl(b);if(ct!==null&&String(a.tok)===ct)return a;return bt>at?cl(b):a}
+    var n=bt>at?cl(b):cl(a),o=bt>at?a:b,k;for(k in o)if(n[k]===undefined)n[k]=o[k];
+    if(n.tok===undefined&&o.tok!==undefined)n.tok=o.tok;
+    var h=hu(a,b);if(lt){n.h=h;return n}
+    if(a.h||b.h)n.h=h;
+    var ah=(a.h||[]).map(function(x){return +x.t}),bh=(b.h||[]).map(function(x){return +x.t}),an=+a.n||0,bn=+b.n||0,big=bn>an?bh:ah;
+    n.n=Math.max(an,bn)+h.filter(function(x){return big.indexOf(+x.t)<0}).length;
+    n.c=bt===at?Math.max(+a.c||0,+b.c||0):(bt>at?+b.c||0:+a.c||0);
+    if(a.v!==undefined||b.v!==undefined)n.v=Math.max(+a.v||0,+b.v||0);
+    if(a.fin||b.fin)n.fin=true;
+    ['r','q'].forEach(function(w){var x=String(a[w]||''),y=String(b[w]||'');if(a[w]!==undefined||b[w]!==undefined)n[w]=y.length>x.length?y:x});
+    return n}
+  function ctk(){var c=J(A.ck);return c&&c.resetToken!==undefined?String(c.resetToken):null}
+  function core(o){if(!o)return '';var c={},k;for(k in o)if(k!=='r'&&k!=='q')c[k]=o[k];return JSON.stringify(c)}
+  function cj(o){if(Array.isArray(o))return '['+o.map(cj).join(',')+']';if(o&&typeof o==='object'){return '{'+Object.keys(o).sort().filter(function(k){return o[k]!==undefined}).map(function(k){return JSON.stringify(k)+':'+cj(o[k])}).join(',')+'}'}return JSON.stringify(o)}
+  function nx(){var o=JSON.parse(A.ex());delete o.exported;return cj(o)}
+  function eid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+  function idle(){try{return A.idle()&&!document.querySelector('#spov,#sxov,#impov')}catch(e){return false}}
+  function typing(){var e=document.activeElement;return e&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.tagName)}
+  function lsys(){return {a:J(A.sk),l:J('sys.lt')}}
+  function show(){var e=document.getElementById('bxst');if(e)e.textContent=stat()}
+  function stat(){if(!fid())return '☁️ 雲端同步：尚未設定';var ok=+g('bx.ok.'+A.a)||0;
+    if(st==='run')return '☁️ 同步中…';
+    if(!ok)return '☁️ 尚未同步'+(navigator.onLine===false?'（目前離線，連上網路後會自動同步）':'');
+    var d=new Date(ok),p=function(x){return (x<10?'0':'')+x},t=p(d.getHours())+':'+p(d.getMinutes()),td=new Date().toDateString()===d.toDateString();
+    return '☁️ 已同步 '+(td?'':(d.getMonth()+1)+'/'+d.getDate()+' ')+t+(st==='err'||navigator.onLine===false?'（目前連不上，進度先存在這台，之後會自動補上）':'')}
+  function dirty(){var x;try{x=nx()}catch(e){return false}var y=lsys(),hx=hs(x);
+    if(hx!==g('bx.lh.'+A.a)){if(g('bx.h.'+A.a))s('bx.m.'+A.a,Date.now());s('bx.lh.'+A.a,hx)}
+    if(hx!==g('bx.h.'+A.a))return true;
+    return hs(JSON.stringify(y.a)+JSON.stringify(y.l))!==g('bx.sh.'+A.a)}
+  function run(hide){var f=fid();if(!A||!f||!window.fetch||busy)return Promise.resolve(false);
+    if(navigator.onLine===false){show();return Promise.resolve(false)}
+    busy=1;lastRun=Date.now();st='run';if(!hide)show();var a=A.a,tries=0,re=false;
+    function step(t){return get(f,t).then(function(cd){
+      var d=cd.d,cp=(d[a]&&typeof d[a]==='object'&&typeof d[a].x==='string')?d[a]:null,le=g('bx.e.'+a),rp=g('bx.rp.'+a),
+        cs=(d.s&&typeof d.s==='object')?d.s:{},fresh=!g('bx.h.'+a);
+      if(dirty()&&fresh)s('bx.m.'+a,0);
+      var lm=+g('bx.m.'+a)||0,e=le,m=lm,seen=cp&&(hs(cp.x)===g('bx.c.'+a)||hs(cp.x)===hs(nx()));
+      if(cp&&!rp&&!seen){
+        if(!idle()||hide)return 'later';
+        if(le&&cp.e&&cp.e!==le){A.im(cp.x,'replace');e=cp.e;m=+cp.m||0}
+        else{if((+cp.m||0)>lm){var L=A.ex();A.im(cp.x,'replace');A.im(L,'merge')}else A.im(cp.x,'merge');e=cp.e||le;m=Math.max(lm,+cp.m||0)}
+        re=true}
+      else if(cp&&!rp&&(!le||cp.e===le)){e=cp.e||le;m=Math.max(lm,+cp.m||0)}
+      if(!e){e=eid()}
+      var y=lsys(),na=sm(y.a,cs[a]),nl=sm(y.l,cs.lt,1);
+      if(na&&JSON.stringify(na)!==JSON.stringify(y.a))s(A.sk,JSON.stringify(na));
+      if(nl&&JSON.stringify(nl)!==JSON.stringify(y.l))s('sys.lt',JSON.stringify(nl));
+      var x=nx(),hx=hs(x),need=!cp||rp||hs(cp.x)!==hx||cp.e!==e||(+cp.m||0)!==m||core(na)!==core(cs[a])||JSON.stringify(nl)!==JSON.stringify(cs.lt||null)||
+        (na&&cs[a]&&(String(na.r||'')!==String(cs[a].r||'')||String(na.q||'')!==String(cs[a].q||''))&&hs(JSON.stringify(y.a)+JSON.stringify(y.l))!==g('bx.sh.'+a));
+      function done(){s('bx.e.'+a,e);s('bx.m.'+a,m);s('bx.h.'+a,hx);s('bx.c.'+a,hx);s('bx.lh.'+a,hx);s('bx.rp.'+a,null);var z=lsys();s('bx.sh.'+a,hs(JSON.stringify(z.a)+JSON.stringify(z.l)));s('bx.ok.'+a,Date.now());return 'ok'}
+      if(!need)return done();
+      var nd={},k;for(k in d)nd[k]=d[k];nd[a]={e:e,m:m,x:x};var ns={};for(k in cs)ns[k]=cs[k];if(na)ns[a]=na;if(nl)ns.lt=nl;nd.s=ns;
+      return put(f,t,cd.ut,nd,hide).then(function(ok){if(ok)return done();if(++tries>=3)throw 'cas';s('bx.e.'+a,e);s('bx.m.'+a,m);if(re){s('bx.lh.'+a,hs(nx()));s('bx.c.'+a,cp?hs(cp.x):null)}return step(t)})})}
+    return tok().then(step).then(function(r){busy=0;st='';if(r==='later')again=Date.now()+2e4;
+      if(re&&idle()&&!typing())try{A.re()}catch(e){}show();return r},function(err){busy=0;st='err';show();return false})}
+  function reset(){if(!A)return;s('bx.e.'+A.a,eid());s('bx.rp.'+A.a,'1');s('bx.m.'+A.a,Date.now());setTimeout(function(){run()},1500)}
+  function tick(){if(!fid()||busy||document.hidden)return;var n=Date.now();
+    if((again&&n>again)||(n-lastRun>2e4&&dirty())||n-lastRun>3e5){again=0;run()}}
+  function ui(){var f=fid();return '<div class="card bxc" style="margin-top:14px"><div id="bxst" style="font-size:20px">'+stat()+'</div>'+
+    '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+(f?'<button class="btn small blue" data-bx="now">🔄 立即同步</button><button class="btn small gray" data-bx="link">🔗 家庭連結</button>':'')+
+    '<button class="btn small gray" data-bx="set">'+(f?'更換家庭連結':'設定家庭連結')+'</button></div><div id="bxx"></div></div>'}
+  function act(k){var x=document.getElementById('bxx');if(!x)return;
+    if(k==='now'){run();return}
+    if(k==='link'){var l=link();x.innerHTML='<div style="font-size:16px;margin-top:8px">家庭連結（只給自己家的裝置用，不要分享給別人）</div><input id="bxl" readonly style="width:100%;font-size:16px" value="'+l+'"><button class="btn small purple" data-bx="copy" style="margin-top:6px">📋 複製</button>';return}
+    if(k==='copy'){var i=document.getElementById('bxl');if(!i)return;i.focus();i.select();try{i.setSelectionRange(0,i.value.length)}catch(e){}var ok=false;try{ok=document.execCommand('copy')}catch(e){}
+      if(!ok&&navigator.clipboard)navigator.clipboard.writeText(i.value).catch(function(){});try{toast('已複製家庭連結')}catch(e){}return}
+    if(k==='set'){x.innerHTML='<div style="font-size:16px;margin-top:8px">把家庭連結貼在下面（這台的進度會和雲端合併，不會不見）</div><input id="bxin" style="width:100%;font-size:16px" placeholder="https://jp0615.github.io/?family=…"><button class="btn small green" data-bx="save" style="margin-top:6px">✅ 連結</button>';return}
+    if(k==='save'){var v=pf((document.getElementById('bxin')||{}).value);if(!v){try{toast('這不是家庭連結')}catch(e){}return}
+      setF(v);x.innerHTML='';show();run().then(function(){var b=document.querySelector('.bxc');if(b)b.outerHTML=ui()});return}}
+  function init(ad){A=ad;try{var v=pf(location.search);if(v)setF(v)}catch(e){}
+    document.addEventListener('click',function(e){var el=e.target.closest&&e.target.closest('[data-bx]');if(el)act(el.dataset.bx)});
+    document.addEventListener('visibilitychange',function(){if(document.hidden){if(dirty())run(true)}else setTimeout(function(){run()},800)});
+    window.addEventListener('pagehide',function(){if(dirty())run(true)});
+    window.addEventListener('online',function(){setTimeout(function(){run()},1500)});
+    setInterval(tick,5e3);setTimeout(function(){run()},1500)}
+  return {init:init,run:run,reset:reset,ui:ui,link:link,_sm:sm}
+})();
+BX.init({a:'vocab',ex:exportText,im:function(t,m){doImport(t,m,1)},sk:SP_KEY,ck:SP_CFG_KEY,idle:function(){return ['home','parent','quizmenu','io'].indexOf(view)>=0},re:function(){render()}});
 })();
 </script>
 </body>
