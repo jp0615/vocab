@@ -1065,7 +1065,8 @@ function skAct(a,el){
 }
 /* ---------- 🗣️ 句子練習：看問句的開頭，用對的句型回答（句型和字庫在 sentpat.js） ----------
    ⭐ 第一次就答對 +1（一輪全對 +3，跟挑戰一樣）；答錯的句型進「💧 幫句子小花澆水」，規則跟單字澆水一樣（隔天以後再答對才離開，最多 20 個）。
-   紀錄存在 D.sst（每個句型的答對／答錯）和 D.sfix（澆水清單），會跟著匯出／雲端同步。不寫入單字紀錄、不影響Ante島的花。 */
+   紀錄存在 D.sst（每個句型的答對／答錯）和 D.sfix（澆水清單），會跟著匯出／雲端同步。不寫入單字紀錄、不影響Ante島的花。
+   跟單字挑戰一樣算進彩蛋進度（第一次作答的對錯；澆水回合不算，跟單字澆水一樣）。 */
 var SN=null,SN_N=8,SN_SPK='vocabApp.sspeak',SN_CAP=5,SN_FOCUS='all';
 var SNP=window.SENTPAT||null;
 function snOn(){return !!SNP&&D.sentOff!==true}
@@ -1074,7 +1075,7 @@ function snFL(){if(!D.sfix||typeof D.sfix!=='object'||Array.isArray(D.sfix))D.sf
 /* 她學過的字：越熟、越新的字越常出現（只有精選對照表裡的字會用到） */
 function snWords(){var n=D.weeks.length,o=[];D.weeks.forEach(function(wk,i){var r=n>1?i/(n-1):1;wk.words.forEach(function(w){o.push({en:w.en,m:gMastered(D.stats[w.id]),r:r})})});return o}
 function snRec(pat,ok){var s=snSt()[pat]||(D.sst[pat]={c:0,w:0});ok?s.c++:s.w++;s.ls=Date.now();s.h=String(s.h||'').concat(ok?'1':'0').slice(-4);
-  var L=snFL(),r=ok?fkOk(L,pat):(fkMiss(L,pat,SN?SN.mode:1),0);if(SN&&SN.fix&&!(pat in SN.fres))SN.fres[pat]=ok?(r===1?1:2):0;save()}
+  var L=snFL(),r=ok?fkOk(L,pat):(fkMiss(L,pat,SN?SN.mode:1),0);if(SN&&SN.fix&&!(pat in SN.fres))SN.fres[pat]=ok?(r===1?1:2):0;save();if(!(SN&&SN.fix))spLog(ok)}
 function snObj(o){return (o&&typeof o==='object'&&!Array.isArray(o))?o:{}}
 function snDue(){var L=snObj(D.sfix),td=fkDay(),r={due:[],done:0};Object.keys(L).forEach(function(k){if(!SNP.PAT[k])return;if(L[k].p===td)r.done++;else r.due.push(k)});
   r.due.sort(function(a,b){return L[a].t-L[b].t});return r}
