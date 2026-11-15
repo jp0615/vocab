@@ -180,6 +180,14 @@ textarea{min-height:130px}
 .vfcan{flex:0 0 66px;height:50px}.vfcan svg{width:100%;height:100%;animation:vftilt 2.4s ease-in-out infinite;transform-origin:30% 80%}
 @keyframes vftilt{0%,60%,100%{transform:rotate(0)}75%{transform:rotate(14deg)}}
 .vft{display:flex;flex-direction:column}.vft b{font-size:28px;font-weight:400;color:#2f78b5}.vft small{font-size:20px;color:#4f86ad}
+.fbed{margin:12px 0 2px;background:#c99a6b radial-gradient(circle,#b98558 1.5px,transparent 2px) 0 0/14px 14px;border-radius:28px;padding:10px 12px 12px;box-shadow:inset 0 5px 0 rgba(0,0,0,.08),0 6px 0 #9a6b40}
+.fbh{color:#fff;font-size:24px;padding:2px 8px 8px;text-shadow:0 2px 0 rgba(90,50,20,.35)}.fbh small{font-size:17px;margin-left:10px;opacity:.95}
+.fbrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.fbplot{display:flex;align-items:center;gap:10px;border:0;border-radius:22px;background:#eaf7dc;box-shadow:0 5px 0 #b9d99a;padding:8px 14px;cursor:pointer;text-align:left;font-family:inherit;color:#3d6b2a}
+.fbplot.due{background:#e6f5ff;box-shadow:0 5px 0 #a9d6f5;color:#2f6f9f}.fbplot:active{transform:translateY(3px);box-shadow:0 2px 0 #a9d6f5}
+.fbpl{position:relative;flex:0 0 58px;height:68px}.fbpl svg{width:100%;height:100%}
+.fbbadge{position:absolute;top:-6px;right:-8px;min-width:30px;height:30px;border-radius:15px;background:#ef4b5f;color:#fff;font-size:19px;line-height:26px;text-align:center;border:3px solid #fff;padding:0 4px;font-weight:400}
+.fbt{display:flex;flex-direction:column}.fbt b{font-size:25px;font-weight:400}.fbt small{font-size:18px;opacity:.9}
 .vfdone{margin:12px 0 2px;text-align:center;font-size:20px;color:#5b7aa0;background:#eef6ff;border-radius:20px;padding:10px 14px}
 .vfnote{font-size:17px;color:#5b7aa0;margin-top:6px}
 .vfw{position:relative;height:150px;width:220px;margin:6px auto 0}
@@ -722,7 +730,7 @@ function gardenView(){
   gMigrate();var c=gCounts(),n=gVis(),nx=gNextAt(GS.vb),nv=gVisitor(n);
   var h=topbar(true)+'<div class="gwrap"><div class="gskyb"><div class="gsun"></div><div class="gcloud" style="left:10%;top:24px"></div><div class="gcloud" style="left:58%;top:50px;transform:scale(.75)"></div><div class="ghill h1"></div><div class="ghill h2"></div>'+gSky()+
     '<div class="gtitle">Ante島</div></div>'+(gYardShown()?gYard(false):'')+
-    '<div class="gsum">🌸 開花 <b>'+c.b+'</b>　🌱 長大中 <b>'+c.g+'</b>　🌰 種子 <b>'+c.s+'</b>'+(c.w?'　💧 口渴 <b>'+c.w+'</b>':'')+'</div>'+vfEntry()+
+    '<div class="gsum">🌸 開花 <b>'+c.b+'</b>　🌱 長大中 <b>'+c.g+'</b>　🌰 種子 <b>'+c.s+'</b>'+(c.w?'　💧 口渴 <b>'+c.w+'</b>':'')+'</div>'+fxBed()+
     '<div class="gnext">'+(n?'來玩的小動物：'+Array.apply(null,{length:n}).map(function(_,i){return gVisitor(i).name}).filter(function(v,i,a){return a.indexOf(v)===i}).join('、')+'。':'')+'再開 '+Math.max(1,nx-c.b)+' 朵花，'+nv.name+'就會來Ante島玩喔！</div>'+
     '<div class="glegend">'+GSTN.map(function(s,i){return '<span><i>'+plantSVG('tulip',i,'#ff8fb1',false)+'</i>'+s+'</span>'}).join('<b>→</b>')+'</div>';
   if(!D.weeks.length)h+='<div class="card mid">請爸媽先輸入單字，就可以開始種花囉！</div>';
@@ -819,7 +827,13 @@ function vfEntry(){if(!allWords().length)return '';vfSeed();var f=vfInfo(),n=f.d
   if(n||m)return '<button class="vfbtn gf" data-a="fix"><span class="vfcan">'+VF_CAN+'</span><span class="vft"><b>💧 幫花澆水</b><small>'+(n?'還有 '+n+' 朵花等你澆水':m>VF_ROUND?'有幾朵花好久沒見了，來澆澆水吧':'有 '+m+' 朵花好久沒見，有點口渴了')+'</small></span></button>';
   if(f.done)return '<div class="vfdone gf">🌙 今天澆過 '+f.done+' 朵花了，明天再來看看它們</div>';
   return ''}
-function startFix(){vfSeed();var plan=vfPlan();if(!plan.length){toast('花都很有精神喔 🌸');go('garden');return}
+/* Ante島上固定的「💧 澆水花圃」：單字小花、句子小花都在這裡（數字＝今天可以澆的；今天澆過、還沒恢復的＝明天再來） */
+function fxBed(){var hw=allWords().length>0,sn=snOn();if(!hw&&!sn)return '';var f={due:[],done:0,stale:[]};if(hw){vfSeed();f=vfInfo()}var sd=sn?snDue():{due:[],done:0};
+  function plot(a,lab,n,wait,st,unit,cta){var sad=n||st;return '<button class="fbplot'+(sad?' due':'')+'" data-a="'+a+'"><span class="fbpl">'+plantSVG('tulip',sad?3:4,sad?'#9fb7c9':'#ff8fb1',!!sad)+(n?'<b class="fbbadge">'+n+'</b>':'')+'</span>'+
+    '<span class="fbt"><b>'+(n?cta:lab)+'</b><small>'+(n?'還有 '+n+' '+unit+'等你澆水'+(wait?'・🌙 明天再來 '+wait:''):wait?'🌙 今天澆過 '+wait+' '+unit+'了，明天再來':st?'有 '+st+' 朵花好久沒見，有點口渴了':'都很有精神 ✨')+'</small></span></button>'}
+  return '<div class="fbed gf"><div class="fbh">💧 澆水花圃<small>答錯的會種在這裡，隔天再答對就恢復精神</small></div><div class="fbrow">'+
+    (hw?plot('fix','🌷 單字小花',f.due.length,f.done,f.due.length?0:f.stale.length,'朵花','💧 幫花澆水'):'')+(sn?plot('snfix','🗣️ 句子小花',sd.due.length,sd.done,0,'個句型','💧 幫句子小花澆水'):'')+'</div></div>'}
+function startFix(){vfSeed();var plan=vfPlan();if(!plan.length){toast(vfInfo().done?'今天澆過了，明天再來看看它們 🌙':'花都很有精神喔 🌸');if(view!=='home'&&view!=='garden')go('garden');return}
   var all=allWords(),types=plan.map(function(w){var ts=['spell'];if(all.length>=2){ts.push('listen');if(hasPic(w))ts.push('pic')}return ts[rnd(ts.length)]});
   G={g:'fix',fix:true,pool:all,fq:plan,types:types,i:0,ok:0,first:0,gained:0,recent:[],requeue:[],locked:false,mix:null,rev:false,gs0:{},fres:{}};
   view='quiz';quizQ()}
@@ -1084,7 +1098,7 @@ function snPlan(){var ids=SNP.PATS.map(function(p){return p.id}),o=[];
   if(SN_FOCUS!=='all'&&SNP.PAT[SN_FOCUS]){for(var i=0;i<SN_N;i++)o.push(SN_FOCUS);return o}
   while(o.length<SN_N){var c=ids.filter(function(p){return p!==o[o.length-1]});o.push(pickWord(c.map(function(p){return {id:p}}),[],function(x){return snWt(x.id)}).id)}return o}
 function snStart(lv,fix){if(!SNP){toast('句子練習載入失敗，請重新打開 App');return}
-  var items;if(fix){var d=snDue().due.slice(0,VF_ROUND);if(!d.length){toast('句子小花都很有精神喔 🌸');go('sentmenu');return}items=d}else items=snPlan();
+  var items;if(fix){var d=snDue().due.slice(0,VF_ROUND);if(!d.length){toast(snDue().done?'今天澆過了，明天再來看看它們 🌙':'句子小花都很有精神喔 🌸');if(view!=='home'&&view!=='garden')go('sentmenu');return}items=d}else items=snPlan();
   var lex=SNP.lexicon(snWords());
   SN={lv:lv,fix:!!fix,items:items,lex:lex,i:-1,ok:0,first:0,gained:0,fres:{},lvOf:{}};
   if(fix){var L=snFL();items.forEach(function(p){SN.lvOf[p]=L[p]&&L[p].q===1?1:2})}
@@ -1238,7 +1252,7 @@ function home(){
   var n=allWords().length,wk=D.weeks[D.weeks.length-1];
   app.innerHTML=topbar(false)+'<h1>📚 單字小達人</h1><div class="hero pop">🦄</div>'+
   '<div class="mid">'+(n?'已經學了 '+n+' 個單字'+(wk?'，本週：'+esc(wk.name):''):'請爸媽先到「家長區」輸入這週的單字喔')+'</div>'+
-  gHomeCard()+vfEntry()+snEntry()+
+  gHomeCard()+fxBed()+
   '<div class="grid g2" style="margin-top:20px">'+
   '<button class="btn green" style="font-size:34px;padding:36px" data-a="quizmenu">🎮 開始挑戰</button>'+
   '<button class="btn blue" style="font-size:34px;padding:36px" data-a="learn">🔊 聽聽看單字</button>'+
