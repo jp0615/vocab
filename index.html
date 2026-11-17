@@ -226,7 +226,7 @@ textarea{min-height:130px}
 mark.snclue{background:#fff07a;color:#3a2e5a;border-radius:10px;padding:0 6px;box-shadow:0 0 0 3px #ffd84d}
 .snzh{font-size:20px;color:#8e8aa5}
 .snopts{grid-template-columns:1fr 1fr}.snopt{font-size:27px;padding:20px 10px;line-height:1.25}
-.snhint{text-align:center;font-size:21px;color:#7a5a00;margin:10px 0 0}.snhint b{background:#fff6d6;border-radius:14px;padding:4px 14px;font-size:26px;color:#3a2e5a}
+.sncue{display:inline-block;background:#fff6d6;border-radius:14px;padding:0 12px;color:#7a5a00;font-size:28px;white-space:nowrap}.snhint{text-align:center;font-size:21px;color:#7a5a00;margin:10px 0 0}.snhint b{background:#fff6d6;border-radius:14px;padding:4px 14px;font-size:26px;color:#3a2e5a}
 .snans{min-height:92px;margin-top:10px}.otile.pn{min-width:52px;padding:0 10px;font-size:38px}
 span.otile{display:inline-flex;align-items:center}
 .sntools{justify-content:center}.sntools .btn{flex:0 1 auto;font-size:20px}
@@ -1094,9 +1094,18 @@ function snObj(o){return (o&&typeof o==='object'&&!Array.isArray(o))?o:{}}
 function snDue(){var L=snObj(D.sfix),td=fkDay(),r={due:[],done:0};Object.keys(L).forEach(function(k){if(!SNP.PAT[k])return;if(L[k].p===td)r.done++;else r.due.push(k)});
   r.due.sort(function(a,b){return L[a].t-L[b].t});return r}
 function snWt(p){var s=snObj(D.sst)[p];if(!s)return 3;var t=s.c+s.w,h=String(s.h||''),z=0;for(var i=0;i<h.length;i++)if(h[i]==='0')z++;return 1+(s.w/t)*4+z+(t<3?1:0)}
+/* 加強中（JoE3 Test 2 錯的句型）：每輪一定有 2 題 Where＋誰的、1 題 What color，其他題這幾個句型也比較常出現。之後要恢復平均，把 SN_MUST 清空、SN_BOOST 拿掉就好 */
+var SN_MUST=['whereWho','whereWho','whatColor'],SN_BOOST={whereWho:2,whatColor:1.6,whereAre:1.4,whereIs:1.2};
 function snPlan(){var ids=SNP.PATS.map(function(p){return p.id}),o=[];
   if(SN_FOCUS!=='all'&&SNP.PAT[SN_FOCUS]){for(var i=0;i<SN_N;i++)o.push(SN_FOCUS);return o}
-  while(o.length<SN_N){var c=ids.filter(function(p){return p!==o[o.length-1]});o.push(pickWord(c.map(function(p){return {id:p}}),[],function(x){return snWt(x.id)}).id)}return o}
+  var must=SN_MUST.filter(function(p){return !!SNP.PAT[p]}),pool=[];
+  var cnt=function(p){return must.concat(pool).filter(function(z){return z===p}).length};
+  while(pool.length<SN_N-must.length){pool.push(pickWord(ids.filter(function(p){return cnt(p)<3}).map(function(p){return {id:p}}),[],function(x){return snWt(x.id)*(SN_BOOST[x.id]||1)}).id)}
+  /* 排順序：每次從剩下最多的句型裡挑（跟上一題不同），不會連續兩題同一種 */
+  var left={};must.concat(pool).forEach(function(p){left[p]=(left[p]||0)+1});
+  while(o.length<SN_N){var c=Object.keys(left).filter(function(p){return left[p]>0&&p!==o[o.length-1]});if(!c.length)c=Object.keys(left).filter(function(p){return left[p]>0});
+    c.sort(function(a,b){return left[b]-left[a]||Math.random()-.5});var top=c.filter(function(p){return left[p]===left[c[0]]}),q=top[Math.floor(Math.random()*top.length)];o.push(q);left[q]--}
+  return o}
 function snStart(lv,fix){if(!SNP){toast('句子練習載入失敗，請重新打開 App');return}
   var items;if(fix){var d=snDue().due.slice(0,VF_ROUND);if(!d.length){toast(snDue().done?'今天澆過了，明天再來看看它們 🌙':'句子小花都很有精神喔 🌸');if(view!=='home'&&view!=='garden')go('sentmenu');return}items=d}else items=snPlan();
   var lex=SNP.lexicon(snWords());
@@ -1127,14 +1136,13 @@ function snQ(x,hl){var q=esc(x.q);if(hl&&x.clue&&x.q.indexOf(x.clue)===0)q='<mar
 function snHead(){var n=SN.items.length;return '<div class="top"><button class="btn small gray" data-a="snquit">✕ 結束</button><div class="snlv">'+(SN.fix?'💧 句子小花澆水':SN.lv===1?'🎯 配配看':SN.lv===2?'🧩 排排看':'🎤 排好再唸')+'</div><div class="stars">⭐ '+D.stars+'</div></div><div class="bar"><i style="width:'+(SN.i/n*100)+'%"></i></div>'}
 function snRule(x){return '<div class="snrule"><b>💡 句型小卡</b><div>'+esc(x.rule)+'</div></div>'}
 function snDraw(){if(view!=='sent'||!SN||!SN.x)return;var x=SN.x,h=snHead();
-  h+='<div class="card sncard">'+snPic(x.pic)+'<div class="snq">'+snQ(x,SN.miss>=1)+' <button class="spk sm" data-a="snsay">🔊</button> <button class="btn small gray" data-a="snsay" data-s="1">🐢</button></div>'+
+  h+='<div class="card sncard">'+snPic(x.pic)+'<div class="snq">'+snQ(x,SN.miss>=1)+(x.hint&&x.hint.length?' <span class="sncue">( '+x.hint.map(esc).join(' / ')+' )</span>':'')+' <button class="spk sm" data-a="snsay">🔊</button> <button class="btn small gray" data-a="snsay" data-s="1">🐢</button></div>'+
     (SN.mode===2||SN.miss>=1||SN.done?'<div class="snzh">'+esc(x.zh)+'</div>':'')+'</div>';
   if(SN.mode===1){
     h+='<div class="mid" style="font-size:22px">'+(SN.done?'&nbsp;':'哪一個是對的回答？')+'</div><div class="opts snopts">'+x.opts.map(function(o,k){var c=SN.done&&o===x.a?' ok':SN.wrongOpt[k]?' no':'';
       return '<button class="opt snopt'+c+'" data-a="snopt" data-i="'+k+'"'+(SN.wrongOpt[k]?' style="pointer-events:none"':'')+'>'+esc(o)+'</button>'}).join('')+'</div>';
   }else{
-    h+=(SN.done?'':'<div class="snhint">提示：<b>'+x.hint.map(esc).join(' ／ ')+'</b></div>')+
-      (SN.done?'<div class="sndone">'+esc(x.a)+'</div>':'<div class="otiles oans snans">'+
+    h+=      (SN.done?'<div class="sndone">'+esc(x.a)+'</div>':'<div class="otiles oans snans">'+
         SN.built.map(function(b,k){return '<button class="otile put'+(/^[,.]$/.test(b.t)?' pn':'')+(SN.bad.indexOf(k)>=0?' bad':'')+'" data-a="snback" data-k="'+k+'">'+esc(b.t)+'</button>'}).join('')+
         (SN.built.length?'':'<span class="mid" style="align-self:center;font-size:20px">點下面的字卡，排成完整的回答</span>')+'</div>');
     if(!SN.done)h+='<div class="otiles">'+SN.bank.map(function(b,k){return b.u?'':'<button class="otile'+(/^[,.]$/.test(b.t)?' pn':'')+'" data-a="snpick" data-k="'+k+'">'+esc(b.t)+'</button>'}).join('')+'</div>'+
@@ -1173,9 +1181,13 @@ function snWrong(fb){sndNo();SN.miss++;if(!SN.tried){SN.tried=true;snRec(SN.x.pa
   SN.fb=fb;if(SN.miss===1&&SN.mode===1)SN.fb+='<div class="snsub">看看黃色的開頭：<b>'+esc(SN.x.clue)+'…</b> 要怎麼回答？</div>';
   snDraw();if(SN.miss>=2)setTimeout(function(){if(SN&&SN.x)sayParts([SN.x.q])},400)}
 function snOpt(k){if(!SN||SN.done||SN.wrongOpt[k])return;var o=SN.x.opts[k];
-  if(o===SN.x.a)snRight();else{SN.wrongOpt[k]=1;snWrong(esc(tryag()))}}
-var SN_FB={copy:function(r){return '題目裡的「'+esc(r.words.join(' '))+'」不用抄進回答喔！把紅色的字卡拿回去 ✋'},
-  trap:function(r,x){return '小心陷阱字卡！問句是「'+esc(x.clue)+'…」，再看看要用 is 還是 are、it 還是 they 🔍'},
+  if(o===SN.x.a)snRight();else{SN.wrongOpt[k]=1;var why=SN.x.why&&SN.x.why[o];snWrong(why?'差一點！'+esc(why):esc(tryag()))}}
+var SN_FB={copy:function(r,x){var w=r.words.map(function(t){return t.toLowerCase()});
+    if(x.pat==='whatColor'&&w.indexOf('color')>=0)return 'What color 只要回顏色，不用再說 color 喔！把紅色的字卡拿回去 ✋<div class="snsub">'+esc(x.toks[0]+' '+x.toks[1])+' ＋ 顏色</div>';
+    var m='題目裡的「'+esc(r.words.join(' '))+'」不用抄進回答喔！把紅色的字卡拿回去 ✋';
+    if(/^where/.test(x.pat))m+='<div class="snsub">Where 問在哪裡 → <b>'+esc(x.toks[0]+' '+x.toks[1])+'</b> ＋ 在哪裡</div>';return m},
+  trap:function(r,x){if(x.who)return '小心陷阱字卡！'+esc(x.who)+' 🔍';return '小心陷阱字卡！問句是「'+esc(x.clue)+'…」，再看看要用 is 還是 are、it 還是 they 🔍'},
+  verb:function(r,x){return '別忘了 '+esc(r.word)+' 喔！<b>'+esc(x.toks[0]+' '+r.word)+'</b> ＋ '+(x.pat==='whatColor'?'顏色':'在哪裡')},
   num:function(r){return '還少了數字喔！提示是「'+esc(r.word)+'」🔢'},noun:function(r){return '還少了東西的名字「'+esc(r.word)+'」喔'},
   adj:function(r){return '還少了「'+esc(r.word)+'」喔'},place:function(r){return '還少了地點「'+esc(r.word)+'」喔'},
   comma:function(){return '別忘了 Yes／No 後面的逗號「 , 」喔'},period:function(){return '句子最後要放句號「 . 」喔'},

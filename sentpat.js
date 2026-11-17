@@ -22,6 +22,13 @@ var NOUNS=[
  {s:'bun',p:'buns',a:'a',e:'🍞',zh:'小圓麵包',c:'f',adj:['big'],core:1,keys:['bun','buns']},
  {s:'toe',p:'toes',e:'🦶',zh:'腳趾',c:'bd',adj:['clean'],core:1,keys:['toe','toes']},
  {s:'T-shirt',p:'T-shirts',a:'a',e:'👕',zh:'T恤',c:'cl',adj:['clean','new','big'],core:1,keys:['t-shirt','t-shirts','tshirt']},
+ /* 喬登美語 JoE3 Test 2 的字（一定會出） */
+ {s:'finger',p:'fingers',e:'☝️',zh:'手指',c:'bd',adj:['clean'],core:1,keys:['finger','fingers']},
+ {s:'frisbee',p:'frisbees',a:'a',e:'🥏',zh:'飛盤',c:'s',adj:['big','new'],core:1,keys:['frisbee','frisbees']},
+ {s:'slipper',p:'slippers',a:'a',e:'🩴',zh:'拖鞋',c:'cl',adj:['clean','new','big'],core:1,keys:['slipper','slippers']},
+ {s:null,p:'jeans',e:'👖',zh:'牛仔褲',c:'cl',adj:['clean','new','long'],core:1,keys:['jeans']},
+ {s:'stapler',p:'staplers',a:'a',e:'📎',zh:'釘書機',c:'s',adj:['big','new'],core:1,keys:['stapler','staplers']},
+ {s:'sticker',p:'stickers',a:'a',e:'🏷️',zh:'貼紙',c:'s',adj:['big','new'],core:1,keys:['sticker','stickers']},
  /* 以前單字表裡的字（有學過才出現） */
  {s:'cake',p:'cakes',a:'a',e:'🍰',zh:'蛋糕',c:'f',adj:['big'],keys:['cake','cakes']},
  {s:'flag',p:'flags',a:'a',e:'🚩',zh:'旗子',c:'s',adj:['big','new'],keys:['flag','flags']},
@@ -31,7 +38,7 @@ var NOUNS=[
  {s:null,p:'feet',e:'🦶',zh:'腳',c:'bd',adj:['clean'],keys:['feet','foot']},
  {s:'box',p:'boxes',a:'a',e:'📦',zh:'盒子',c:'s',adj:['big','new'],keys:['box','boxes']},
  {s:'frog',p:'frogs',a:'a',e:'🐸',zh:'青蛙',c:'a',adj:['big'],keys:['frog','frogs']},
- {s:'goose',p:'geese',a:'a',e:'🪿',zh:'鵝',c:'a',adj:['big'],keys:['goose','geese']},
+ {s:'goose',p:'geese',a:'a',e:'🪿',zh:'鵝',c:'a',adj:['big'],core:1,keys:['goose','geese']},
  {s:'cow',p:'cows',a:'a',e:'🐮',zh:'乳牛',c:'b',adj:['big'],keys:['cow','cows']},
  {s:'cap',p:'caps',a:'a',e:'🧢',zh:'棒球帽',c:'cl',adj:['clean','new','big'],keys:['cap','caps']},
  {s:'plate',p:'plates',a:'a',e:'🍽️',zh:'盤子',c:'s',adj:['clean','big'],keys:['plate','plates']},
@@ -52,7 +59,7 @@ var NOUNS=[
  {s:'cat',p:'cats',a:'a',e:'🐱',zh:'貓',c:'a',adj:['big'],keys:['cat','cats']},
  {s:'dog',p:'dogs',a:'a',e:'🐶',zh:'狗',c:'a',adj:['big'],keys:['dog','dogs']},
  {s:'bird',p:'birds',a:'a',e:'🐦',zh:'鳥',c:'a',adj:['big'],keys:['bird','birds']},
- {s:'rabbit',p:'rabbits',a:'a',e:'🐰',zh:'兔子',c:'a',adj:['big'],keys:['rabbit','rabbits','bunny']},
+ {s:'rabbit',p:'rabbits',a:'a',e:'🐰',zh:'兔子',c:'a',adj:['big'],core:1,keys:['rabbit','rabbits','bunny']},
  {s:'duck',p:'ducks',a:'a',e:'🦆',zh:'鴨子',c:'a',adj:['big'],keys:['duck','ducks']},
  {s:'ant',p:'ants',a:'an',e:'🐜',zh:'螞蟻',c:'a',adj:['big'],keys:['ant','ants']},
  {s:'mouse',p:'mice',a:'a',e:'🐭',zh:'老鼠',c:'a',adj:['big'],keys:['mouse','mice']},
@@ -79,17 +86,33 @@ var PLACES=[
  {k:'fridge',e:'svg:fridge',zh:'冰箱',pr:{'in':'f','next to':'sab','in front of':'sab'},core:1},
  {k:'seesaw',e:'svg:seesaw',zh:'翹翹板',pr:{'under':'sfa','on':'sa','next to':'sfab','in front of':'sfab'},core:1},
  {k:'book',e:'📕',zh:'書',pr:{'on':'sf','under':'s','behind':'sf','in front of':'sf','next to':'sf'},core:1},
- {k:'table',e:'svg:table',zh:'桌子',pr:{'on':'sf','under':'sfa','next to':'sfab','in front of':'sfab'},core:1},
- {k:'sofa',e:'🛋️',zh:'沙發',pr:{'on':'sfa','under':'sa','behind':'sfab','in front of':'sfab','next to':'sfab'},core:1},
- {k:'bed',e:'🛏️',zh:'床',pr:{'on':'sfa','under':'sa','next to':'sfab'},core:1},
+ {k:'table',e:'svg:table',zh:'桌子',pr:{'on':'sf','under':'sfa','next to':'sfabp','in front of':'sfab'},core:1},
+ {k:'sofa',e:'🛋️',zh:'沙發',pr:{'on':'sfap','under':'sa','behind':'sfabp','in front of':'sfabp','next to':'sfabp'},core:1},
+ {k:'bed',e:'🛏️',zh:'床',pr:{'on':'sfap','under':'sa','next to':'sfabp'},core:1},
  {k:'chair',e:'🪑',zh:'椅子',pr:{'on':'sfa','under':'sa','next to':'sfab'},core:1},
- {k:'tree',e:'🌳',zh:'樹',pr:{'under':'sfab','behind':'sfab','in front of':'sfab','next to':'sfab'},core:1},
+ {k:'tree',e:'🌳',zh:'樹',pr:{'under':'sfabp','behind':'sfabp','in front of':'sfabp','next to':'sfabp'},core:1},
+ {k:'TV',e:'📺',zh:'電視',pr:{'on':'s','behind':'sa','in front of':'sabp','next to':'sfabp'},core:1,keys:['tv']},
+ /* 人才會去的地方（p＝人）：Where is Sam? → She is in the hospital. */
+ {k:'hospital',e:'🏥',zh:'醫院',pr:{'in':'p'},core:1},
+ {k:'park',e:'🏞️',zh:'公園',pr:{'in':'p'},core:1},
  {k:'cage',e:'svg:cage',zh:'籠子',pr:{'in':'a','next to':'sfab'},keys:['cage','cages']}
 ];
 var COLORS=[
  {k:'red',zh:'紅色',hex:'#ef3b3b'},{k:'blue',zh:'藍色',hex:'#2f7cf6'},{k:'black',zh:'黑色',hex:'#222'},{k:'pink',zh:'粉紅色',hex:'#ff8fc0'},
  {k:'green',zh:'綠色',hex:'#34b858'},{k:'yellow',zh:'黃色',hex:'#ffd21f'},{k:'white',zh:'白色',hex:'#fff'},{k:'orange',zh:'橘色',hex:'#ff8a1f'},
  {k:'purple',zh:'紫色',hex:'#9b59e0'},{k:'brown',zh:'咖啡色',hex:'#8b5a2b'}];
+var NAMES=[{k:"May's",zh:'May 的'},{k:"Sam's",zh:'Sam 的'},{k:"Tom's",zh:'Tom 的'},{k:"Ben's",zh:'Ben 的'}];
+/* 人：Where is / are 這些人？ → He / She / They（pro），why＝為什麼這樣換 */
+var PEOPLE=[
+ {t:'Sam and her mother',pro:'They',e:'👩‍👧',zh:'Sam 和她媽媽',why:'Sam 和她媽媽是兩個人'},
+ {t:'Tom and his father',pro:'They',e:'👨‍👦',zh:'Tom 和他爸爸',why:'Tom 和他爸爸是兩個人'},
+ {t:'May and her sister',pro:'They',e:'👭',zh:'May 和她姊姊',why:'May 和她姊姊是兩個人'},
+ {t:"Sam's mother",pro:'She',e:'👩',zh:'Sam 的媽媽',why:'媽媽是女生'},
+ {t:"Ben's sister",pro:'She',e:'👧',zh:'Ben 的姊姊',why:'姊姊是女生'},
+ {t:"Tom's father",pro:'He',e:'👨',zh:'Tom 的爸爸',why:'爸爸是男生'},
+ {t:"May's brother",pro:'He',e:'👦',zh:'May 的哥哥',why:'哥哥是男生'},
+ {t:'May',pro:'She',e:'👧',zh:'May',why:'May 是女生'},
+ {t:'Tom',pro:'He',e:'👦',zh:'Tom',why:'Tom 是男生'}];
 var POSS=[{k:'my',zh:'我'},{k:'your',zh:'你'},{k:'their',zh:'他們'},{k:'his',zh:'他'},{k:'her',zh:'她'}];
 /* 句型卡（第二次答錯時的提示） */
 var PATS=[
@@ -102,11 +125,12 @@ var PATS=[
  {id:'whatColor',zh:'What color…?',rule:'What color is…? → It is ＋顏色。 What color are…? → They are ＋顏色。',clue:'What color'},
  {id:'howMany',zh:'How many…?',rule:'How many ＿＿s are there…? → There are ＋數字 ＋＿＿s.',clue:'How many'},
  {id:'whereIs',zh:'Where is…?',rule:'Where is…? → It is ＋ in / on / under / behind… ＋ the ＿＿.',clue:'Where is'},
- {id:'whereAre',zh:'Where are…?',rule:'Where are…? → They are ＋ in / on / under / behind… ＋ the ＿＿.',clue:'Where are'}
+ {id:'whereAre',zh:'Where are…?',rule:'Where are…? → They are ＋ in / on / under / behind… ＋ the ＿＿.',clue:'Where are'},
+ {id:'whereWho',zh:'Where is / are＋誰的…？',rule:'Where is / are…? → 先換成 It / They / He / She ＋ is / are ＋ 在哪裡（in / on / next to… the ＿＿）',clue:'Where',boost:1}
 ];
 var PAT={};PATS.forEach(function(p){PAT[p.id]=p});
 /* 每個句型容易搞混的字（排排看多放一張「陷阱字卡」） */
-var TRAP={isThere:['are'],areThere:['is'],isIt:['they','are'],areThey:['it','is'],whatIs:['they','are'],whatAre:['it','is'],howMany:['is'],whereIs:['they','are'],whereAre:['it','is']};
+var TRAP={isThere:['are'],areThere:['is'],isIt:['they','are'],areThey:['it','is'],whatIs:['they','are'],whatAre:['it','is'],howMany:['is'],whereIs:['they','are'],whereAre:['it','is'],whereWho:['is'],whatColor:['is']};
 
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 function aN(n){return n.a+' '+n.s}
@@ -139,6 +163,11 @@ function pScene(R,L,f,no){no=no||[];
     var prs=Object.keys(pl.pr).filter(function(pr){return no.indexOf(pr)<0&&pl.pr[pr].indexOf(n.c)>=0});
     return {n:n,pl:pl,pr:pick(R,prs)}}
   return null}
+/* 給定類別（例如 p＝人），挑一個合理的地點＋位置 */
+function pPlace(R,L,cat){var ok=L.places.filter(function(x){for(var pr in x.p.pr)if(x.p.pr[pr].indexOf(cat)>=0)return true;return false});if(!ok.length)return null;
+  var pl=pickW(R,ok,function(x){return x.w}).p,prs=Object.keys(pl.pr).filter(function(pr){return pl.pr[pr].indexOf(cat)>=0});return {pl:pl,pr:pick(R,prs)}}
+/* 提示跟考卷一樣：(next/box)、(hospital) */
+function cue(s){return s.pl.pr['in']==='p'?[s.pl.k]:[s.pr==='next to'?'next':s.pr,s.pl.k]}
 function where(s){return s.pr+' the '+s.pl.k}
 function whereZh(s){return s.pl.zh+PRZH[s.pr]}
 function num(R,lo,hi){return lo+Math.floor(R()*(hi-lo+1))}
@@ -189,10 +218,12 @@ var GEN={
    var a=d==='those'||R()<.5?A:T;
    return {q:'What are '+d+'?',zh:(d==='these'?'這些':'那些')+'是什麼？',a:a,acc:[A,T],valid:[A,T],hint:[n.p],need:{noun:n.p},
      wrong:[n.s?'It is '+aN(n)+'.':'It is big.','Yes, they are.','There are '+n.p+'.','Yes, there are.'],pic:{k:'many',e:n.e,cnt:3,pt:d}}},
- whatColor:function(R,L){var pl=R()<.5,n=pNoun(R,L,function(n){return (pl?!!n.p:!!n.s)&&n.c!=='bd'&&n.c!=='f'&&n.c!=='a'&&(n.c!=='b'||n.veh)});if(!n)return null;
-   var c=pickW(R,L.colors,function(x){return x.w}).c,ps=pick(R,[{k:'the',zh:''},{k:'your',zh:'你的'},{k:'my',zh:'我的'}]);
-   var q='What color '+(pl?'are':'is')+' '+ps.k+' '+(pl?n.p:n.s)+'?',A=(pl?'They are ':'It is ')+c.k+'.',W=(pl?'It is ':'They are ')+c.k+'.';
-   return {q:q,zh:ps.zh+n.zh+'是什麼顏色？',a:A,acc:[A],valid:[A],hint:[c.k],need:{adj:c.k},
+ whatColor:function(R,L){var pl=R()<.55,n=pNoun(R,L,function(n){return (pl?!!n.p:!!n.s)&&n.c!=='bd'&&n.c!=='f'&&n.c!=='a'&&(n.c!=='b'||n.veh)});if(!n)return null;
+   var c=pickW(R,L.colors,function(x){return x.w}).c,ps=pick(R,[{k:'the',zh:''},{k:'your',zh:'你的'},{k:'my',zh:'我的'},{k:'their',zh:'他們的'},{k:'her',zh:'她的'}].concat(NAMES));
+   var P=pl?'They are':'It is',q='What color '+(pl?'are':'is')+' '+ps.k+' '+(pl?n.p:n.s)+'?',A=P+' '+c.k+'.',W=(pl?'It is ':'They are ')+c.k+'.',C=P+' color is '+c.k+'.';
+   var why={};why[C]='What color 只要回顏色，不用再說 color 喔！';why[W]=pl?n.zh+'不只一個 → They are':'只有一個 → It is';
+   return {q:q,zh:ps.zh+n.zh+'是什麼顏色？',a:A,acc:[A],valid:[A],hint:[c.k],need:{adj:c.k},copyMust:['color'],trapW:[pl?'is':'are'],wrongMust:[C],why:why,
+     rule:'What color '+(pl?'are':'is')+'…? → '+P+' ＋ 顏色。只要回顏色，不用再說 color。',
      wrong:[W,'Yes, '+(pl?'they are':'it is')+'.',pl?'There are '+NUM[2+Math.floor(R()*8)]+' '+n.p+'.':'It is '+aN(n)+'.',pl?'They are '+n.p+'.':'There is '+aN(n)+'.'],
      pic:{k:pl?'many':'one',e:n.e,cnt:2,col:c}}},
  howMany:function(R,L){var s=pScene(R,L,function(n){return !!n.s&&!!n.p&&n.c!=='bd'&&n.c!=='b'},['behind']);if(!s)return null;var n=s.n,k=num(R,2,20);
@@ -203,6 +234,16 @@ var GEN={
  whereIs:function(R,L){var s=pScene(R,L,function(n){return !!n.s&&n.c!=='bd'});if(!s)return null;var n=s.n,A='It is '+where(s)+'.';
    return {q:'Where is the '+n.s+'?',zh:n.zh+'在哪裡？',a:A,acc:[A],valid:[A],hint:[s.pr,s.pl.k],need:{place:s.pl.k,prep:s.pr},
      wrong:['They are '+where(s)+'.','Yes, it is.','There is '+aN(n)+'.','It is '+aN(n)+'.'],pic:{k:'scene',e:n.e,pl:s.pl,pr:s.pr,cnt:1}}},
+ whereWho:function(R,L){var sub,pro,be,e,zh,why,pl,s,cnt=1,cop;
+   if(R()<.5){var p=pick(R,PEOPLE);s=pPlace(R,L,'p');if(!s)return null;sub=p.t;pro=p.pro;be=pro==='They'?'are':'is';e=p.e;zh=p.zh;why=p.why+' → '+pro+' '+be;}
+   else{s=pScene(R,L,function(n){return n.c!=='bd'&&n.c!=='b'});if(!s)return null;var n=s.n;pl=!n.s||(!!n.p&&R()<.6);var o=pick(R,NAMES.concat(NAMES,POSS.filter(function(x){return x.k!=='my'})));
+     sub=o.k+' '+(pl?n.p:n.s);pro=pl?'They':'It';be=pl?'are':'is';e=n.e;cnt=pl?2:1;zh=(o.zh.indexOf('的')>0?o.zh:o.zh+'的')+n.zh;why=pl?n.zh+'不只一個 → They are':'只有一個'+n.zh+' → It is'}
+   var W=where(s),A=pro+' '+be+' '+W+'.',Sub=cap(sub),ws=sub.split(' '),last=ws[ws.length-1];
+   var noV=Sub+' '+W+'.',cp=pro+' '+be+' '+(cnt>1||pro==='It'?ws.slice(1).join(' '):last)+' '+W+'.',swp=pro==='They'?'It is '+W+'.':pro==='It'?'They are '+W+'.':(pro==='He'?'She':'He')+' is '+W+'.';
+   var whyM={};whyM[noV]='別忘了 '+be+'！還要換成 '+pro+'：'+pro+' '+be+' ＋ 在哪裡';whyM[cp]='題目裡的字不用抄！Where 問在哪裡 → '+pro+' '+be+' ＋ 在哪裡';whyM[swp]=why;
+   return {q:'Where '+be+' '+sub+'?',zh:zh+'在哪裡？',a:A,acc:[A],valid:[A],hint:cue(s),need:{place:s.pl.k,prep:s.pr},clue:'Where '+be,trapW:[be==='are'?'is':'are'],
+     who:why,rule:'Where '+be+' '+sub+'? → '+pro+' '+be+' ＋ 在哪裡（'+W+'）。'+why+'。',wrongMust:[noV],why:whyM,
+     wrong:[cp,swp,'Yes, '+pro.toLowerCase()+' '+be+'.'],pic:{k:'scene',e:e,pl:s.pl,pr:s.pr,cnt:cnt}}},
  whereAre:function(R,L){var s=pScene(R,L,function(n){return !!n.p&&n.c!=='bd'&&n.c!=='b'});if(!s)return null;var n=s.n,A='They are '+where(s)+'.';
    return {q:'Where are the '+n.p+'?',zh:n.zh+'在哪裡？',a:A,acc:[A],valid:[A],hint:[s.pr,s.pl.k],need:{place:s.pl.k,prep:s.pr},
      wrong:['It is '+where(s)+'.','Yes, they are.','There are '+n.p+'.','They are '+n.p+'.'],pic:{k:'scene',e:n.e,pl:s.pl,pr:s.pr,cnt:2}}}
@@ -210,16 +251,21 @@ var GEN={
 /* 產生一題（含配配看選項、排排看字卡） */
 function make(pat,opt){opt=opt||{};var R=opt.rand||Math.random,L=opt.lex||lexicon(opt.words);
   var x=null;for(var t=0;t<8&&!x;t++)x=GEN[pat](R,L);if(!x)return null;
-  x.pat=pat;x.rule=PAT[pat].rule;x.clue=PAT[pat].clue;x.acc=uniq(x.acc);x.valid=uniq(x.valid.concat(x.acc));
+  x.pat=pat;x.rule=x.rule||PAT[pat].rule;x.clue=x.clue||PAT[pat].clue;x.acc=uniq(x.acc);x.valid=uniq(x.valid.concat(x.acc));
   /* 配配看：正確答案＋3 個「句型不對」的選項 */
-  var wr=uniq(x.wrong.filter(function(w){return w&&x.valid.indexOf(w)<0}));
-  x.opts=shuf(R,[x.a].concat(shuf(R,wr).slice(0,3)));
+  var wr=uniq((x.wrongMust||[]).concat(x.wrong).filter(function(w){return w&&x.valid.indexOf(w)<0}));
+  var must=(x.wrongMust||[]).filter(function(w){return wr.indexOf(w)>=0});wr=must.concat(shuf(R,wr.filter(function(w){return must.indexOf(w)<0})));
+  x.opts=shuf(R,[x.a].concat(wr.slice(0,3)));
   /* 排排看：答案字卡＋題目裡抄來的字（陷阱）＋句型陷阱字 */
   var at=toks(x.a),inA={};at.concat.apply(at,x.acc.map(toks)).forEach(function(t){inA[t.toLowerCase()]=1});
   x.toks=at;
-  var qt=toks(x.q).filter(function(t){return /[a-z]/i.test(t)}).map(function(t){return t.toLowerCase()==='t-shirt'||t.toLowerCase()==='t-shirts'?t:t.toLowerCase()});
-  var copy=[],seen={};for(var i=qt.length-1;i>=0&&copy.length<3;i--){var k=qt[i].toLowerCase();if(inA[k]||seen[k])continue;seen[k]=1;copy.unshift(qt[i])}
-  var trap=(TRAP[pat]||[]).filter(function(t){return !inA[t]&&!seen[t]}).slice(0,1);
+  /* 題目第一個字改小寫，其他保留（May's、Sam、TV 不會變小寫） */
+  var qt=toks(x.q).filter(function(t){return /[a-z]/i.test(t)}).map(function(t,i){return i===0?t.toLowerCase():t});
+  var WH={where:1,what:1,how:1},copy=[],seen={},cand=[];for(var i=qt.length-1;i>=0;i--){var k=qt[i].toLowerCase();if(inA[k]||seen[k])continue;seen[k]=1;cand.push(qt[i])}
+  (x.copyMust||[]).forEach(function(m){if(cand.indexOf(m)>=0)copy.push(m)});
+  var nw=cand.filter(function(t){return !WH[t.toLowerCase()]});(nw.length?nw:cand).forEach(function(t){if(copy.length<3&&copy.indexOf(t)<0)copy.push(t)});
+  copy.sort(function(a,b){return qt.indexOf(a)-qt.indexOf(b)});seen={};copy.forEach(function(t){seen[t.toLowerCase()]=1});
+  var trap=(x.trapW||TRAP[pat]||[]).filter(function(t){return !inA[t]&&!seen[t]}).slice(0,1);
   x.copy=copy;x.trap=trap;x.bank=shuf(R,at.concat(copy,trap));
   return x}
 function uniq(a){var o=[],s={};a.forEach(function(x){if(!s[x]){s[x]=1;o.push(x)}});return o}
@@ -232,16 +278,18 @@ function check(x,built){
   built.forEach(function(t,i){if(cp.indexOf(low(t))>=0)bad.push(i)});if(bad.length)return {ok:false,kind:'copy',bad:bad,words:bad.map(function(i){return built[i]})};
   built.forEach(function(t,i){if(tp.indexOf(low(t))>=0)bad.push(i)});if(bad.length)return {ok:false,kind:'trap',bad:bad};
   var need=x.need||{},hb={};built.forEach(function(t){hb[low(t)]=(hb[low(t)]||0)+1});
+  /* 漏了 is／are（They next to the box.） */
+  if((at[1]==='is'||at[1]==='are')&&!hb[at[1]])return {ok:false,kind:'verb',word:at[1],bad:[]};
   if(need.num&&!hb[need.num])return {ok:false,kind:'num',word:need.num,bad:[]};
   if(need.noun&&!hb[low(need.noun.split(' ').slice(-1)[0])])return {ok:false,kind:'noun',word:need.noun,bad:[]};
   if(need.adj&&!hb[need.adj])return {ok:false,kind:'adj',word:need.adj,bad:[]};
-  if(need.place&&!hb[need.place])return {ok:false,kind:'place',word:need.place,bad:[]};
+  if(need.place&&!hb[low(need.place)])return {ok:false,kind:'place',word:need.place,bad:[]};
   if(at.indexOf(',')>=0&&!hb[','])return {ok:false,kind:'comma',bad:[]};
   if(!hb['.'])return {ok:false,kind:'period',bad:[]};
   var miss=at.filter(function(t){return !hb[low(t)]||(hb[low(t)]--,false)});
   if(miss.length&&built.length<at.length)return {ok:false,kind:'short',bad:[]};
   for(var i=0;i<built.length;i++)if(built[i]!==at[i]){bad.push(i);break}
   return {ok:false,kind:built[0]!==at[0]?'first':'order',bad:bad}}
-var api={NUM:NUM,NOUNS:NOUNS,PLACES:PLACES,COLORS:COLORS,ADJ:ADJ,PATS:PATS,PAT:PAT,TRAP:TRAP,lexicon:lexicon,make:make,check:check,toks:toks,mkRand:mkRand,PRZH:PRZH};
+var api={NAMES:NAMES,PEOPLE:PEOPLE,NUM:NUM,NOUNS:NOUNS,PLACES:PLACES,COLORS:COLORS,ADJ:ADJ,PATS:PATS,PAT:PAT,TRAP:TRAP,lexicon:lexicon,make:make,check:check,toks:toks,mkRand:mkRand,PRZH:PRZH};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SENTPAT=api;
 })(this);
